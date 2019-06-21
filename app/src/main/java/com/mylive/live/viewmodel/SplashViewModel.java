@@ -30,12 +30,12 @@ public class SplashViewModel extends BaseViewModel {
         new CountDownTimer(COUNT_DOWN_TIME, COUNT_DOWN_INTERVAL) {
             @Override
             public void onTick(long millisUntilFinished) {
-                countDownTimer.setValue((int) (millisUntilFinished / COUNT_DOWN_INTERVAL) + 1);
+                countDownTimer.postValue((int) (millisUntilFinished / COUNT_DOWN_INTERVAL) + 1);
             }
 
             @Override
             public void onFinish() {
-                countDownTimer.setValue(0);
+                countDownTimer.postValue(0);
             }
         }.start();
         return countDownTimer;
@@ -49,9 +49,9 @@ public class SplashViewModel extends BaseViewModel {
                 .create(ConfigService.class)
                 .getConfig()
                 .observe((ObserverSuccess<Config>) config -> {
-                    this.config.setValue(config);
+                    this.config.postValue(config);
                 }, throwable -> {
-                    this.config.setValue(null);
+                    this.config.postValue(null);
                 });
         return config;
     }
@@ -60,11 +60,11 @@ public class SplashViewModel extends BaseViewModel {
         if (test == null) {
             test = new MutableLiveData<>();
         }
-        Retrofit2.getRetrofit("https://wwww.baidu.com")
+        Retrofit2.getRetrofit("https://www.baidu.com")
                 .create(TestService.class)
                 .test()
                 .observe((Observer<String>) s -> {
-                    test.setValue(s);
+                    test.postValue(s);
                 });
         return test;
     }

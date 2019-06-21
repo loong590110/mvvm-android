@@ -1,8 +1,5 @@
 package com.mylive.live.core.http;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.mylive.live.core.observer.Observer;
 
 import retrofit2.Call;
@@ -15,10 +12,6 @@ import retrofit2.Response;
 public class ObservableImpl<T> implements Observable<T> {
 
     private final Call<T> originalCall;
-
-    private static class HandlerHolder {
-        private static Handler INSTANCE = new Handler(Looper.getMainLooper());
-    }
 
     ObservableImpl(Call<T> originalCall) {
         this.originalCall = originalCall;
@@ -35,13 +28,13 @@ public class ObservableImpl<T> implements Observable<T> {
         originalCall.enqueue(new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
-                HandlerHolder.INSTANCE.post(() -> observer.onChanged(response.body()));
+                observer.onChanged(response.body());
             }
 
             @Override
             public void onFailure(Call<T> call, Throwable t) {
                 if (observerError != null) {
-                    HandlerHolder.INSTANCE.post(() -> observerError.onChanged(t));
+                    observerError.onChanged(t);
                 }
             }
         });
@@ -64,7 +57,7 @@ public class ObservableImpl<T> implements Observable<T> {
             @Override
             public void onFailure(Call<T> call, Throwable t) {
                 if (observerError != null) {
-                    HandlerHolder.INSTANCE.post(() -> observerError.onChanged(t));
+                    observerError.onChanged(t);
                 }
             }
         });
@@ -78,13 +71,11 @@ public class ObservableImpl<T> implements Observable<T> {
             HttpResponse<R> httpResponse = (HttpResponse<R>) response.body();
             //noinspection ConstantConditions
             if (httpResponse.isSuccessful()) {
-                HandlerHolder.INSTANCE.post(() -> {
-                    observerSuccess.onChanged(httpResponse.getData());
-                });
+                observerSuccess.onChanged(httpResponse.getData());
             }
         } catch (Exception e) {
             if (observerError != null) {
-                HandlerHolder.INSTANCE.post(() -> observerError.onChanged(e));
+                observerError.onChanged(e);
             }
         }
     }
