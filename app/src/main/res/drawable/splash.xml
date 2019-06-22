@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="45"
+                android:centerColor="@color/colorPrimary"
+                android:centerX="0"
+                android:centerY="1"
+                android:endColor="@color/colorPrimaryDark"
+                android:gradientRadius="100dp"
+                android:startColor="@color/colorPrimaryDark"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item android:top="160dp">
+        <rotate android:fromDegrees="45">
+            <shape>
+                <gradient
+                    android:angle="90"
+                    android:centerColor="@color/colorPrimary"
+                    android:centerX="0"
+                    android:centerY="1"
+                    android:endColor="@color/colorPrimaryDark"
+                    android:gradientRadius="1dp"
+                    android:startColor="@color/colorPrimaryDark"
+                    android:type="linear" />
+            </shape>
+        </rotate>
+    </item>
+    <item android:top="320dp">
+        <rotate android:fromDegrees="-20">
+            <shape>
+                <gradient
+                    android:angle="90"
+                    android:centerColor="@color/colorPrimary"
+                    android:centerX="0"
+                    android:centerY="1"
+                    android:endColor="@color/colorPrimaryDark"
+                    android:gradientRadius="1dp"
+                    android:startColor="@color/colorPrimaryDark"
+                    android:type="linear" />
+            </shape>
+        </rotate>
+    </item>
+    <item
+        android:left="60dp"
+        android:top="500dp">
+        <rotate android:fromDegrees="15">
+            <shape>
+                <gradient
+                    android:angle="90"
+                    android:centerColor="@color/colorPrimary"
+                    android:centerX="0"
+                    android:centerY="1"
+                    android:endColor="@color/colorPrimaryDark"
+                    android:startColor="@color/colorPrimaryDark"
+                    android:type="linear" />
+            </shape>
+        </rotate>
+    </item>
+    <item
+        android:bottom="690dp"
+        android:left="58dp"
+        android:right="260dp"
+        android:top="-50dp">
+        <shape android:shape="oval">
+            <gradient
+                android:centerColor="@color/colorPrimary"
+                android:centerX="0"
+                android:centerY="1"
+                android:endColor="@color/colorPrimaryDark"
+                android:startColor="@color/colorPrimaryDark"
+                android:type="linear" />
+        </shape>
+    </item>
+</layer-list>

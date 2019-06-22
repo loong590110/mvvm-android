@@ -1,4 +1,4 @@
-package com.mylive.live.exception;
+package com.mylive.live.core.exception;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-20.

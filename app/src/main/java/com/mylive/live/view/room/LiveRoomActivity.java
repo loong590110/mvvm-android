@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 
 import com.mylive.live.R;
 import com.mylive.live.core.base.BaseActivity;
+import com.mylive.live.core.theme.StatusBarCompat;
 import com.mylive.live.databinding.ActivityLiveRoomBinding;
 import com.mylive.live.event.TestEvent;
 import com.mylive.live.viewmodel.LiveRoomViewModel;
@@ -22,6 +23,7 @@ public class LiveRoomActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        StatusBarCompat.translucentStatusBar(this);
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_live_room);
         liveRoomViewModel = ViewModelProviders.of(this).get(LiveRoomViewModel.class);
