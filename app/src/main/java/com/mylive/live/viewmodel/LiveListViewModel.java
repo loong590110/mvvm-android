@@ -7,10 +7,10 @@ import android.util.SparseArray;
 import com.mylive.live.core.base.BaseViewModel;
 import com.mylive.live.core.http.ObserverSuccess;
 import com.mylive.live.core.http.Retrofit2;
-import com.mylive.live.core.workflow.BackgroundWork;
-import com.mylive.live.core.workflow.Data;
-import com.mylive.live.core.workflow.IoWork;
-import com.mylive.live.core.workflow.UiWork;
+import com.mylive.live.core.workflow.BackgroundWorker;
+import com.mylive.live.core.workflow.Parcel;
+import com.mylive.live.core.workflow.IoWorker;
+import com.mylive.live.core.workflow.UiWorker;
 import com.mylive.live.core.workflow.WorkFlow;
 import com.mylive.live.model.LiveList;
 import com.mylive.live.service.LiveListService;
@@ -27,6 +27,7 @@ public class LiveListViewModel extends BaseViewModel {
         Retrofit2.getDefault()
                 .create(LiveListService.class)
                 .getLiveList()
+                .dispose(this)
                 .observe(new ObserverSuccess<LiveList>() {
                     @Override
                     public void onChanged(LiveList liveList) {
@@ -52,25 +53,25 @@ public class LiveListViewModel extends BaseViewModel {
     public LiveData<String> testWorkFlow() {
         MutableLiveData<String> workResult = new MutableLiveData<>();
         WorkFlow.begin()
-                .addWork(new IoWork() {
+                .deliver(new IoWorker() {
                     @Override
-                    public Data doWork(Data data) {
-                        data.put("name", "Aaron")
+                    public Parcel doWork(Parcel parcel) {
+                        parcel.put("name", "Aaron")
                                 .put("age", 18);
-                        return data;
+                        return parcel;
                     }
                 })
-                .addWork(new BackgroundWork() {
+                .deliver(new BackgroundWorker() {
                     @Override
-                    public Data doWork(Data data) {
-                        return data.remove("age");
+                    public Parcel doWork(Parcel parcel) {
+                        return parcel.remove("age");
                     }
                 })
-                .addWork(new UiWork() {
+                .deliver(new UiWorker() {
                     @Override
-                    public Data doWork(Data data) {
-                        workResult.setValue(data.toString());
-                        return data;
+                    public Parcel doWork(Parcel parcel) {
+                        workResult.setValue(parcel.toString());
+                        return parcel;
                     }
                 })
                 .end();

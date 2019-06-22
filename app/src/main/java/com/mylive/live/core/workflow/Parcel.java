@@ -6,11 +6,11 @@ import java.util.Map;
 /**
  * Create by zailongshi on 2019/6/22
  */
-public class Data {
+public class Parcel {
 
     private Map<String, Object> caches = new HashMap<>();
 
-    public <T> Data put(String key, T value) {
+    public <T> Parcel put(String key, T value) {
         caches.put(key, value);
         return this;
     }
@@ -20,7 +20,7 @@ public class Data {
         return (T) caches.get(key);
     }
 
-    public Data remove(String key) {
+    public Parcel remove(String key) {
         caches.remove(key);
         return this;
     }

@@ -83,7 +83,7 @@ public class BaseActivity extends FragmentActivity implements LifecycleObserver 
         }
     };
 
-    private Scheduler schedulerProxy = new Scheduler() {
+    private Scheduler schedulerAndPublisherProxy = new Scheduler() {
 
         private Map<Class, Subscriber> subscribers = new ConcurrentHashMap<>();
 
@@ -123,12 +123,12 @@ public class BaseActivity extends FragmentActivity implements LifecycleObserver 
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void onSubscribe() {
-        onSubscribe(schedulerProxy);
+        onSubscribe(schedulerAndPublisherProxy);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private void onUnsubscribe() {
-        schedulerProxy.unsubscribeAll();
+        schedulerAndPublisherProxy.unsubscribeAll();
     }
 
     protected void onSubscribe(Scheduler scheduler) {
@@ -136,7 +136,7 @@ public class BaseActivity extends FragmentActivity implements LifecycleObserver 
     }
 
     protected <T> void publish(T event) {
-        schedulerProxy.publish(event);
+        schedulerAndPublisherProxy.publish(event);
     }
 
     @Deprecated

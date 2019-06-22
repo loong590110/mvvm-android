@@ -10,40 +10,22 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public final class WorkFlow {
 
-    private Queue<Work> workQueue;
+    private Queue<Worker> workerQueue;
 
-    private WorkFlow(Queue<Work> workQueue) {
-        this.workQueue = workQueue;
+    private WorkFlow(Queue<Worker> workerQueue) {
+        this.workerQueue = workerQueue;
     }
 
     public static WorkFlow begin() {
         return new WorkFlow(new LinkedBlockingQueue<>());
     }
 
-    public WorkFlow addWork(Work work) {
-        workQueue.add(work);
+    public WorkFlow deliver(Worker worker) {
+        workerQueue.add(worker);
         return this;
     }
 
     public void end() {
-        doWork(new Data());
-    }
-
-    private void doWork(Data data) {
-        if (workQueue.isEmpty())
-            return;
-        Work work = workQueue.poll();
-        if (work != null) {
-            Runnable runnable = () -> doWork(work.doWork(data));
-            if (work instanceof UiWork) {
-                ThreadScheduler.runOnUiThread(runnable);
-            } else if (work instanceof IoWork) {
-                ThreadScheduler.runOnIoThread(runnable);
-            } else if (work instanceof BackgroundWork) {
-                ThreadScheduler.runOnNewThread(runnable);
-            } else {
-                runnable.run();
-            }
-        }
+        new WorkDispatcher(workerQueue).dispatch();
     }
 }

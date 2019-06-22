@@ -1,5 +1,9 @@
 package com.mylive.live.core.http;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.OnLifecycleEvent;
+
 import com.mylive.live.core.observer.Observer;
 
 import retrofit2.Call;
@@ -12,6 +16,8 @@ import retrofit2.Response;
 public class ObservableImpl<T> implements Observable<T> {
 
     private final Call<T> originalCall;
+    private boolean isDestroyed;
+    private Lifecycle lifecycle;
 
     ObservableImpl(Call<T> originalCall) {
         this.originalCall = originalCall;
@@ -24,15 +30,14 @@ public class ObservableImpl<T> implements Observable<T> {
 
     @Override
     public void observe(Observer<T> observer, ObserverError<Throwable> observerError) {
-        //noinspection NullableProblems
-        originalCall.enqueue(new Callback<T>() {
+        originalCall.enqueue(new CallbackProxy<T>() {
             @Override
-            public void onResponse(Call<T> call, Response<T> response) {
+            public void onResponse(Response<T> response) {
                 observer.onChanged(response.body());
             }
 
             @Override
-            public void onFailure(Call<T> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 if (observerError != null) {
                     observerError.onChanged(t);
                 }
@@ -47,20 +52,34 @@ public class ObservableImpl<T> implements Observable<T> {
 
     @Override
     public <R> void observe(ObserverSuccess<R> observerSuccess, ObserverError<Throwable> observerError) {
-        //noinspection NullableProblems
-        originalCall.enqueue(new Callback<T>() {
+        originalCall.enqueue(new CallbackProxy<T>() {
             @Override
-            public void onResponse(Call<T> call, Response<T> response) {
+            public void onResponse(Response<T> response) {
                 ObservableImpl.this.onResponse(observerSuccess, observerError, response);
             }
 
             @Override
-            public void onFailure(Call<T> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 if (observerError != null) {
                     observerError.onChanged(t);
                 }
             }
         });
+    }
+
+    @Override
+    public Observable<T> dispose(LifecycleOwner lifecycleOwner) {
+        lifecycle = lifecycleOwner.getLifecycle();
+        lifecycle.addObserver(this);
+        return this;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private void onDestroy() {
+        isDestroyed = true;
+        originalCall.cancel();
+        lifecycle.removeObserver(this);
+        lifecycle = null;
     }
 
     private <R> void onResponse(ObserverSuccess<R> observerSuccess,
@@ -78,5 +97,26 @@ public class ObservableImpl<T> implements Observable<T> {
                 observerError.onChanged(e);
             }
         }
+    }
+
+    @SuppressWarnings({"NullableProblems", "TypeParameterHidesVisibleType"})
+    private abstract class CallbackProxy<T> implements Callback<T> {
+        @Override
+        public final void onResponse(Call<T> call, Response<T> response) {
+            if (isDestroyed)
+                return;
+            onResponse(response);
+        }
+
+        @Override
+        public final void onFailure(Call<T> call, Throwable t) {
+            if (isDestroyed)
+                return;
+            onFailure(t);
+        }
+
+        public abstract void onResponse(Response<T> response);
+
+        public abstract void onFailure(Throwable t);
     }
 }
