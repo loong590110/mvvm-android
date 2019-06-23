@@ -3,7 +3,7 @@ package com.mylive.live.model;
 /**
  * Created by Developer Zailong Shi on 2019-06-20.
  */
-public class HttpResponse<T> implements com.mylive.live.core.http.HttpResponse {
+public class HttpResponse<T> implements com.mylive.live.arch.http.HttpResponse {
 
     private int code;
     private String status;

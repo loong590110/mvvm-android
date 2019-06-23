@@ -4,14 +4,14 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.SparseArray;
 
-import com.mylive.live.core.base.BaseViewModel;
-import com.mylive.live.core.http.ObserverSuccess;
-import com.mylive.live.core.http.Retrofit2;
-import com.mylive.live.core.workflow.BackgroundWorker;
-import com.mylive.live.core.workflow.Parcel;
-import com.mylive.live.core.workflow.IoWorker;
-import com.mylive.live.core.workflow.UiWorker;
-import com.mylive.live.core.workflow.WorkFlow;
+import com.mylive.live.arch.mvvm.BaseViewModel;
+import com.mylive.live.arch.http.ObserverSuccess;
+import com.mylive.live.arch.http.Retrofit2;
+import com.mylive.live.arch.workflow.BackgroundWorker;
+import com.mylive.live.arch.workflow.Parcel;
+import com.mylive.live.arch.workflow.IoWorker;
+import com.mylive.live.arch.workflow.UiWorker;
+import com.mylive.live.arch.workflow.WorkFlow;
 import com.mylive.live.model.LiveList;
 import com.mylive.live.service.LiveListService;
 

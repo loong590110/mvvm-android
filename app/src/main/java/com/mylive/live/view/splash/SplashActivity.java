@@ -8,9 +8,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.mylive.live.R;
-import com.mylive.live.core.base.BaseActivity;
-import com.mylive.live.core.permission.PermissionsRequester;
-import com.mylive.live.core.theme.StatusBarCompat;
+import com.mylive.live.arch.mvvm.BaseActivity;
+import com.mylive.live.arch.permission.PermissionsRequester;
 import com.mylive.live.databinding.ActivitySplashBinding;
 import com.mylive.live.router.MainActivityStarter;
 import com.mylive.live.utils.ToastUtils;

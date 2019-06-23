@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.mylive.live.R;
-import com.mylive.live.core.base.BaseActivity;
-import com.mylive.live.core.theme.StatusBarCompat;
+import com.mylive.live.arch.mvvm.BaseActivity;
+import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.databinding.ActivityLiveRoomBinding;
 import com.mylive.live.event.TestEvent;
 import com.mylive.live.viewmodel.LiveRoomViewModel;
@@ -23,7 +23,10 @@ public class LiveRoomActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        StatusBarCompat.translucentStatusBar(this);
+        StatusBarCompat.getSettings(this)
+                .setLightMode(true)
+                .setImmersive(true)
+                .apply();
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_live_room);
         liveRoomViewModel = ViewModelProviders.of(this).get(LiveRoomViewModel.class);
@@ -32,6 +35,10 @@ public class LiveRoomActivity extends BaseActivity {
             if (msg % 3 == 0) {
                 publish(new TestEvent("test"));
             }
+            StatusBarCompat.getSettings(this)
+                    .setLightMode(msg % 2 == 0)
+                    .setImmersive(msg % 2 == 0)
+                    .apply();
         });
     }
 }

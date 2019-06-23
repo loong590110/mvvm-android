@@ -5,8 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.mylive.live.R;
-import com.mylive.live.core.base.BaseActivity;
-import com.mylive.live.core.subscriber.Scheduler;
+import com.mylive.live.arch.mvvm.BaseActivity;
+import com.mylive.live.arch.subscriber.Scheduler;
+import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.event.TestEvent;
 import com.mylive.live.router.LiveRoomActivityStarter;
@@ -22,6 +23,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StatusBarCompat.getSettings(this).setLightMode(true).apply();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.btnJump.setOnClickListener(v -> {
             new LiveRoomActivityStarter().start(this);

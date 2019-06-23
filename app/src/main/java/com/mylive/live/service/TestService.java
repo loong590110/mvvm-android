@@ -1,6 +1,6 @@
 package com.mylive.live.service;
 
-import com.mylive.live.core.http.Observable;
+import com.mylive.live.arch.http.Observable;
 
 import retrofit2.http.GET;
 

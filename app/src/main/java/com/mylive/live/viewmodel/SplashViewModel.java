@@ -4,10 +4,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.os.CountDownTimer;
 
-import com.mylive.live.core.base.BaseViewModel;
-import com.mylive.live.core.http.ObserverSuccess;
-import com.mylive.live.core.http.Retrofit2;
-import com.mylive.live.core.observer.Observer;
+import com.mylive.live.arch.mvvm.BaseViewModel;
+import com.mylive.live.arch.http.ObserverSuccess;
+import com.mylive.live.arch.http.Retrofit2;
+import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.model.Config;
 import com.mylive.live.service.ConfigService;
 import com.mylive.live.service.TestService;

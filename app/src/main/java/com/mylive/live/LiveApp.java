@@ -3,7 +3,7 @@ package com.mylive.live;
 import android.app.Application;
 
 import com.mylive.live.config.HttpConfig;
-import com.mylive.live.core.http.Retrofit2;
+import com.mylive.live.arch.http.Retrofit2;
 import com.mylive.live.interceptor.HttpRequestInterceptor;
 
 /**

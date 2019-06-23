@@ -1,6 +1,6 @@
 package com.mylive.live.router;
 
-import com.mylive.live.core.starter.ActivityStarter;
+import com.mylive.live.arch.starter.ActivityStarter;
 import com.mylive.live.view.main.MainActivity;
 
 /**
