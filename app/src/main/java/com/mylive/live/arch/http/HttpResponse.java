@@ -6,5 +6,9 @@ package com.mylive.live.arch.http;
 public interface HttpResponse<T> {
     boolean isSuccessful();
 
+    int getCode();
+
+    String getMessage();
+
     T getData();
 }

@@ -6,7 +6,7 @@ package com.mylive.live.model;
 public class HttpResponse<T> implements com.mylive.live.arch.http.HttpResponse {
 
     private int code;
-    private String status;
+    private String message;
     private T data;
 
     @Override
@@ -23,19 +23,20 @@ public class HttpResponse<T> implements com.mylive.live.arch.http.HttpResponse {
         return code;
     }
 
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
     public void setCode(int code) {
         this.code = code;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public void setData(T data) {
         this.data = data;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

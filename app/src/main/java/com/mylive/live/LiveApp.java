@@ -2,9 +2,11 @@ package com.mylive.live;
 
 import android.app.Application;
 
+import com.mylive.live.arch.http.HttpConfigProvider;
 import com.mylive.live.config.HttpConfig;
-import com.mylive.live.arch.http.Retrofit2;
 import com.mylive.live.interceptor.HttpRequestInterceptor;
+
+import okhttp3.OkHttpClient;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-19.
@@ -21,9 +23,10 @@ public class LiveApp extends Application {
     public void onCreate() {
         super.onCreate();
         context = this;
-        Retrofit2.init(new Retrofit2.Config.Builder()
-                .setDefaultBaseUrl(HttpConfig.BASE_URL)
-                .setInterceptors(new HttpRequestInterceptor())
-                .build());
+        HttpConfigProvider.getConfig()
+                .setBaseUrl(HttpConfig.BASE_URL)
+                .setHttpClient(new OkHttpClient.Builder()
+                        .addInterceptor(new HttpRequestInterceptor())
+                        .build());
     }
 }

@@ -1,6 +1,6 @@
 package com.mylive.live.arch.workflow;
 
-import com.mylive.live.arch.thread.ThreadScheduler;
+import com.mylive.live.arch.thread.ThreadsScheduler;
 
 import java.util.Queue;
 
@@ -26,11 +26,11 @@ final class WorkDispatcher {
         if (work != null) {
             Runnable runnable = () -> doWork(work.doWork(parcel));
             if (work instanceof UiWorker) {
-                ThreadScheduler.runOnUiThread(runnable);
+                ThreadsScheduler.runOnUiThread(runnable);
             } else if (work instanceof IoWorker) {
-                ThreadScheduler.runOnIoThread(runnable);
+                ThreadsScheduler.runOnIoThread(runnable);
             } else if (work instanceof BackgroundWorker) {
-                ThreadScheduler.runOnNewThread(runnable);
+                ThreadsScheduler.runOnNewThread(runnable);
             } else {
                 runnable.run();
             }

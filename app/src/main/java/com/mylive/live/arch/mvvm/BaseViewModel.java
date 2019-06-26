@@ -7,10 +7,32 @@ import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
+import com.mylive.live.arch.annotation.Service;
+import com.mylive.live.arch.http.ServiceCreator;
+
+import java.lang.reflect.Field;
+
 /**
  * Created by Developer Zailong Shi on 2019-06-20.
  */
 public class BaseViewModel extends ViewModel implements LifecycleOwner {
+
+    {
+        for (Field field : getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Service.class)) {
+                Class<?> service = field.getType();
+                Object t = ServiceCreator.create(service);
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                try {
+                    field.set(this, t);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     private LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
@@ -39,7 +61,7 @@ public class BaseViewModel extends ViewModel implements LifecycleOwner {
     }
 
     @Override
-    protected final void onCleared() {
+    protected void onCleared() {
         lifecycleRegistry.markState(Lifecycle.State.DESTROYED);
     }
 }

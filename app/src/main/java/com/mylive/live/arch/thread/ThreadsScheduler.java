@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 /**
  * Create by zailongshi on 2019/6/22
  */
-public final class ThreadScheduler {
+public final class ThreadsScheduler {
 
     private static class UiThreadHandler {
         private static Handler INSTANCE = new Handler(Looper.getMainLooper());
@@ -33,5 +33,17 @@ public final class ThreadScheduler {
 
     public static void runOnNewThread(Runnable runnable) {
         NewTreadExecutor.INSTANCE.execute(runnable);
+    }
+
+    public static Scheduler UiThreadScheduler() {
+        return ThreadsScheduler::runOnUiThread;
+    }
+
+    public static Scheduler IoThreadScheduler() {
+        return ThreadsScheduler::runOnIoThread;
+    }
+
+    public static Scheduler NewThreadScheduler() {
+        return ThreadsScheduler::runOnNewThread;
     }
 }

@@ -47,7 +47,7 @@ public class HttpCallAdapter<R> implements CallAdapter<R, Observable<R>> {
             return new HttpCallAdapter(responseType);
         }
 
-        static Factory create() {
+        public static Factory create() {
             return new Factory();
         }
     }
