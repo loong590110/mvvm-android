@@ -120,6 +120,7 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
                     if (httpResponse.isSuccessful()) {
                         //noinspection unchecked
                         observerSuccess.onChanged(httpResponse.getData());
+                        return;
                     }
                     throw new HttpException(httpResponse.getCode(), httpResponse.getMessage());
                 }
