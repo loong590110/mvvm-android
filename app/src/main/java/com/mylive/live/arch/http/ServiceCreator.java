@@ -1,5 +1,7 @@
 package com.mylive.live.arch.http;
 
+import java.util.Objects;
+
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 
@@ -8,23 +10,34 @@ import retrofit2.Retrofit;
  */
 public final class ServiceCreator {
 
-    private static class RetrofitHolder {
-        private static final Retrofit instance;
+    private static volatile Retrofit instance;
 
-        static {
-            Retrofit.Builder builder = new Retrofit.Builder()
-                    .baseUrl(HttpConfigProvider.getConfig().getBaseUrl())
-                    .client(HttpConfigProvider.getConfig().getHttpClient())
-                    .addCallAdapterFactory(HttpConfigProvider.getConfig().getCallAdapter());
-            for (Converter.Factory factory
-                    : HttpConfigProvider.getConfig().getConverterFactoris()) {
-                builder.addConverterFactory(factory);
+    private static Retrofit getInstance() {
+        if (instance == null) {
+            synchronized (ServiceCreator.class) {
+                if (instance == null) {
+                    Retrofit.Builder builder = new Retrofit.Builder()
+                            .baseUrl(HttpConfigProvider.getConfig().getBaseUrl())
+                            .client(HttpConfigProvider.getConfig().getHttpClient())
+                            .addCallAdapterFactory(HttpConfigProvider.getConfig()
+                                    .getCallAdapter());
+                    for (Converter.Factory factory
+                            : HttpConfigProvider.getConfig().getConverterFactoris()) {
+                        builder.addConverterFactory(factory);
+                    }
+                    instance = builder.build();
+                }
             }
-            instance = builder.build();
         }
+        return instance;
     }
 
     public static <T> T create(Class<T> service) {
-        return RetrofitHolder.instance.create(service);
+        Objects.requireNonNull(service);
+        return getInstance().create(service);
+    }
+
+    static void recycle() {
+        instance = null;
     }
 }

@@ -79,5 +79,9 @@ public final class HttpConfigProvider {
             this.converterFactories = converterFactories;
             return this;
         }
+
+        public void apply() {
+            ServiceCreator.recycle();
+        }
     }
 }

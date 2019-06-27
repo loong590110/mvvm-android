@@ -7,7 +7,7 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.util.SparseArray;
 
 import com.mylive.live.arch.exception.ProhibitedException;
@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by Developer Zailong Shi on 2019-06-19.
  */
 @SuppressLint("Registered")
-public class BaseActivity extends AppCompatActivity implements LifecycleObserver {
+public class BaseActivity extends FragmentActivity implements LifecycleObserver {
 
     private static volatile Scheduler scheduler = new Scheduler() {
 

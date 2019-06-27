@@ -5,6 +5,7 @@ import android.app.Application;
 import com.mylive.live.arch.http.HttpConfigProvider;
 import com.mylive.live.config.HttpConfig;
 import com.mylive.live.interceptor.HttpRequestInterceptor;
+import com.mylive.live.interceptor.HttpResponseInterceptor;
 
 import okhttp3.OkHttpClient;
 
@@ -27,6 +28,8 @@ public class LiveApp extends Application {
                 .setBaseUrl(HttpConfig.BASE_URL)
                 .setHttpClient(new OkHttpClient.Builder()
                         .addInterceptor(new HttpRequestInterceptor())
-                        .build());
+                        .addInterceptor(new HttpResponseInterceptor())
+                        .build())
+                .apply();
     }
 }

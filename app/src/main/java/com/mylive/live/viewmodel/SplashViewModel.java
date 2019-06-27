@@ -5,7 +5,6 @@ import android.arch.lifecycle.MutableLiveData;
 import android.os.CountDownTimer;
 
 import com.mylive.live.arch.annotation.Service;
-import com.mylive.live.arch.http.ObserverResponse;
 import com.mylive.live.arch.http.ObserverSuccess;
 import com.mylive.live.arch.mvvm.BaseViewModel;
 import com.mylive.live.model.Config;
@@ -63,8 +62,10 @@ public class SplashViewModel extends BaseViewModel {
             test = new MutableLiveData<>();
         }
         testService.test()
-                .observe((ObserverResponse<String>) s -> {
+                .observe((String s) -> {
                     test.postValue(s);
+                }, e -> {
+                    test.postValue(e.getMessage());
                 });
         return test;
     }

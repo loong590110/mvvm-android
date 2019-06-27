@@ -29,17 +29,6 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     }
 
     @Override
-    public void observe(ObserverResponse<T> observerResponse) {
-        observe(observerResponse, null);
-    }
-
-    @Override
-    public void observe(ObserverResponse<T> observerResponse,
-                        ObserverError<HttpException> observerError) {
-        observeActual(observerResponse, null, observerError);
-    }
-
-    @Override
     public <R> void observe(ObserverSuccess<R> observerSuccess) {
         observe(observerSuccess, null);
     }
@@ -47,7 +36,7 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     @Override
     public <R> void observe(ObserverSuccess<R> observerSuccess,
                             ObserverError<HttpException> observerError) {
-        observeActual(null, observerSuccess, observerError);
+        observeActual(observerSuccess, observerError);
     }
 
     @Override
@@ -75,14 +64,12 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
         return this;
     }
 
-    private <R> void observeActual(ObserverResponse<T> observerResponse,
-                                   ObserverSuccess<R> observerSuccess,
+    private <R> void observeActual(ObserverSuccess<R> observerSuccess,
                                    ObserverError<HttpException> observerError) {
         if (observerDisposable != null) {
             observerDisposable.onChanged(this::onDisposed);
         }
-        originalCall.enqueue(new UniversalCallback<>(observerResponse,
-                observerSuccess, observerError));
+        originalCall.enqueue(new UniversalCallback<>(observerSuccess, observerError));
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -94,14 +81,11 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     }
 
     private class UniversalCallback<R> extends CallbackProxy<T> {
-        private ObserverResponse<T> observerResponse;
         private ObserverSuccess observerSuccess;
         private ObserverError<HttpException> observerError;
 
-        private UniversalCallback(ObserverResponse<T> observerResponse,
-                                  ObserverSuccess<R> observerSuccess,
+        private UniversalCallback(ObserverSuccess<R> observerSuccess,
                                   ObserverError<HttpException> observerError) {
-            this.observerResponse = observerResponse;
             this.observerSuccess = observerSuccess;
             this.observerError = observerError;
         }
@@ -109,26 +93,34 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
         @Override
         public void onResponse(Response<T> response) {
             try {
-                if (observerResponse != null) {
-                    observerResponse.onChanged(response.body());
-                    return;
+                if (!response.isSuccessful()) {
+                    throw new HttpException(response.code(), response.message());
                 }
                 if (observerSuccess != null) {
-                    //noinspection unchecked
-                    HttpResponse<R> httpResponse = (HttpResponse<R>) response.body();
-                    //noinspection ConstantConditions
-                    if (httpResponse.isSuccessful()) {
-                        //noinspection unchecked
-                        observerSuccess.onChanged(httpResponse.getData());
-                        return;
+                    if (response.body() == null) {
+                        throw new HttpException("Response body object is null.");
                     }
-                    throw new HttpException(httpResponse.getCode(), httpResponse.getMessage());
+                    try {
+                        //第一次直接返回根节点的结果，如果不匹配则尝试返回data节点
+                        observerSuccess.onChanged(response.body());
+                        return;
+                    } catch (ClassCastException cce) {
+                        if (response.body() instanceof HttpResponse) {
+                            HttpResponse httpResponse = (HttpResponse) response.body();
+                            try {
+                                observerSuccess.onChanged(httpResponse.getData());
+                                return;
+                            } catch (ClassCastException e) {
+                                cce = e;
+                            }
+                        }
+                        throw new HttpException(cce);
+                    }
                 }
-                throw new HttpException("ObserverResponse and ObserverSuccess both are null.");
-            } catch (Exception e) {
+                throw new HttpException("ObserverSuccess object is null.");
+            } catch (HttpException e) {
                 if (observerError != null) {
-                    observerError.onChanged(e instanceof HttpException ?
-                            (HttpException) e : new HttpException(e));
+                    observerError.onChanged(e);
                 }
             }
         }
