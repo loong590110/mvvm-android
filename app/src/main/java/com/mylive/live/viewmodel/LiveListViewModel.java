@@ -4,13 +4,16 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.SparseArray;
 
-import com.mylive.live.arch.mvvm.BaseViewModel;
+import com.mylive.live.arch.annotation.Service;
+import com.mylive.live.arch.mvvm.HttpSupportViewModel;
 import com.mylive.live.arch.workflow.BackgroundWorker;
 import com.mylive.live.arch.workflow.Parcel;
 import com.mylive.live.arch.workflow.IoWorker;
 import com.mylive.live.arch.workflow.UiWorker;
 import com.mylive.live.arch.workflow.WorkFlow;
+import com.mylive.live.base.BaseViewModel;
 import com.mylive.live.model.LiveList;
+import com.mylive.live.service.LiveListService;
 
 /**
  * Create by zailongshi on 2019/6/22
@@ -18,32 +21,29 @@ import com.mylive.live.model.LiveList;
 public class LiveListViewModel extends BaseViewModel {
 
     private MutableLiveData<SparseArray<LiveList>> liveListMap = new MutableLiveData<>();
+    @Service
+    private LiveListService liveListService;
 
     public LiveData<LiveList> getLiveList(boolean more) {
         MutableLiveData<LiveList> finalLiveList = new MutableLiveData<>();
-//        HttpConfigProvider.getDefault()
-//                .create(LiveListService.class)
-//                .getLiveList()
-//                .dispose(this)
-//                .observe(new ObserverSuccess<LiveList>() {
-//                    @Override
-//                    public void onChanged(LiveList liveList) {
-//                        SparseArray<LiveList> liveListArray = liveListMap.getValue();
-//                        if (liveListArray == null) {
-//                            liveListArray = new SparseArray<>();
-//                        }
-//                        if (!more) {
-//                            liveListArray.put(liveList.type, liveList);
-//                        } else {
-//                            LiveList _liveList = liveListArray.get(liveList.type);
-//                            liveList.list.removeAll(_liveList.list);
-//                            _liveList.list.addAll(liveList.list);
-//                            liveListArray.put(_liveList.type, _liveList);
-//                        }
-//                        liveListMap.setValue(liveListArray);
-//                        finalLiveList.postValue(liveList);
-//                    }
-//                });
+        liveListService.getLiveList()
+                .dispose(this)
+                .observe((LiveList liveList) -> {
+                    SparseArray<LiveList> liveListArray = liveListMap.getValue();
+                    if (liveListArray == null) {
+                        liveListArray = new SparseArray<>();
+                    }
+                    if (!more) {
+                        liveListArray.put(liveList.type, liveList);
+                    } else {
+                        LiveList _liveList = liveListArray.get(liveList.type);
+                        liveList.list.removeAll(_liveList.list);
+                        _liveList.list.addAll(liveList.list);
+                        liveListArray.put(_liveList.type, _liveList);
+                    }
+                    liveListMap.setValue(liveListArray);
+                    finalLiveList.postValue(liveList);
+                });
         return finalLiveList;
     }
 

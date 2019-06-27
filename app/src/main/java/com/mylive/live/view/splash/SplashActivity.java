@@ -7,9 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.alibaba.fastjson.JSON;
 import com.mylive.live.R;
-import com.mylive.live.arch.mvvm.BaseActivity;
 import com.mylive.live.arch.permission.PermissionsRequester;
+import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivitySplashBinding;
 import com.mylive.live.router.MainActivityStarter;
 import com.mylive.live.utils.ToastUtils;
@@ -33,15 +34,23 @@ public class SplashActivity extends BaseActivity {
                 .addHandler(new PermissionsRequester.RequestResultHandler() {
                     @Override
                     protected void onAllEssentialPermissionsAreGranted() {
-                        splashViewModel.getTestData().observe(SplashActivity.this, config -> {
-                            binding.txtTest.setText(config);
-                            splashViewModel.startCountDownTimer().observe(SplashActivity.this, integer -> {
-                                if (integer != null && integer == 0) {
-                                    new MainActivityStarter().start(SplashActivity.this).finish();
-                                } else {
-                                    binding.txtTimer.setText(String.valueOf(integer));
-                                }
-                            });
+                        splashViewModel.getConfig().observe(SplashActivity.this, config -> {
+                            binding.txtTest.append(JSON.toJSONString(config) + "\n\n");
+                            splashViewModel.startCountDownTimer().observe(SplashActivity.this,
+                                    integer -> {
+                                        if (integer != null && integer == 0) {
+                                            new MainActivityStarter()
+                                                    .start(SplashActivity.this)
+                                                    .finish();
+                                        } else {
+                                            binding.txtTimer.setText(String.valueOf(integer));
+                                        }
+                                    });
+                        });
+                        splashViewModel.getTestData().observe(SplashActivity.this, s -> {
+                            if (s != null && s.length() > 1024)
+                                s = s.substring(0, 1024);
+                            binding.txtTest.append(s + "\n\n");
                         });
                     }
 

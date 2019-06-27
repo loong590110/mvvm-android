@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.mylive.live.R;
-import com.mylive.live.arch.mvvm.BaseActivity;
 import com.mylive.live.arch.theme.StatusBarCompat;
+import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityLiveRoomBinding;
 import com.mylive.live.event.TestEvent;
 import com.mylive.live.viewmodel.LiveRoomViewModel;

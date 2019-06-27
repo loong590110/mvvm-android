@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 /**
  * Created by Developer Zailong Shi on 2019-06-20.
  */
-public class BaseViewModel extends ViewModel implements LifecycleOwner {
+public class HttpSupportViewModel extends ViewModel implements LifecycleOwner {
 
     {
         for (Field field : getClass().getDeclaredFields()) {

@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by Developer Zailong Shi on 2019-06-19.
  */
 @SuppressLint("Registered")
-public class BaseActivity extends FragmentActivity implements LifecycleObserver {
+public class CommunicableActivity extends FragmentActivity implements LifecycleObserver {
 
     private static volatile Scheduler scheduler = new Scheduler() {
 

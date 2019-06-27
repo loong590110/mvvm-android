@@ -6,7 +6,7 @@ import android.os.CountDownTimer;
 
 import com.mylive.live.arch.annotation.Service;
 import com.mylive.live.arch.http.ObserverSuccess;
-import com.mylive.live.arch.mvvm.BaseViewModel;
+import com.mylive.live.base.BaseViewModel;
 import com.mylive.live.model.Config;
 import com.mylive.live.service.ConfigService;
 import com.mylive.live.service.TestService;
@@ -51,7 +51,8 @@ public class SplashViewModel extends BaseViewModel {
         configService.getConfig()
                 .observe((ObserverSuccess<Config>) config -> {
                     this.config.postValue(config);
-                }, throwable -> {
+                }, e -> {
+                    e.printStackTrace();
                     this.config.postValue(null);
                 });
         return config;
