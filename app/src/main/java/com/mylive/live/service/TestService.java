@@ -9,6 +9,6 @@ import retrofit2.http.GET;
  */
 public interface TestService {
 
-    @GET("https://www.baidu.com/")
+    @GET("https://im.qq.com/")
     Observable<String> test();
 }
