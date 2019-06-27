@@ -20,15 +20,23 @@ public class BaseViewModel extends ViewModel implements LifecycleOwner {
     {
         for (Field field : getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(Service.class)) {
-                Class<?> service = field.getType();
-                Object t = ServiceCreator.create(service);
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
+                Object service = null;
                 try {
-                    field.set(this, t);
+                    service = field.get(this);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
+                }
+                if (service == null) {
+                    Class<?> serviceType = field.getType();
+                    service = ServiceCreator.create(serviceType);
+                    try {
+                        field.set(this, service);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
