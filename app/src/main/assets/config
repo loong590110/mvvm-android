@@ -1,0 +1,11 @@
+{
+    "code":200,
+    "message":"ok",
+    "data":{
+        "appName":"mylive",
+        "version":"1.0.0",
+        "host":"https://www.github.com",
+        "baseUrl":"https://github.com/lion0116/mvvm-android/tree/master/app/src/main/assets/",
+        "location":"https://github.com/lion0116/mvvm-android/tree/master/app/src/main/assets/config"
+    }
+}
