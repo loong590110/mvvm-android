@@ -11,6 +11,6 @@ import retrofit2.http.GET;
  */
 public interface ConfigService {
 
-    @GET("config")
+    @GET("/pages/config")
     Observable<HttpResponse<Config>> getConfig();
 }

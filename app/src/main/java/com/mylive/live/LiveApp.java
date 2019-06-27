@@ -28,7 +28,7 @@ public class LiveApp extends Application {
                 .setBaseUrl(HttpConfig.BASE_URL)
                 .setHttpClient(new OkHttpClient.Builder()
                         .addInterceptor(new HttpRequestInterceptor())
-//                        .addInterceptor(new HttpResponseInterceptor())
+                        .addInterceptor(new HttpResponseInterceptor())
                         .build())
                 .apply();
     }

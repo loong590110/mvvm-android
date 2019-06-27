@@ -48,8 +48,8 @@ public class SplashActivity extends BaseActivity {
                                     });
                         });
                         splashViewModel.getTestData().observe(SplashActivity.this, s -> {
-                            if (s != null && s.length() > 1024)
-                                s = s.substring(0, 1024);
+                            if (s != null && s.length() > 256)
+                                s = s.substring(0, 256);
                             binding.txtTest.append(s + "\n\n");
                         });
                     }
