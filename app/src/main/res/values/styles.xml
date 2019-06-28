@@ -12,4 +12,9 @@
     <style name="SplashTheme" parent="AppTheme">
         <item name="android:windowBackground">@drawable/splash</item>
     </style>
+
+    <style name="Dialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+    </style>
 </resources>

@@ -56,7 +56,7 @@ public class SplashActivity extends BaseActivity {
 
                     @Override
                     protected boolean shouldShowRequestPermissionRationale(String permission) {
-                        ToastUtils.showShortToast(SplashActivity.this, "rationale");
+
                         requester.request();
                         return true;
                     }
