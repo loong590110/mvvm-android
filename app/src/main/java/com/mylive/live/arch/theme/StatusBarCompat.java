@@ -98,8 +98,7 @@ public final class StatusBarCompat {
             Method extraFlagField = clazz.getMethod("setExtraFlags", int.class, int.class);
             extraFlagField.invoke(activity.getWindow(), lightMode ? darkModeFlag : 0, darkModeFlag);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
         }
         return false;
     }
@@ -127,8 +126,7 @@ public final class StatusBarCompat {
             meizuFlags.setInt(lp, value);
             activity.getWindow().setAttributes(lp);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
         }
         return false;
     }

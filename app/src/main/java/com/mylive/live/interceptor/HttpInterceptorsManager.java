@@ -3,7 +3,7 @@ package com.mylive.live.interceptor;
 /**
  * Created by Developer Zailong Shi on 2019-06-27.
  */
-public final class HttpInterceptorManager {
+public final class HttpInterceptorsManager {
 
     private static class RequestInterceptorHolder {
         private static final HttpRequestInterceptor INSTANCE = new HttpRequestInterceptor();
@@ -13,11 +13,11 @@ public final class HttpInterceptorManager {
         private static final HttpResponseInterceptor INSTANCE = new HttpResponseInterceptor();
     }
 
-    private static HttpRequestInterceptor getHttpRequestInterceptor() {
+    public static HttpRequestInterceptor getHttpRequestInterceptor() {
         return RequestInterceptorHolder.INSTANCE;
     }
 
-    private static HttpResponseInterceptor getHttpResponseInterceptor() {
+    public static HttpResponseInterceptor getHttpResponseInterceptor() {
         return ResponseInterceptorHolder.INSTANCE;
     }
 }

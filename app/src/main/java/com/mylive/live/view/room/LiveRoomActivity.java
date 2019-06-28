@@ -39,6 +39,9 @@ public class LiveRoomActivity extends BaseActivity {
                     .setLightMode(msg % 2 == 0)
                     .setImmersive(msg % 2 == 0)
                     .apply();
+            liveRoomViewModel.getConfig().observe(this, config -> {
+                binding.txtStatue.setText(String.valueOf(config));
+            });
         });
     }
 }

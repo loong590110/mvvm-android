@@ -1,30 +1,23 @@
 package com.mylive.live.arch.mvvm;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 
 import com.mylive.live.arch.exception.ProhibitedException;
 import com.mylive.live.arch.subscriber.PublisherAndSchedulerProxy;
 import com.mylive.live.arch.subscriber.Scheduler;
-import com.mylive.live.arch.subscriber.SubscribesScheduler;
+
+import java.lang.reflect.Field;
 
 /**
- * Created by Developer Zailong Shi on 2019-06-19.
+ * Created by Developer Zailong Shi on 2019-06-28.
  */
-@SuppressLint("Registered")
-public class CommunicableActivity extends FragmentActivity implements LifecycleObserver {
+public class CommunicableFragment extends Fragment implements LifecycleObserver {
 
-    private static class SchedulerHolder {
-        private static final Scheduler SCHEDULER = new SubscribesScheduler();
-    }
-
-    private Scheduler schedulerAndPublisherProxy = new PublisherAndSchedulerProxy(
-            CommunicableActivity.SchedulerHolder.SCHEDULER
-    );
+    private Scheduler schedulerAndPublisherProxy;
 
     {
         getLifecycle().addObserver(this);
@@ -32,12 +25,27 @@ public class CommunicableActivity extends FragmentActivity implements LifecycleO
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void onSubscribe() {
-        onSubscribe(schedulerAndPublisherProxy);
+        try {
+            String className = CommunicableActivity.class.getName();
+            Class<?> innerClass = Class.forName(className + "$SchedulerHolder");
+            Field field = innerClass.getDeclaredField("SCHEDULER");
+            field.setAccessible(true);
+            Scheduler publisherAndScheduler = (Scheduler) field.get(null);
+            schedulerAndPublisherProxy = new PublisherAndSchedulerProxy(
+                    publisherAndScheduler
+            );
+            onSubscribe(schedulerAndPublisherProxy);
+        } catch (NoSuchFieldException ignore) {
+        } catch (IllegalAccessException ignore) {
+        } catch (ClassNotFoundException ignore) {
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private void onUnsubscribe() {
-        schedulerAndPublisherProxy.unsubscribeAll();
+        if (schedulerAndPublisherProxy != null) {
+            schedulerAndPublisherProxy.unsubscribeAll();
+        }
     }
 
     protected void onSubscribe(Scheduler scheduler) {
@@ -45,7 +53,9 @@ public class CommunicableActivity extends FragmentActivity implements LifecycleO
     }
 
     protected <T> void publish(T event) {
-        schedulerAndPublisherProxy.publish(event);
+        if (schedulerAndPublisherProxy != null) {
+            schedulerAndPublisherProxy.publish(event);
+        }
     }
 
     @Deprecated

@@ -52,7 +52,6 @@ public class SplashViewModel extends BaseViewModel {
                 .observe((ObserverSuccess<Config>) config -> {
                     this.config.postValue(config);
                 }, e -> {
-                    e.printStackTrace();
                     this.config.postValue(null);
                 });
         return config;
