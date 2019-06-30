@@ -13,16 +13,16 @@ import okhttp3.OkHttpClient;
  */
 public class LiveApp extends Application {
 
-    private static LiveApp context;
+    public static LiveApp instance;
 
-    public static LiveApp getAppContext() {
-        return (LiveApp) context.getApplicationContext();
+    public static LiveApp instance() {
+        return instance;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        context = this;
+        instance = this;
         HttpConfigProvider.getConfig()
                 .setBaseUrl(HttpConfig.BASE_URL)
                 .setHttpClient(new OkHttpClient.Builder()

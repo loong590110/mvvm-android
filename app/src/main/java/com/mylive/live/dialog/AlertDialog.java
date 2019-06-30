@@ -29,6 +29,27 @@ public final class AlertDialog extends Dialog implements DialogInterface {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_alert);
+        if (lparams.cancelable) {
+            setCancelable(true);
+        }
+        if (lparams.canceledOnTouchOutside) {
+            setCanceledOnTouchOutside(true);
+        }
+        if (lparams.onCancelListener != null) {
+            setOnCancelListener(lparams.onCancelListener);
+        }
+        if (lparams.onDismissListener != null) {
+            setOnDismissListener(lparams.onDismissListener);
+        }
+        if (lparams.onKeyListener != null) {
+            setOnKeyListener(lparams.onKeyListener);
+        }
+        if (lparams.onShowListener != null) {
+            setOnShowListener(lparams.onShowListener);
+        }
+        if (lparams.title != null) {
+            //((TextView)findViewById(R.id.txt_title)).setText(lparams.title);
+        }
     }
 
     public static class Builder {
@@ -97,10 +118,33 @@ public final class AlertDialog extends Dialog implements DialogInterface {
             return this;
         }
 
+        public Builder setCanceledOnTouchOutside(boolean cancelable) {
+            lparams.canceledOnTouchOutside = cancelable;
+            return this;
+        }
+
+        public Builder setOnCancelListener(OnCancelListener l) {
+            lparams.onCancelListener = l;
+            return this;
+        }
+
+        public Builder setOnDismissListener(OnDismissListener l) {
+            lparams.onDismissListener = l;
+            return this;
+        }
+
+        public Builder setOnKeyListener(OnKeyListener l) {
+            lparams.onKeyListener = l;
+            return this;
+        }
+
+        public Builder setOnShowListener(OnShowListener l) {
+            lparams.onShowListener = l;
+            return this;
+        }
+
         public AlertDialog create() {
-            AlertDialog dialog = new AlertDialog(lparams);
-            dialog.setCancelable(lparams.cancelable);
-            return dialog;
+            return new AlertDialog(lparams);
         }
 
         public AlertDialog show() {
@@ -119,5 +163,10 @@ public final class AlertDialog extends Dialog implements DialogInterface {
         private OnClickListener onConfirmClickListener;
         private OnClickListener onCancelClickListener;
         private boolean cancelable;
+        private boolean canceledOnTouchOutside;
+        private OnCancelListener onCancelListener;
+        private OnDismissListener onDismissListener;
+        private OnKeyListener onKeyListener;
+        private OnShowListener onShowListener;
     }
 }

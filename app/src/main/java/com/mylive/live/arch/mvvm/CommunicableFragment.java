@@ -26,16 +26,19 @@ public class CommunicableFragment extends Fragment implements LifecycleObserver 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void onSubscribe() {
         try {
-            String className = CommunicableActivity.class.getName();
-            Class<?> innerClass = Class.forName(className + "$SchedulerHolder");
-            Field field = innerClass.getDeclaredField("SCHEDULER");
-            field.setAccessible(true);
-            Scheduler publisherAndScheduler = (Scheduler) field.get(null);
-            schedulerAndPublisherProxy = new PublisherAndSchedulerProxy(
-                    publisherAndScheduler
-            );
-            onSubscribe(schedulerAndPublisherProxy);
-        } catch (NoSuchFieldException ignore) {
+            String classname = CommunicableActivity.SCHEDULER_HOLDER_CLASSNAME;
+            Class<?> schedulerHolderClass = Class.forName(classname);
+            Field[] fields = schedulerHolderClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (Scheduler.class.isAssignableFrom(field.getType())) {
+                    field.setAccessible(true);
+                    Scheduler publisherAndScheduler = (Scheduler) field.get(null);
+                    schedulerAndPublisherProxy = new PublisherAndSchedulerProxy(
+                            publisherAndScheduler);
+                    onSubscribe(schedulerAndPublisherProxy);
+                    break;
+                }
+            }
         } catch (IllegalAccessException ignore) {
         } catch (ClassNotFoundException ignore) {
         }

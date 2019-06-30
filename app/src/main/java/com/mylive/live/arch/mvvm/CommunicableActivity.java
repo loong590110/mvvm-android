@@ -18,6 +18,8 @@ import com.mylive.live.arch.subscriber.SubscribesScheduler;
 @SuppressLint("Registered")
 public class CommunicableActivity extends FragmentActivity implements LifecycleObserver {
 
+    public static final String SCHEDULER_HOLDER_CLASSNAME = SchedulerHolder.class.getName();
+
     private static class SchedulerHolder {
         private static final Scheduler SCHEDULER = new SubscribesScheduler();
     }

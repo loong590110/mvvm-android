@@ -2,9 +2,11 @@ package com.mylive.live.arch.starter;
 
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import java.lang.ref.WeakReference;
@@ -15,9 +17,9 @@ import java.util.HashMap;
  */
 final class ActivityStartProxy {
 
-    private static HashMap<String, WeakReference<FragmentActivity>> contexts;
+    private static HashMap<String, WeakReference<LifecycleOwner>> contexts;
 
-    private static boolean prevent(FragmentActivity context) {
+    private static boolean prevent(LifecycleOwner context) {
         if (ifPrevent(context)) {
             return true;
         }
@@ -39,9 +41,9 @@ final class ActivityStartProxy {
             private void remove() {
                 if (contexts == null)
                     return;
-                WeakReference<FragmentActivity> reference = contexts.get(key);
+                WeakReference<LifecycleOwner> reference = contexts.get(key);
                 if (reference != null) {
-                    FragmentActivity ctx = reference.get();
+                    LifecycleOwner ctx = reference.get();
                     if (ctx != null) {
                         ctx.getLifecycle().removeObserver(this);
                     }
@@ -53,7 +55,7 @@ final class ActivityStartProxy {
         return false;
     }
 
-    public static boolean ifPrevent(FragmentActivity context) {
+    static boolean ifPrevent(LifecycleOwner context) {
         if (context == null) {
             return true;
         }
@@ -61,7 +63,7 @@ final class ActivityStartProxy {
             return false;
         }
         final String key = String.valueOf(context);
-        WeakReference<FragmentActivity> reference = contexts.get(key);
+        WeakReference<LifecycleOwner> reference = contexts.get(key);
         return reference != null && reference.get() != null;
     }
 
@@ -75,6 +77,16 @@ final class ActivityStartProxy {
         }
     }
 
+    static void startActivity(Fragment fragment, Intent intent) {
+        if (prevent(fragment)) {
+            return;
+        }
+        try {
+            fragment.startActivity(intent);
+        } catch (Exception ignore) {
+        }
+    }
+
     static void startActivityForResult(FragmentActivity context, Intent intent,
                                        int requestCode) {
         if (prevent(context)) {
@@ -83,6 +95,17 @@ final class ActivityStartProxy {
         try {
             ActivityCompat.startActivityForResult(context, intent,
                     requestCode, null);
+        } catch (Exception ignore) {
+        }
+    }
+
+    static void startActivityForResult(Fragment fragment, Intent intent,
+                                       int requestCode) {
+        if (prevent(fragment)) {
+            return;
+        }
+        try {
+            fragment.startActivityForResult(intent, requestCode);
         } catch (Exception ignore) {
         }
     }

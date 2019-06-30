@@ -2,6 +2,7 @@ package com.mylive.live.arch.starter;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import java.lang.reflect.ParameterizedType;
@@ -35,12 +36,39 @@ public class ActivityStarter<T> implements Starter {
     }
 
     @Override
+    public Finisher start(Fragment fragment) {
+        if (ActivityStartProxy.ifPrevent(fragment))
+            return () -> {
+                if (fragment != null && fragment.getActivity() != null) {
+                    fragment.getActivity().finish();
+                }
+            };
+        Intent intent = new Intent(fragment.getContext(), getTargetActivity());
+        intent.putExtras(bundle);
+        ActivityStartProxy.startActivity(fragment, intent);
+        return () -> {
+            if (fragment.getActivity() != null) {
+                fragment.getActivity().finish();
+            }
+        };
+    }
+
+    @Override
     public void startForResult(FragmentActivity context, int requestCode) {
         if (ActivityStartProxy.ifPrevent(context))
             return;
         Intent intent = new Intent(context, getTargetActivity());
         intent.putExtras(bundle);
         ActivityStartProxy.startActivityForResult(context, intent, requestCode);
+    }
+
+    @Override
+    public void startForResult(Fragment fragment, int requestCode) {
+        if (ActivityStartProxy.ifPrevent(fragment))
+            return;
+        Intent intent = new Intent(fragment.getContext(), getTargetActivity());
+        intent.putExtras(bundle);
+        ActivityStartProxy.startActivityForResult(fragment, intent, requestCode);
     }
 
     private Class<T> getTargetActivity() {

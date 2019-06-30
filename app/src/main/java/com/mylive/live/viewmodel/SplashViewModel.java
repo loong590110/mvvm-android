@@ -49,7 +49,7 @@ public class SplashViewModel extends BaseViewModel {
             config = new MutableLiveData<>();
         }
         configService.getConfig()
-                .observe((ObserverSuccess<Config>) config -> {
+                .observe((Config config) -> {
                     this.config.postValue(config);
                 }, e -> {
                     this.config.postValue(null);
