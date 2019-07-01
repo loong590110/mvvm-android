@@ -11,12 +11,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import com.mylive.live.arch.mapper.Mapper;
+
 /**
  * Created by Developer Zailong Shi on 2019-07-01.
  */
 public class Feature implements LifecycleObserver {
 
     private LifecycleOwner lifecycleOwner;
+    private Bundle arguments;
 
     public Feature(FeaturesActivity activity) {
         this.lifecycleOwner = activity;
@@ -32,6 +35,7 @@ public class Feature implements LifecycleObserver {
         if (lifecycleOwner != null) {
             lifecycleOwner.getLifecycle().addObserver(this);
         }
+        Mapper.from(lifecycleOwner).to(this);
     }
 
     public FeaturesActivity getActivity() {
@@ -94,5 +98,27 @@ public class Feature implements LifecycleObserver {
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+    }
+
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        //noinspection ConstantConditions
+        if (outState != null) {
+            outState.putBundle("arguments", arguments);
+        }
+    }
+
+    public void onRestoreInstanceState(@NonNull Bundle outState) {
+        //noinspection ConstantConditions
+        if (outState != null) {
+            arguments = outState.getBundle("arguments");
+        }
+    }
+
+    public Bundle getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(Bundle arguments) {
+        this.arguments = arguments;
     }
 }

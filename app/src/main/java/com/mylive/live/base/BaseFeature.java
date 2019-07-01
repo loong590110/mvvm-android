@@ -3,13 +3,24 @@ package com.mylive.live.base;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.mylive.live.arch.feature.FeaturesActivity;
+import com.mylive.live.arch.feature.FeaturesFragment;
+import com.mylive.live.arch.mvvm.CommunicableFeature;
 import com.mylive.live.arch.mvvm.CommunicableFragment;
 import com.mylive.live.exception.ProhibitedException;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
  */
-public class BaseFeature extends CommunicableFragment {
+public class BaseFeature extends CommunicableFeature {
+
+    public BaseFeature(FeaturesActivity activity) {
+        super(activity);
+    }
+
+    public BaseFeature(FeaturesFragment fragment) {
+        super(fragment);
+    }
 
     @Deprecated
     @Override

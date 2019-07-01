@@ -2,9 +2,12 @@ package com.mylive.live.arch.feature;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+
+import java.util.Iterator;
 
 /**
  * Created by Developer Zailong Shi on 2019-07-01.
@@ -25,9 +28,8 @@ public class FeaturesFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (featuresManager != null) {
-            while (featuresManager.iterator().hasNext()) {
-                featuresManager.iterator().next().onActivityResult(
-                        requestCode, resultCode, data);
+            for (Feature feature : featuresManager) {
+                feature.onActivityResult(requestCode, resultCode, data);
             }
         }
     }
@@ -37,9 +39,28 @@ public class FeaturesFragment extends Fragment {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (featuresManager != null) {
-            while (featuresManager.iterator().hasNext()) {
-                featuresManager.iterator().next().onRequestPermissionsResult(
-                        requestCode, permissions, grantResults);
+            for (Feature feature : featuresManager) {
+                feature.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (featuresManager != null) {
+            for (Feature feature : featuresManager) {
+                feature.onSaveInstanceState(outState);
+            }
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (featuresManager != null) {
+            for (Feature feature : featuresManager) {
+                feature.onRestoreInstanceState(savedInstanceState);
             }
         }
     }

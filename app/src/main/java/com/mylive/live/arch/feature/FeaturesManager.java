@@ -1,8 +1,7 @@
 package com.mylive.live.arch.feature;
 
 import android.arch.lifecycle.LifecycleOwner;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -23,15 +22,19 @@ public final class FeaturesManager implements Iterable<Feature> {
         this.lifecycleOwner = lifecycleOwner;
     }
 
-    public static FeaturesManager of(FragmentActivity activity) {
+    public static FeaturesManager of(FeaturesActivity activity) {
         return new FeaturesManager(activity);
     }
 
-    public static FeaturesManager of(Fragment fragment) {
+    public static FeaturesManager of(FeaturesFragment fragment) {
         return new FeaturesManager(fragment);
     }
 
-    public <T extends Feature> FeaturesManager put(Class<T> featureClass) {
+    public <T extends Feature> FeaturesManager add(Class<T> featureClass) {
+        return add(featureClass, null);
+    }
+
+    public <T extends Feature> FeaturesManager add(Class<T> featureClass, Bundle arguments) {
         Objects.requireNonNull(featureClass);
         if (featureMap == null) {
             featureMap = new HashMap<>();
@@ -40,13 +43,17 @@ public final class FeaturesManager implements Iterable<Feature> {
             if (lifecycleOwner instanceof FeaturesActivity) {
                 Constructor<T> constructor = featureClass.getConstructor(
                         FeaturesActivity.class);
-                featureMap.put(featureClass, constructor.newInstance(
-                        (FeaturesActivity) lifecycleOwner));
+                Feature feature = constructor.newInstance(
+                        (FeaturesActivity) lifecycleOwner);
+                feature.setArguments(arguments);
+                featureMap.put(featureClass, feature);
             } else if (lifecycleOwner instanceof FeaturesFragment) {
                 Constructor<T> constructor = featureClass.getConstructor(
                         FeaturesFragment.class);
-                featureMap.put(featureClass, constructor.newInstance(
-                        (FeaturesFragment) lifecycleOwner));
+                Feature feature = constructor.newInstance(
+                        (FeaturesFragment) lifecycleOwner);
+                feature.setArguments(arguments);
+                featureMap.put(featureClass, feature);
             }
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
@@ -60,7 +67,7 @@ public final class FeaturesManager implements Iterable<Feature> {
         return this;
     }
 
-    public <T extends Feature> T get(Class<Feature> featureClass) {
+    public <T extends Feature> T find(Class<Feature> featureClass) {
         if (featureMap != null) {
             //noinspection unchecked
             return (T) featureMap.get(featureClass);
@@ -70,19 +77,25 @@ public final class FeaturesManager implements Iterable<Feature> {
 
     @Override
     public Iterator<Feature> iterator() {
-        if (featureMap == null) {
-            return new Iterator<Feature>() {
-                @Override
-                public boolean hasNext() {
-                    return false;
-                }
+        return new Iterator<Feature>() {
+            int index = 0;
+            Feature[] features;
 
-                @Override
-                public Feature next() {
-                    return null;
+            {
+                if (featureMap != null && featureMap.size() > 0) {
+                    features = featureMap.values().toArray(new Feature[]{});
                 }
-            };
-        }
-        return featureMap.values().iterator();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return features != null && features.length > index;
+            }
+
+            @Override
+            public Feature next() {
+                return hasNext() ? features[index++] : null;
+            }
+        };
     }
 }

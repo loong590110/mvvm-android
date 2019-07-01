@@ -37,7 +37,7 @@ public class HomeFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.txtHome.setText("home fragment + 2");
-        getFeaturesManager().put(LiveListFeature.class);
+        getFeaturesManager().add(LiveListFeature.class, null);
     }
 
     @Override
