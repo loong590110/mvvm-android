@@ -1,4 +1,4 @@
-package com.mylive.live.arch.exception;
+package com.mylive.live.exception;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-20.

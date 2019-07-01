@@ -3,13 +3,13 @@ package com.mylive.live.base;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.mylive.live.exception.ProhibitedException;
 import com.mylive.live.arch.mvvm.CommunicableFragment;
+import com.mylive.live.exception.ProhibitedException;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
  */
-public class BaseFragment extends CommunicableFragment {
+public class BaseFeature extends CommunicableFragment {
 
     @Deprecated
     @Override

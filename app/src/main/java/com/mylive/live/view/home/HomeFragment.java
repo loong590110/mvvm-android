@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mylive.live.R;
+import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentHomeBinding;
@@ -19,6 +20,7 @@ import com.mylive.live.model.HttpResponse;
  */
 public class HomeFragment extends BaseFragment {
 
+    @FieldMap("binding")
     FragmentHomeBinding binding;
 
     @Nullable
@@ -35,6 +37,7 @@ public class HomeFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.txtHome.setText("home fragment + 2");
+        getFeaturesManager().put(LiveListFeature.class);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package com.mylive.live.arch.mvvm;
 
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 
+import com.mylive.live.arch.feature.Feature;
+import com.mylive.live.arch.feature.FeaturesActivity;
 import com.mylive.live.arch.feature.FeaturesFragment;
 import com.mylive.live.arch.subscriber.PublisherAndSchedulerProxy;
 import com.mylive.live.arch.subscriber.Scheduler;
@@ -13,12 +14,16 @@ import java.lang.reflect.Field;
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
  */
-public class CommunicableFragment extends FeaturesFragment implements LifecycleObserver {
+public class CommunicableFeature extends Feature {
 
     private Scheduler schedulerAndPublisherProxy;
 
-    {
-        getLifecycle().addObserver(this);
+    public CommunicableFeature(FeaturesActivity activity) {
+        super(activity);
+    }
+
+    public CommunicableFeature(FeaturesFragment fragment) {
+        super(fragment);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

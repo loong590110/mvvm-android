@@ -5,6 +5,7 @@ import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -68,44 +69,64 @@ final class ActivityStartProxy {
     }
 
     static void startActivity(FragmentActivity context, Intent intent) {
+        startActivity(context, intent, null);
+    }
+
+    static void startActivity(FragmentActivity context, Intent intent, Bundle options) {
         if (prevent(context)) {
             return;
         }
         try {
-            ActivityCompat.startActivity(context, intent, null);
+            if (options != null) {
+                intent = intent.putExtras(options);
+            }
+            context.startActivity(intent);
         } catch (Exception ignore) {
         }
     }
 
     static void startActivity(Fragment fragment, Intent intent) {
+        startActivity(fragment, intent, null);
+    }
+
+    static void startActivity(Fragment fragment, Intent intent, Bundle options) {
         if (prevent(fragment)) {
             return;
         }
         try {
-            fragment.startActivity(intent);
+            fragment.startActivity(intent, options);
         } catch (Exception ignore) {
         }
     }
 
     static void startActivityForResult(FragmentActivity context, Intent intent,
                                        int requestCode) {
+        startActivityForResult(context, intent, requestCode, null);
+    }
+
+    static void startActivityForResult(FragmentActivity context, Intent intent,
+                                       int requestCode, Bundle options) {
         if (prevent(context)) {
             return;
         }
         try {
-            ActivityCompat.startActivityForResult(context, intent,
-                    requestCode, null);
+            context.startActivityForResult(intent, requestCode, options);
         } catch (Exception ignore) {
         }
     }
 
     static void startActivityForResult(Fragment fragment, Intent intent,
                                        int requestCode) {
+        startActivityForResult(fragment, intent, requestCode, null);
+    }
+
+    static void startActivityForResult(Fragment fragment, Intent intent,
+                                       int requestCode, Bundle options) {
         if (prevent(fragment)) {
             return;
         }
         try {
-            fragment.startActivityForResult(intent, requestCode);
+            fragment.startActivityForResult(intent, requestCode, options);
         } catch (Exception ignore) {
         }
     }

@@ -30,8 +30,7 @@ public class ActivityStarter<T> implements Starter {
                 }
             };
         Intent intent = new Intent(context, getTargetActivity());
-        intent.putExtras(bundle);
-        ActivityStartProxy.startActivity(context, intent);
+        ActivityStartProxy.startActivity(context, intent, bundle);
         return context::finish;
     }
 
@@ -44,8 +43,7 @@ public class ActivityStarter<T> implements Starter {
                 }
             };
         Intent intent = new Intent(fragment.getContext(), getTargetActivity());
-        intent.putExtras(bundle);
-        ActivityStartProxy.startActivity(fragment, intent);
+        ActivityStartProxy.startActivity(fragment, intent, bundle);
         return () -> {
             if (fragment.getActivity() != null) {
                 fragment.getActivity().finish();
