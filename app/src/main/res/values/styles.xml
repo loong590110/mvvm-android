@@ -7,6 +7,7 @@
         <item name="colorPrimaryDark">@color/transparent</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:screenOrientation">portrait</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
     </style>
 
     <style name="SplashTheme" parent="AppTheme">
@@ -14,7 +15,17 @@
     </style>
 
     <style name="Dialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
-        <item name="android:windowFrame">@null</item>
+        <item name="android:windowFrame">@color/transparent</item>
+        <item name="android:windowBackground">@color/transparent</item>
         <item name="android:backgroundDimAmount">0.6</item>
+    </style>
+
+    <style name="Dialog.Button">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/titleTextColor</item>
+        <item name="android:background">@color/transparent</item>
     </style>
 </resources>

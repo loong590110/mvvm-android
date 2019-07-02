@@ -81,7 +81,7 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     }
 
     private class UniversalCallback<R> extends CallbackProxy<T> {
-        private ObserverSuccess observerSuccess;
+        private ObserverSuccess<R> observerSuccess;
         private ObserverError<HttpException> observerError;
 
         private UniversalCallback(ObserverSuccess<R> observerSuccess,
@@ -102,13 +102,13 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
                     }
                     try {
                         //第一次直接返回根节点的结果，如果不匹配则尝试返回data节点
-                        observerSuccess.onChanged(response.body());
+                        observerSuccess.onChanged((R) response.body());
                         return;
                     } catch (ClassCastException cce) {
                         if (response.body() instanceof HttpResponse) {
                             HttpResponse httpResponse = (HttpResponse) response.body();
                             try {
-                                observerSuccess.onChanged(httpResponse.getData());
+                                observerSuccess.onChanged((R) httpResponse.getData());
                                 return;
                             } catch (ClassCastException e) {
                                 cce = e;

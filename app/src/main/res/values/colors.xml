@@ -6,4 +6,8 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="translucent">#7F000000</color>
     <color name="transparent">#00000000</color>
+    <color name="backgroundColor">#fcfcfc</color>
+    <color name="backgroundBorderColor">#f3f3f3</color>
+    <color name="titleTextColor">#333333</color>
+    <color name="contentTextColor">#666666</color>
 </resources>

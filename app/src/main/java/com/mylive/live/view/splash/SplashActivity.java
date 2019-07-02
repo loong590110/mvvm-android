@@ -12,8 +12,8 @@ import com.mylive.live.R;
 import com.mylive.live.arch.permission.PermissionsRequester;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivitySplashBinding;
+import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.router.MainActivityStarter;
-import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.SplashViewModel;
 
 /**
@@ -56,14 +56,14 @@ public class SplashActivity extends BaseActivity {
 
                     @Override
                     protected boolean shouldShowRequestPermissionRationale(String permission) {
-
+                        new AlertDialog.Builder(SplashActivity.this).show();
                         requester.request();
                         return true;
                     }
 
                     @Override
                     protected boolean onPermissionIsDeniedAndNeverAsks(String permission) {
-                        ToastUtils.showShortToast(SplashActivity.this, "denied and never asks");
+                        new AlertDialog.Builder(SplashActivity.this).show();
                         return true;
                     }
                 })
