@@ -5,7 +5,6 @@ import android.arch.lifecycle.MutableLiveData;
 import android.os.CountDownTimer;
 
 import com.mylive.live.arch.annotation.Service;
-import com.mylive.live.arch.http.ObserverSuccess;
 import com.mylive.live.base.BaseViewModel;
 import com.mylive.live.model.Config;
 import com.mylive.live.service.ConfigService;

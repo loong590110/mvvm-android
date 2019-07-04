@@ -56,7 +56,8 @@
         android:textColor="@color/contentTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_confirm"
-        tools:text="取消" />
+        tools:text="取消"
+        tools:visibility="visible" />
 
     <Button
         android:id="@+id/btn_confirm"

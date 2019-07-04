@@ -1,20 +1,27 @@
 package com.mylive.live.model;
 
+import com.mylive.live.arch.http.HttpContent;
+import com.mylive.live.arch.http.HttpStatusCode;
+import com.mylive.live.arch.http.HttpStatusDesc;
+
 /**
  * Created by Developer Zailong Shi on 2019-06-20.
  */
-public class HttpResponse<T> implements com.mylive.live.arch.http.HttpResponse {
+public class HttpResp<T> {
 
+    private static final int STATUS_OK = 200;
+
+    @HttpStatusCode(STATUS_OK = STATUS_OK)
     private int code;
+    @HttpStatusDesc
     private String message;
+    @HttpContent
     private T data;
 
-    @Override
     public boolean isSuccessful() {
-        return code == 200;
+        return code == STATUS_OK;
     }
 
-    @Override
     public T getData() {
         return data;
     }
@@ -23,7 +30,6 @@ public class HttpResponse<T> implements com.mylive.live.arch.http.HttpResponse {
         return code;
     }
 
-    @Override
     public String getMessage() {
         return message;
     }

@@ -1,4 +1,6 @@
-package com.mylive.live.arch.exception;
+package com.mylive.live.arch.http;
+
+import android.text.TextUtils;
 
 /**
  * Create by zailongshi on 2019/6/25
@@ -25,11 +27,11 @@ public class HttpException extends Exception {
     }
 
     public HttpException(String message, Throwable throwable) {
-        super(message, throwable);
+        super(TextUtils.isEmpty(message) ? String.valueOf(throwable) : message, throwable);
     }
 
     public HttpException(int code, String message, Throwable throwable) {
-        super(message, throwable);
+        this(message, throwable);
         this.code = code;
     }
 

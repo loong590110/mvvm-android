@@ -2,20 +2,20 @@ package com.mylive.live.arch.http;
 
 import android.arch.lifecycle.LifecycleOwner;
 
-import com.mylive.live.arch.exception.HttpException;
+import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.thread.Scheduler;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-21.
  */
 public interface Observable<T> {
-    <R> void observe(ObserverSuccess<R> observerSuccess);
+    <R> void observe(Observer<R> rObserver);
 
-    <R> void observe(ObserverSuccess<R> observerSuccess, ObserverError<HttpException> observerError);
+    <R> void observe(Observer<R> rObserver, Observer<HttpException> exceptionObserver);
 
     Observable<T> dispose(LifecycleOwner lifecycleOwner);
 
-    Observable<T> onObserve(ObserverDisposable<Disposable> observerDisposable);
+    Observable<T> onObserve(Observer<Disposable> disposableObserver);
 
     Observable<T> observeOn(Scheduler scheduler);
 

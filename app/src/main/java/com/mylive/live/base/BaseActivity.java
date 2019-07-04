@@ -16,7 +16,7 @@ import com.mylive.live.arch.workflow.Parcel;
 import com.mylive.live.arch.workflow.UiWorker;
 import com.mylive.live.arch.workflow.WorkFlow;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
-import com.mylive.live.model.HttpResponse;
+import com.mylive.live.model.HttpResp;
 import com.mylive.live.utils.ToastUtils;
 
 /**
@@ -81,25 +81,25 @@ public class BaseActivity extends CommunicableActivity {
                         .deliver(new BackgroundWorker() {
                             @Override
                             public Parcel doWork(Parcel parcel) {
-                                HttpResponse<String> httpResponse = JSON.parseObject(
+                                HttpResp<String> httpResp = JSON.parseObject(
                                         respText,
-                                        new TypeReference<HttpResponse<String>>() {
+                                        new TypeReference<HttpResp<String>>() {
                                         }.getType()
                                 );
-                                publish(httpResponse);
-                                return parcel.put("resp", httpResponse)
+                                publish(httpResp);
+                                return parcel.put("resp", httpResp)
                                         .put("bg", Thread.currentThread().getName());
                             }
                         })
                         .deliver(new UiWorker() {
                             @Override
                             public Parcel doWork(Parcel parcel) {
-                                HttpResponse httpResponse = parcel.get("resp");
+                                HttpResp httpResp = parcel.get("resp");
                                 String name = "bg:" + parcel.get("bg") + ", ui:"
                                         + Thread.currentThread().getName();
                                 ToastUtils.showShortToast(
                                         BaseActivity.this,
-                                        "resp:" + httpResponse.getCode()
+                                        "resp:" + httpResp.getCode()
                                                 + "(" + name + ")"
                                 );
                                 return null;

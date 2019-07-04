@@ -5,9 +5,11 @@ import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
-import com.mylive.live.arch.exception.HttpException;
+import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.thread.Scheduler;
 import com.mylive.live.arch.thread.ThreadsScheduler;
+
+import java.lang.reflect.Field;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,7 +23,7 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     private final Call<T> originalCall;
     private boolean isDisposed;
     private Lifecycle lifecycle;
-    private ObserverDisposable<Disposable> observerDisposable;
+    private Observer<Disposable> disposableObserver;
     private Scheduler scheduler;
 
     ObservableImpl(Call<T> originalCall) {
@@ -29,14 +31,14 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     }
 
     @Override
-    public <R> void observe(ObserverSuccess<R> observerSuccess) {
-        observe(observerSuccess, null);
+    public <R> void observe(Observer<R> rObserver) {
+        observe(rObserver, null);
     }
 
     @Override
-    public <R> void observe(ObserverSuccess<R> observerSuccess,
-                            ObserverError<HttpException> observerError) {
-        observeActual(observerSuccess, observerError);
+    public <R> void observe(Observer<R> rObserver,
+                            Observer<HttpException> exceptionObserver) {
+        observeActual(rObserver, exceptionObserver);
     }
 
     @Override
@@ -47,8 +49,8 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     }
 
     @Override
-    public Observable<T> onObserve(ObserverDisposable<Disposable> observerDisposable) {
-        this.observerDisposable = observerDisposable;
+    public Observable<T> onObserve(Observer<Disposable> disposableObserver) {
+        this.disposableObserver = disposableObserver;
         return this;
     }
 
@@ -64,12 +66,12 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
         return this;
     }
 
-    private <R> void observeActual(ObserverSuccess<R> observerSuccess,
-                                   ObserverError<HttpException> observerError) {
-        if (observerDisposable != null) {
-            observerDisposable.onChanged(this::onDisposed);
+    private <R> void observeActual(Observer<R> rObserver,
+                                   Observer<HttpException> exceptionObserver) {
+        if (disposableObserver != null) {
+            disposableObserver.onChanged(this::onDisposed);
         }
-        originalCall.enqueue(new UniversalCallback<>(observerSuccess, observerError));
+        originalCall.enqueue(new ResponseHandler<>(rObserver, exceptionObserver));
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -80,14 +82,17 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
         lifecycle = null;
     }
 
-    private class UniversalCallback<R> extends CallbackProxy<T> {
-        private ObserverSuccess<R> observerSuccess;
-        private ObserverError<HttpException> observerError;
+    private class ResponseHandler<R> extends CallbackProxy<T> {
+        private Observer<R> rObserver;
+        private Observer<HttpException> exceptionObserver;
+        private int code, STATUS_OK;
+        private String desc;
+        private R content;
 
-        private UniversalCallback(ObserverSuccess<R> observerSuccess,
-                                  ObserverError<HttpException> observerError) {
-            this.observerSuccess = observerSuccess;
-            this.observerError = observerError;
+        private ResponseHandler(Observer<R> rObserver,
+                                Observer<HttpException> exceptionObserver) {
+            this.rObserver = rObserver;
+            this.exceptionObserver = exceptionObserver;
         }
 
         @Override
@@ -96,39 +101,76 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
                 if (!response.isSuccessful()) {
                     throw new HttpException(response.code(), response.message());
                 }
-                if (observerSuccess != null) {
+                if (rObserver != null) {
                     if (response.body() == null) {
                         throw new HttpException("Response body object is null.");
                     }
                     try {
-                        //第一次直接返回根节点的结果，如果不匹配则尝试返回data节点
-                        observerSuccess.onChanged((R) response.body());
+                        //第一次直接返回根节点的结果，如果不匹配则尝试返回子节点
+                        rObserver.onChanged((R) response.body());
                         return;
                     } catch (ClassCastException cce) {
-                        if (response.body() instanceof HttpResponse) {
-                            HttpResponse httpResponse = (HttpResponse) response.body();
-                            try {
-                                observerSuccess.onChanged((R) httpResponse.getData());
-                                return;
-                            } catch (ClassCastException e) {
-                                cce = e;
+                        Field[] fields = response.body().getClass().getDeclaredFields();
+                        int count = 0;
+                        for (Field field : fields) {
+                            if (count == 3) {
+                                break;
                             }
+                            if (!field.isAccessible()) {
+                                field.setAccessible(true);
+                            }
+                            if (field.isAnnotationPresent(HttpStatusCode.class)) {
+                                count++;
+                                try {
+                                    STATUS_OK = field.getAnnotation(HttpStatusCode.class)
+                                            .STATUS_OK();
+                                    code = field.getInt(response.body());
+                                } catch (IllegalAccessException e) {
+                                    throw new HttpException(e);
+                                } catch (ClassCastException e) {
+                                    throw new HttpException("field " + field.getName()
+                                            + " must be a Integer.");
+                                }
+                            } else if (field.isAnnotationPresent(HttpStatusDesc.class)) {
+                                count++;
+                                try {
+                                    desc = (String) field.get(response.body());
+                                } catch (IllegalAccessException e) {
+                                    throw new HttpException(e);
+                                } catch (ClassCastException e) {
+                                    throw new HttpException("field " + field.getName()
+                                            + " must be a String.");
+                                }
+                            } else if (field.isAnnotationPresent(HttpContent.class)) {
+                                count++;
+                                try {
+                                    content = (R) field.get(response.body());
+                                } catch (IllegalAccessException e) {
+                                    throw new HttpException(e);
+                                } catch (ClassCastException e) {
+                                    throw new HttpException(e);
+                                }
+                            }
+                        }
+                        if (code == STATUS_OK) {
+                            rObserver.onChanged(content);
+                            return;
                         }
                         throw new HttpException(cce);
                     }
                 }
-                throw new HttpException("ObserverSuccess object is null.");
+                throw new HttpException("rObserver object is null.");
             } catch (HttpException e) {
-                if (observerError != null) {
-                    observerError.onChanged(e);
+                if (exceptionObserver != null) {
+                    exceptionObserver.onChanged(e);
                 }
             }
         }
 
         @Override
         public void onFailure(Throwable t) {
-            if (observerError != null) {
-                observerError.onChanged(new HttpException(t));
+            if (exceptionObserver != null) {
+                exceptionObserver.onChanged(new HttpException(code, desc, t));
             }
         }
     }

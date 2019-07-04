@@ -56,14 +56,27 @@ public class SplashActivity extends BaseActivity {
 
                     @Override
                     protected boolean shouldShowRequestPermissionRationale(String permission) {
-                        new AlertDialog.Builder(SplashActivity.this).show();
-                        requester.request();
+                        new AlertDialog.Builder(SplashActivity.this)
+                                .setMessage("应用需要存储权限来存储运行必须的数据")
+                                .setCancelText("暂时拒绝")
+                                .setConfirmText("重新申请")
+                                .setOnConfirmClickListener((dialog, which) -> {
+                                    requester.request();
+                                })
+                                .show();
                         return true;
                     }
 
                     @Override
                     protected boolean onPermissionIsDeniedAndNeverAsks(String permission) {
-                        new AlertDialog.Builder(SplashActivity.this).show();
+                        new AlertDialog.Builder(SplashActivity.this)
+                                .setMessage("应用需要存储权限来存储运行必须的数据")
+                                .setCancelText("不再提醒")
+                                .setConfirmText("前往设置")
+                                .setOnConfirmClickListener((dialog, which) -> {
+                                    //open settings
+                                })
+                                .show();
                         return true;
                     }
                 })

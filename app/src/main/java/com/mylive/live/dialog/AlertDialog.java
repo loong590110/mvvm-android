@@ -6,6 +6,10 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.mylive.live.R;
 
@@ -29,6 +33,8 @@ public final class AlertDialog extends Dialog implements DialogInterface {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_alert);
+        Button btnCancel = findViewById(R.id.btn_cancel);
+        Button btnConfirm = findViewById(R.id.btn_confirm);
         if (lparams.cancelable) {
             setCancelable(true);
         }
@@ -48,8 +54,37 @@ public final class AlertDialog extends Dialog implements DialogInterface {
             setOnShowListener(lparams.onShowListener);
         }
         if (lparams.title != null) {
-            //((TextView)findViewById(R.id.txt_title)).setText(lparams.title);
+            ((TextView) findViewById(R.id.txt_title)).setText(lparams.title);
         }
+        if (lparams.message != null) {
+            ((TextView) findViewById(R.id.txt_message)).setText(lparams.message);
+        }
+        if (!TextUtils.isEmpty(lparams.cancelText)) {
+            btnCancel.setVisibility(View.VISIBLE);
+            btnCancel.setText(lparams.cancelText);
+            btnCancel.setOnClickListener(v -> {
+                if (lparams.onCancelClickListener != null) {
+                    lparams.onCancelClickListener.onClick(this,
+                            DialogInterface.BUTTON_NEGATIVE);
+                } else {
+                    dismiss();
+                }
+            });
+        } else {
+            btnCancel.setVisibility(View.GONE);
+        }
+        if (!TextUtils.isEmpty(lparams.confirmText)) {
+            btnConfirm.setText(lparams.confirmText);
+        }
+        btnConfirm.setVisibility(View.VISIBLE);
+        btnConfirm.setOnClickListener(v -> {
+            if (lparams.onConfirmClickListener != null) {
+                lparams.onConfirmClickListener.onClick(this,
+                        DialogInterface.BUTTON_POSITIVE);
+            } else {
+                dismiss();
+            }
+        });
     }
 
     public static class Builder {
@@ -103,12 +138,12 @@ public final class AlertDialog extends Dialog implements DialogInterface {
             return this;
         }
 
-        public Builder setConfirmClickListener(OnClickListener l) {
+        public Builder setOnConfirmClickListener(OnClickListener l) {
             lparams.onConfirmClickListener = l;
             return this;
         }
 
-        public Builder setCancelClickListener(OnClickListener l) {
+        public Builder setOnCancelClickListener(OnClickListener l) {
             lparams.onCancelClickListener = l;
             return this;
         }

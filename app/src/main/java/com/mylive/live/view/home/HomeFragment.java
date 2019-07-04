@@ -14,8 +14,7 @@ import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentHomeBinding;
 import com.mylive.live.dialog.AlertDialog;
-import com.mylive.live.model.HttpResponse;
-import com.mylive.live.view.splash.SplashActivity;
+import com.mylive.live.model.HttpResp;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
@@ -40,14 +39,16 @@ public class HomeFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         binding.txtHome.setText("home fragment + 2");
         getFeaturesManager().add(LiveListFeature.class, null);
-        new AlertDialog.Builder(view.getContext()).show();
+        new AlertDialog.Builder(view.getContext())
+                .setMessage("home fragment")
+                .show();
     }
 
     @Override
     protected void onSubscribe(Scheduler scheduler) {
         super.onSubscribe(scheduler);
-        scheduler.subscribe(HttpResponse.class, httpResponse -> {
-            binding.txtHome.setText(httpResponse.toString());
+        scheduler.subscribe(HttpResp.class, httpResp -> {
+            binding.txtHome.setText(httpResp.toString());
         });
     }
 }
