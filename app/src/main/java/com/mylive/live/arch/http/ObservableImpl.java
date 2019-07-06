@@ -8,6 +8,8 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.thread.Scheduler;
 import com.mylive.live.arch.thread.ThreadsScheduler;
+import com.mylive.live.arch.workflow.WorkManager;
+import com.mylive.live.arch.workflow.Worker;
 
 import java.lang.reflect.Field;
 
@@ -64,6 +66,12 @@ public class ObservableImpl<T> implements Observable<T>, LifecycleObserver {
     public Observable<T> observeOnUiThread() {
         this.scheduler = ThreadsScheduler.UiThreadScheduler();
         return this;
+    }
+
+    @Override
+    public <R> WorkManager<R> deliver(Worker<R, T> worker,
+                                      Worker<HttpException, T> exceptionTWorker) {
+        return null;
     }
 
     private <R> void observeActual(Observer<R> rObserver,

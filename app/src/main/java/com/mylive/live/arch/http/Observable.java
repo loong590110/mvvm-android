@@ -4,6 +4,8 @@ import android.arch.lifecycle.LifecycleOwner;
 
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.thread.Scheduler;
+import com.mylive.live.arch.workflow.WorkManager;
+import com.mylive.live.arch.workflow.Worker;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-21.
@@ -20,4 +22,6 @@ public interface Observable<T> {
     Observable<T> observeOn(Scheduler scheduler);
 
     Observable<T> observeOnUiThread();
+
+    <R> WorkManager<R> deliver(Worker<R, T> rtWorker, Worker<HttpException, T> exceptionTWorker);
 }
