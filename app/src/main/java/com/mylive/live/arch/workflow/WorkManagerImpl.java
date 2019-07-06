@@ -32,7 +32,7 @@ public class WorkManagerImpl<T> implements WorkManager<T> {
     }
 
     @Override
-    public <R> void end(WorkEnd<R> workEnd) {
+    public void end(WorkEnd<T> workEnd) {
         if (workManager != null) {
             workManager.end(parcel1 -> {
                 this.parcel = (T) parcel1;

@@ -16,6 +16,7 @@ import com.mylive.live.exception.ProhibitedException;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
 import com.mylive.live.model.Config;
 import com.mylive.live.model.HttpResp;
+import com.mylive.live.utils.ToastUtils;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-27.
@@ -76,17 +77,17 @@ public class BaseActivity extends CommunicableActivity {
                 break;
             case RESUMED:
                 WorkFlow.begin(respText)
-                        .deliver(new BackgroundWorker<Config, String>() {
-                            @Override
-                            public Config doWork(String parcel) {
-                                HttpResp<Config> resp = JSON.parseObject(parcel,
-                                        new TypeReference<HttpResp<Config>>() {
-                                        }.getType());
-                                publish(resp);
-                                return resp.getData();
-                            }
-                        })
-                        .end();
+                        .deliver(new BackgroundWorker<>(parcel -> {
+                            HttpResp<Config> resp = JSON.parseObject(parcel,
+                                    new TypeReference<HttpResp<Config>>() {
+                                    }.getType());
+                            publish(resp);
+                            return resp.getData();
+                        }))
+                        .deliver(new BackgroundWorker<>(parcel -> parcel.version))
+                        .end(parcel -> {
+                            ToastUtils.showShortToast(this, parcel);
+                        });
                 break;
             default:
         }

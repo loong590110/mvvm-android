@@ -6,7 +6,7 @@ package com.mylive.live.arch.workflow;
 public interface WorkManager<T> {
     <R> WorkManager<R> deliver(Worker<R, T> worker);
 
-    <R> void end(WorkEnd<R> workEnd);
+    void end(WorkEnd<T> workEnd);
 
     void end();
 }
