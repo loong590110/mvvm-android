@@ -8,16 +8,14 @@ import android.os.Bundle;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.mylive.live.exception.ProhibitedException;
 import com.mylive.live.arch.mvvm.CommunicableActivity;
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.workflow.BackgroundWorker;
-import com.mylive.live.arch.workflow.Parcel;
-import com.mylive.live.arch.workflow.UiWorker;
 import com.mylive.live.arch.workflow.WorkFlow;
+import com.mylive.live.exception.ProhibitedException;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
+import com.mylive.live.model.Config;
 import com.mylive.live.model.HttpResp;
-import com.mylive.live.utils.ToastUtils;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-27.
@@ -77,36 +75,20 @@ public class BaseActivity extends CommunicableActivity {
             case STARTED:
                 break;
             case RESUMED:
-                WorkFlow.begin()
-                        .deliver(new BackgroundWorker() {
+                WorkFlow.begin(respText)
+                        .deliver(new BackgroundWorker<Config, String>() {
                             @Override
-                            public Parcel doWork(Parcel parcel) {
-                                HttpResp<String> httpResp = JSON.parseObject(
-                                        respText,
-                                        new TypeReference<HttpResp<String>>() {
-                                        }.getType()
-                                );
-                                publish(httpResp);
-                                return parcel.put("resp", httpResp)
-                                        .put("bg", Thread.currentThread().getName());
-                            }
-                        })
-                        .deliver(new UiWorker() {
-                            @Override
-                            public Parcel doWork(Parcel parcel) {
-                                HttpResp httpResp = parcel.get("resp");
-                                String name = "bg:" + parcel.get("bg") + ", ui:"
-                                        + Thread.currentThread().getName();
-                                ToastUtils.showShortToast(
-                                        BaseActivity.this,
-                                        "resp:" + httpResp.getCode()
-                                                + "(" + name + ")"
-                                );
-                                return null;
+                            public Config doWork(String parcel) {
+                                HttpResp<Config> resp = JSON.parseObject(parcel,
+                                        new TypeReference<HttpResp<Config>>() {
+                                        }.getType());
+                                publish(resp);
+                                return resp.getData();
                             }
                         })
                         .end();
                 break;
+            default:
         }
     };
 }

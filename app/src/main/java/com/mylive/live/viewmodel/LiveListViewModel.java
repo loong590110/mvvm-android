@@ -5,12 +5,6 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.SparseArray;
 
 import com.mylive.live.arch.annotation.Service;
-import com.mylive.live.arch.mvvm.HttpSupportViewModel;
-import com.mylive.live.arch.workflow.BackgroundWorker;
-import com.mylive.live.arch.workflow.Parcel;
-import com.mylive.live.arch.workflow.IoWorker;
-import com.mylive.live.arch.workflow.UiWorker;
-import com.mylive.live.arch.workflow.WorkFlow;
 import com.mylive.live.base.BaseViewModel;
 import com.mylive.live.model.LiveList;
 import com.mylive.live.service.LiveListService;
@@ -45,33 +39,5 @@ public class LiveListViewModel extends BaseViewModel {
                     finalLiveList.postValue(liveList);
                 });
         return finalLiveList;
-    }
-
-    public LiveData<String> testWorkFlow() {
-        MutableLiveData<String> workResult = new MutableLiveData<>();
-        WorkFlow.begin()
-                .deliver(new IoWorker() {
-                    @Override
-                    public Parcel doWork(Parcel parcel) {
-                        parcel.put("name", "Aaron")
-                                .put("age", 18);
-                        return parcel;
-                    }
-                })
-                .deliver(new BackgroundWorker() {
-                    @Override
-                    public Parcel doWork(Parcel parcel) {
-                        return parcel.remove("age");
-                    }
-                })
-                .deliver(new UiWorker() {
-                    @Override
-                    public Parcel doWork(Parcel parcel) {
-                        workResult.setValue(parcel.toString());
-                        return parcel;
-                    }
-                })
-                .end();
-        return workResult;
     }
 }
