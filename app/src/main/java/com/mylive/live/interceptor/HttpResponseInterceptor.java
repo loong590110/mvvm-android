@@ -2,7 +2,7 @@ package com.mylive.live.interceptor;
 
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.thread.ThreadsScheduler;
-import com.mylive.live.config.HttpStateCode;
+import com.mylive.live.config.HttpStatusCode;
 
 import java.io.IOException;
 
@@ -23,8 +23,8 @@ public class HttpResponseInterceptor extends ObservableInterceptor<Observer<Stri
             String respTextCopy = String.copyValueOf(respText.toCharArray());
             int code = parseCodeValue(respTextCopy);
             switch (code) {
-                case HttpStateCode.OK:
-                case HttpStateCode.TOKEN_EXPIRE:
+                case HttpStatusCode.OK:
+                case HttpStatusCode.TOKEN_EXPIRE:
                     notifyObservers(code, respText);
                     break;
             }
@@ -66,7 +66,7 @@ public class HttpResponseInterceptor extends ObservableInterceptor<Observer<Stri
     }
 
     private void notifyObservers(int code, String respText) {
-        if (code == HttpStateCode.OK) {
+        if (code == HttpStatusCode.OK) {
             notifyObservers(respText);
         }
     }

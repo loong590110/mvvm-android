@@ -6,5 +6,12 @@ import com.mylive.live.view.main.MainActivity;
 /**
  * Created by Developer Zailong Shi on 2019-06-20.
  */
-public class MainActivityStarter extends ActivityStarter<MainActivity> {
+public final class MainActivityStarter extends ActivityStarter<MainActivity> {
+
+    public static MainActivityStarter create() {
+        return new MainActivityStarter();
+    }
+
+    private MainActivityStarter() {
+    }
 }

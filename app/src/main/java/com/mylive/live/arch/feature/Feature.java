@@ -13,6 +13,8 @@ import android.view.View;
 
 import com.mylive.live.arch.mapper.Mapper;
 
+import java.util.Objects;
+
 /**
  * Created by Developer Zailong Shi on 2019-07-01.
  */
@@ -22,20 +24,20 @@ public class Feature implements LifecycleObserver {
     private Bundle arguments;
 
     public Feature(FeaturesActivity activity) {
+        Objects.requireNonNull(activity);
         this.lifecycleOwner = activity;
         init();
     }
 
     public Feature(FeaturesFragment fragment) {
+        Objects.requireNonNull(fragment);
         this.lifecycleOwner = fragment;
         init();
     }
 
     private void init() {
-        if (lifecycleOwner != null) {
-            lifecycleOwner.getLifecycle().addObserver(this);
-        }
         Mapper.from(lifecycleOwner).to(this);
+        lifecycleOwner.getLifecycle().addObserver(this);
     }
 
     public FeaturesActivity getActivity() {

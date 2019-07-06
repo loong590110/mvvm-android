@@ -9,19 +9,17 @@ public class IoWorker<R, P> implements Worker<R, P> {
 
     private Worker<R, P> worker;
 
-    public IoWorker() {
+    public static <R, P> IoWorker<R, P> work(Worker<R, P> worker) {
+        return new IoWorker<>(worker);
     }
 
-    public IoWorker(Worker<R, P> worker) {
+    private IoWorker(Worker<R, P> worker) {
         Objects.requireNonNull(worker);
         this.worker = worker;
     }
 
     @Override
     public R doWork(P parcel) {
-        if (worker != null) {
-            return worker.doWork(parcel);
-        }
-        return null;
+        return worker.doWork(parcel);
     }
 }

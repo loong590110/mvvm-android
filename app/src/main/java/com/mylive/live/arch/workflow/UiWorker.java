@@ -9,19 +9,17 @@ public class UiWorker<R, P> implements Worker<R, P> {
 
     private Worker<R, P> worker;
 
-    public UiWorker() {
+    public static <R, P> UiWorker<R, P> work(Worker<R, P> worker) {
+        return new UiWorker<>(worker);
     }
 
-    public UiWorker(Worker<R, P> worker) {
+    private UiWorker(Worker<R, P> worker) {
         Objects.requireNonNull(worker);
         this.worker = worker;
     }
 
     @Override
     public R doWork(P parcel) {
-        if (worker != null) {
-            return worker.doWork(parcel);
-        }
-        return null;
+        return worker.doWork(parcel);
     }
 }

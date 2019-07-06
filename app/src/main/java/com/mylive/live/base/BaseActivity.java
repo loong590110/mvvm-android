@@ -12,9 +12,10 @@ import com.mylive.live.arch.mvvm.CommunicableActivity;
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.workflow.BackgroundWorker;
 import com.mylive.live.arch.workflow.WorkFlow;
+import com.mylive.live.config.HttpStatusCode;
+import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.exception.ProhibitedException;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
-import com.mylive.live.model.Config;
 import com.mylive.live.model.HttpResp;
 import com.mylive.live.utils.ToastUtils;
 
@@ -67,29 +68,42 @@ public class BaseActivity extends CommunicableActivity {
     }
 
     private Observer<String> httpResponseObserver = respText -> {
-        switch (getLifecycle().getCurrentState()) {
-            case INITIALIZED:
-            case DESTROYED:
-                break;
-            case CREATED:
-                break;
-            case STARTED:
-                break;
-            case RESUMED:
-                WorkFlow.begin(respText)
-                        .deliver(new BackgroundWorker<>(parcel -> {
-                            HttpResp<Config> resp = JSON.parseObject(parcel,
-                                    new TypeReference<HttpResp<Config>>() {
-                                    }.getType());
-                            publish(resp);
-                            return resp.getData();
-                        }))
-                        .deliver(new BackgroundWorker<>(parcel -> parcel.version))
-                        .end(parcel -> {
-                            ToastUtils.showShortToast(this, parcel);
-                        });
-                break;
-            default:
-        }
+        WorkFlow.begin(respText)
+                .deliver(BackgroundWorker.work(parcel ->
+                        (HttpResp) JSON.parseObject(parcel,
+                                new TypeReference<HttpResp<String>>() {
+                                }.getType())))
+                .end(resp -> {
+                    if (resp == null) {
+                        return;
+                    }
+                    switch (getLifecycle().getCurrentState()) {
+                        case INITIALIZED:
+                        case DESTROYED:
+                            break;
+                        case CREATED:
+                            break;
+                        case STARTED:
+                            break;
+                        case RESUMED:
+                            if (resp.getCode() == HttpStatusCode.TOKEN_EXPIRE) {
+                                new AlertDialog.Builder(this)
+                                        .setTitle("下线通知")
+                                        .setMessage("您的账号已经在其他设备上登录，" +
+                                                "请确认是否是本人操作！")
+                                        .setCancelText("谢谢提醒")
+                                        .setConfirmText("重新登录")
+                                        .setOnConfirmClickListener((dialog, which) -> {
+                                            dialog.dismiss();
+                                        })
+                                        .show();
+                            }
+                            break;
+                        default:
+                            if (!resp.isSuccessful()) {
+                                ToastUtils.showShortToast(this, resp.getMessage());
+                            }
+                    }
+                });
     };
 }

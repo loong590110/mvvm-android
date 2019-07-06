@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mylive.live.R;
+import com.mylive.live.arch.annotation.Features;
 import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.base.BaseFragment;
@@ -19,6 +20,9 @@ import com.mylive.live.model.HttpResp;
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
  */
+@Features({
+        LiveListFeature.class
+})
 public class HomeFragment extends BaseFragment {
 
     @FieldMap("binding")
@@ -37,18 +41,14 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.txtHome.setText("home fragment + 2");
-        getFeaturesManager().add(LiveListFeature.class, null);
-        new AlertDialog.Builder(view.getContext())
-                .setMessage("home fragment")
-                .show();
+        binding.txtTitle.setText("home fragment + 2");
     }
 
     @Override
     protected void onSubscribe(Scheduler scheduler) {
         super.onSubscribe(scheduler);
         scheduler.subscribe(HttpResp.class, httpResp -> {
-            binding.txtHome.setText(httpResp.toString());
+            binding.txtTitle.setText(httpResp.toString());
         });
     }
 }

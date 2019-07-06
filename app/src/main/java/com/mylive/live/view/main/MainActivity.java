@@ -26,7 +26,7 @@ public class MainActivity extends BaseActivity {
         StatusBarCompat.getSettings(this).setLightMode(true).apply();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.btnJump.setOnClickListener(v -> {
-            new LiveRoomActivityStarter().start(this);
+            LiveRoomActivityStarter.create().start(this);
         });
     }
 

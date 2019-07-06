@@ -9,19 +9,17 @@ public class BackgroundWorker<R, P> implements Worker<R, P> {
 
     private Worker<R, P> worker;
 
-    public BackgroundWorker() {
+    public static <R, P> BackgroundWorker<R, P> work(Worker<R, P> worker) {
+        return new BackgroundWorker<>(worker);
     }
 
-    public BackgroundWorker(Worker<R, P> worker) {
+    private BackgroundWorker(Worker<R, P> worker) {
         Objects.requireNonNull(worker);
         this.worker = worker;
     }
 
     @Override
     public R doWork(P parcel) {
-        if (worker != null) {
-            return worker.doWork(parcel);
-        }
-        return null;
+        return worker.doWork(parcel);
     }
 }

@@ -39,7 +39,7 @@ public class SplashActivity extends BaseActivity {
                             splashViewModel.startCountDownTimer().observe(SplashActivity.this,
                                     integer -> {
                                         if (integer != null && integer == 0) {
-                                            new MainActivityStarter()
+                                            MainActivityStarter.create()
                                                     .start(SplashActivity.this)
                                                     .finish();
                                         } else {

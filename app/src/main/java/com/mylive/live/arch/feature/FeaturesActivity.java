@@ -1,6 +1,8 @@
 package com.mylive.live.arch.feature;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,12 +16,27 @@ import android.support.v4.app.FragmentActivity;
 public class FeaturesActivity extends FragmentActivity {
 
     private FeaturesManager featuresManager;
+    private boolean hasFeaturesCreated;
 
     public FeaturesManager getFeaturesManager() {
         if (featuresManager == null) {
             featuresManager = FeaturesManager.of(this);
         }
         return featuresManager;
+    }
+
+    /**
+     * 为了@FieldMap注解能够尽量同步更多字段，
+     * Feature类在resume周期才开始被创建对象。
+     */
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    private void onFeatureCreate() {
+        if (!hasFeaturesCreated) {
+            hasFeaturesCreated = true;
+            FeaturesFinder.findEach(getClass(), clazz -> {
+                getFeaturesManager().add(clazz);
+            });
+        }
     }
 
     @Override
