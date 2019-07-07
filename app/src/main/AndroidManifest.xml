@@ -26,6 +26,6 @@
         </activity>
         <activity android:name=".view.main.MainActivity" />
         <activity android:name=".view.room.LiveRoomActivity" />
-        <activity android:name=".view.LoginActivity" />
+        <activity android:name=".view.login.LoginActivity" />
     </application>
 </manifest>

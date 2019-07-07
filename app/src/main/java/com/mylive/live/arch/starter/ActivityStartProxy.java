@@ -16,7 +16,7 @@ import java.util.HashMap;
 /**
  * Created By zailongshi on 2018/12/20.
  */
-final class ActivityStartProxy {
+public final class ActivityStartProxy {
 
     private static HashMap<String, WeakReference<LifecycleOwner>> contexts;
 
@@ -56,7 +56,7 @@ final class ActivityStartProxy {
         return false;
     }
 
-    static boolean ifPrevent(LifecycleOwner context) {
+    public static boolean ifPrevent(LifecycleOwner context) {
         if (context == null) {
             return true;
         }
@@ -68,11 +68,11 @@ final class ActivityStartProxy {
         return reference != null && reference.get() != null;
     }
 
-    static void startActivity(FragmentActivity context, Intent intent) {
+    public static void startActivity(FragmentActivity context, Intent intent) {
         startActivity(context, intent, null);
     }
 
-    static void startActivity(FragmentActivity context, Intent intent, Bundle options) {
+    public static void startActivity(FragmentActivity context, Intent intent, Bundle options) {
         if (prevent(context)) {
             return;
         }
@@ -85,11 +85,11 @@ final class ActivityStartProxy {
         }
     }
 
-    static void startActivity(Fragment fragment, Intent intent) {
+    public static void startActivity(Fragment fragment, Intent intent) {
         startActivity(fragment, intent, null);
     }
 
-    static void startActivity(Fragment fragment, Intent intent, Bundle options) {
+    public static void startActivity(Fragment fragment, Intent intent, Bundle options) {
         if (prevent(fragment)) {
             return;
         }
@@ -99,13 +99,13 @@ final class ActivityStartProxy {
         }
     }
 
-    static void startActivityForResult(FragmentActivity context, Intent intent,
-                                       int requestCode) {
+    public static void startActivityForResult(FragmentActivity context, Intent intent,
+                                              int requestCode) {
         startActivityForResult(context, intent, requestCode, null);
     }
 
-    static void startActivityForResult(FragmentActivity context, Intent intent,
-                                       int requestCode, Bundle options) {
+    public static void startActivityForResult(FragmentActivity context, Intent intent,
+                                              int requestCode, Bundle options) {
         if (prevent(context)) {
             return;
         }
@@ -115,13 +115,13 @@ final class ActivityStartProxy {
         }
     }
 
-    static void startActivityForResult(Fragment fragment, Intent intent,
-                                       int requestCode) {
+    public static void startActivityForResult(Fragment fragment, Intent intent,
+                                              int requestCode) {
         startActivityForResult(fragment, intent, requestCode, null);
     }
 
-    static void startActivityForResult(Fragment fragment, Intent intent,
-                                       int requestCode, Bundle options) {
+    public static void startActivityForResult(Fragment fragment, Intent intent,
+                                              int requestCode, Bundle options) {
         if (prevent(fragment)) {
             return;
         }

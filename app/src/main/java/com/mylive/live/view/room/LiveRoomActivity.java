@@ -10,6 +10,7 @@ import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityLiveRoomBinding;
 import com.mylive.live.event.TestEvent;
+import com.mylive.live.router.LoginActivityStarter;
 import com.mylive.live.viewmodel.LiveRoomViewModel;
 
 /**
@@ -42,6 +43,9 @@ public class LiveRoomActivity extends BaseActivity {
             liveRoomViewModel.getConfig().observe(this, config -> {
                 binding.txtStatue.setText(String.valueOf(config));
             });
+        });
+        binding.btnLogin.setOnClickListener(v -> {
+            LoginActivityStarter.create().start(this);
         });
     }
 }

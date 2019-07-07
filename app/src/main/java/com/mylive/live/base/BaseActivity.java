@@ -5,6 +5,7 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -18,12 +19,14 @@ import com.mylive.live.exception.ProhibitedException;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
 import com.mylive.live.model.HttpResp;
 import com.mylive.live.utils.ToastUtils;
+import com.mylive.live.widget.NavigationBar;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-27.
  */
 @SuppressLint("Registered")
-public class BaseActivity extends CommunicableActivity {
+public class BaseActivity extends CommunicableActivity
+        implements NavigationBar.OnBackButtonClickListener {
 
     @Deprecated
     @Override
@@ -106,4 +109,9 @@ public class BaseActivity extends CommunicableActivity {
                     }
                 });
     };
+
+    @Override
+    public void onBackButtonClick(View v) {
+        finish();
+    }
 }

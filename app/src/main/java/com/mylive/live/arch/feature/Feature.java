@@ -57,6 +57,10 @@ public class Feature implements LifecycleObserver {
         return getContext().getResources();
     }
 
+    public LifecycleOwner getLifecycleOwner() {
+        return lifecycleOwner;
+    }
+
     public <T extends View> T findViewById(@IdRes int id) {
         //noinspection unchecked
         return (T) getActivity().findViewById(id);
