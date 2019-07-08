@@ -23,9 +23,10 @@
             android:layout_height="wrap_content"
             android:text="jump"
             android:textSize="16sp"
+            android:background="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:textColor="@color/colorAccent" />
+            tools:textColor="@color/titleTextColor" />
     </android.support.constraint.ConstraintLayout>
 </layout>
