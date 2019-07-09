@@ -11,9 +11,11 @@ import com.alibaba.fastjson.JSON;
 import com.mylive.live.R;
 import com.mylive.live.arch.permission.PermissionsRequester;
 import com.mylive.live.base.BaseActivity;
+import com.mylive.live.component.DoubleClickExit;
 import com.mylive.live.databinding.ActivitySplashBinding;
 import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.router.MainActivityStarter;
+import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.SplashViewModel;
 
 /**
@@ -89,5 +91,14 @@ public class SplashActivity extends BaseActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         requester.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!DoubleClickExit.getInstance().onBackPressed()) {
+            ToastUtils.showShortToast(this, R.string.double_click_exit_app);
+            return;
+        }
+        super.onBackPressed();
     }
 }

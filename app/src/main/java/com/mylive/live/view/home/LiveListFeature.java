@@ -15,6 +15,7 @@ import com.mylive.live.base.BaseFeature;
 import com.mylive.live.base.BaseViewHolder;
 import com.mylive.live.databinding.FragmentHomeBinding;
 import com.mylive.live.databinding.ItemLiveListBinding;
+import com.mylive.live.router.WebActivityStarter;
 
 import java.util.Random;
 
@@ -72,6 +73,10 @@ public class LiveListFeature extends BaseFeature {
             binding.txtContent.setText("hello, item " + position);
             binding.txtContent.setBackgroundColor(0xff000000 |
                     ((int) (0xffffff * new Random().nextFloat())));
+            binding.getRoot().setOnClickListener(v -> {
+                WebActivityStarter.create("https://im.qq.com/")
+                        .start(LiveListFeature.this);
+            });
         }
     }
 }

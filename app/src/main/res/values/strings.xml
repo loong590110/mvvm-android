@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">mylive</string>
+    <string name="double_click_exit_app">在按一次退出</string>
     <!--alert dialog-->
     <string name="alert_default_title">提示</string>
     <string name="cancel">取消</string>

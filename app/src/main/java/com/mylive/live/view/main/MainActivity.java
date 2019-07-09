@@ -10,6 +10,7 @@ import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
+import com.mylive.live.component.DoubleClickExit;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.event.TestEvent;
 import com.mylive.live.router.LiveRoomActivityStarter;
@@ -44,5 +45,14 @@ public class MainActivity extends BaseActivity {
         }).subscribe(TestEvent.class, event -> {
             ToastUtils.showShortToast(this, event.data);
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!DoubleClickExit.getInstance().onBackPressed()) {
+            ToastUtils.showShortToast(this, R.string.double_click_exit_app);
+            return;
+        }
+        super.onBackPressed();
     }
 }

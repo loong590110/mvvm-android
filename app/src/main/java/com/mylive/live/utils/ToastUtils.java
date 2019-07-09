@@ -1,6 +1,7 @@
 package com.mylive.live.utils;
 
 import android.content.Context;
+import android.support.annotation.StringRes;
 import android.widget.Toast;
 
 /**
@@ -9,6 +10,14 @@ import android.widget.Toast;
 public class ToastUtils {
 
     public static void showShortToast(Context context, String text) {
+        if (context == null)
+            return;
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void showShortToast(Context context, @StringRes int resId) {
+        if (context == null)
+            return;
+        showShortToast(context, context.getString(resId));
     }
 }
