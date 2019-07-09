@@ -11,7 +11,7 @@ import android.webkit.WebViewClient;
 import com.mylive.live.BuildConfig;
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.JsBridgeApi;
-import com.mylive.live.arch.jsbrige.JsBridge;
+import com.mylive.live.arch.jsbrige.JsBridgeWebViewClient;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityWebBinding;
 import com.mylive.live.utils.ToastUtils;
@@ -22,16 +22,14 @@ import com.mylive.live.utils.ToastUtils;
 public class WebActivity extends BaseActivity {
 
     private ActivityWebBinding binding;
-    private JsBridge jsBridge;
+    private JsBridgeWebViewClient jsBridge;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String url = getIntent().getStringExtra("url");
         binding = DataBindingUtil.setContentView(this, R.layout.activity_web);
-        jsBridge = new JsBridge(binding.webView);
-        jsBridge.addJsBridgeApi(new JsBridgeApiImpl());
-        binding.webView.setWebViewClient(new WebViewClient() {
+        jsBridge = new JsBridgeWebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return super.shouldOverrideUrlLoading(view, request);
@@ -44,12 +42,13 @@ public class WebActivity extends BaseActivity {
             }
 
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
+            public void onPageFinished(WebView view, JsBridgeWebViewClient client, String url) {
+                super.onPageFinished(view, client, url);
                 binding.navigationBar.setTitle(view.getTitle());
-                jsBridge.onPageFinished(view);
             }
-        });
+        };
+        jsBridge.addJsBridgeApi(new JsBridgeApiImpl());
+        binding.webView.setWebViewClient(jsBridge);
         binding.webView.loadUrl(url);
     }
 
@@ -63,7 +62,7 @@ public class WebActivity extends BaseActivity {
         @JsBridgeApi("toast")
         public String toast(String params) {
             ToastUtils.showShortToast(WebActivity.this, "toast:" + params);
-            return null;
+            return "toast";
         }
     }
 }

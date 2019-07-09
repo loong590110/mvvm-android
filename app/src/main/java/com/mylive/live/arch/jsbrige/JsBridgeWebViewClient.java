@@ -2,8 +2,8 @@ package com.mylive.live.arch.jsbrige;
 
 import android.os.Build;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.mylive.live.arch.annotation.JsBridgeApi;
 
@@ -21,20 +21,24 @@ import java.util.Objects;
  * <p>
  * Created by Developer Zailong Shi on 2019-07-09.
  */
-public class JsBridge {
+public class JsBridgeWebViewClient extends WebViewClient {
 
+    private static final String JS_BRIDGE = "jsBridge";
     private Object jsBridgeApi;
     private Map<String, Method> apiMap;
+    private WebView view;
 
-    public JsBridge(WebView webView) {
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.addJavascriptInterface(this, "jsBridge");
-    }
-
-    public void onPageFinished(WebView view) {
+    @Override
+    public final void onPageFinished(WebView view, String url) {
+        if (this.view != view) {
+            this.view = view;
+            view.getSettings().setJavaScriptEnabled(true);
+            view.addJavascriptInterface(this, JS_BRIDGE);
+        }
+        super.onPageFinished(view, url);
         String js = "javascript:"
                 + "var version = window.jsBridge.invoke('version', 'ver');"
-                + "var t = window.jsBridge.invoke('toast', version);";
+                + "window.jsBridge.invoke('toast', version);";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             view.evaluateJavascript(js, value -> {
 
@@ -42,6 +46,10 @@ public class JsBridge {
         } else {
             view.loadUrl(js);
         }
+        onPageFinished(view, this, url);
+    }
+
+    public void onPageFinished(WebView view, JsBridgeWebViewClient client, String url) {
     }
 
     public void addJsBridgeApi(Object jsBridgeApi) {
@@ -80,7 +88,7 @@ public class JsBridge {
             }
         } catch (Exception ignore) {
         }
-        return null;
+        return "";
     }
 
     public String callback(String name, String params) {
