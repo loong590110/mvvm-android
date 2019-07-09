@@ -15,11 +15,11 @@ public class ScrollEvent extends Observable<ScrollEvent.Observer> {
 
     private Handler handler = new Handler(Looper.getMainLooper());
     @Direction
-    private int lastDirection, currentDirection;
+    private int latestDirection, currentDirection;
     private boolean ignoreDirection;
 
     public void notifyObservers(@Direction int direction) {
-        lastDirection = direction;
+        latestDirection = direction;
         if (ignoreDirection) {
             return;
         }
@@ -43,8 +43,8 @@ public class ScrollEvent extends Observable<ScrollEvent.Observer> {
     public void onFeedBack(@Direction int currentDirection) {
         this.ignoreDirection = false;
         this.currentDirection = currentDirection;
-        if (currentDirection != lastDirection) {
-            notifyObservers(lastDirection);
+        if (currentDirection != latestDirection) {
+            notifyObservers(latestDirection);
         }
     }
 
