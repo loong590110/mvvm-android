@@ -1,5 +1,6 @@
 package com.mylive.live.arch.jsbrige;
 
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +13,7 @@ import com.mylive.live.arch.annotation.JsBridgeApi;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -44,17 +46,17 @@ public class JsBridgeWebViewClient extends WebViewClient {
         }
     }
 
+    public JsBridgeWebViewClient(WebView view) {
+        if (this.view == null || this.view.get() != view) {
+            this.view = new WeakReference<>(view);
+        }
+        view.getSettings().setJavaScriptEnabled(true);
+        view.addJavascriptInterface(this, JS_BRIDGE);
+    }
+
     @Override
     public final void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
-        if (this.view == null || this.view.get() != view) {
-            this.view = new WeakReference<>(view);
-            view.getSettings().setJavaScriptEnabled(true);
-            view.addJavascriptInterface(this, JS_BRIDGE);
-        }
-        if (view == null) {
-            return;
-        }
         String proxy = invokeMethodName != null && !"invoke".equals(invokeMethodName) ?
                 "window.jsBridge.invoke = function(name, params){"
                         + "window.jsBridge.$invoke(name, params);"
@@ -62,12 +64,12 @@ public class JsBridgeWebViewClient extends WebViewClient {
                 : null;
         String js = (proxy != null ? proxy.replace("$invoke", invokeMethodName) : "")
                 + "window.jsBridge.callback = function(name, returnValue){"
-                + "window.jsBridge.invoke('toast', new Array(name + ':' + returnValue));"
+                + "window.jsBridge.invoke('toast', [name + ':' + returnValue]);"
                 + "};"
                 + "window.jsBridge.error = function(error){"
                 + "console.log(error);"
                 + "};"
-                + "window.jsBridge.invoke('getUserId', new Array('callback'));";
+                + "window.jsBridge.invoke('getUserId', ['callback']);";
         evaluateJavascript(js);
         onPageFinished(view, this, url);
     }
@@ -84,7 +86,8 @@ public class JsBridgeWebViewClient extends WebViewClient {
         apiMap.clear();
         Method[] methods = jsBridgeApi.getClass().getDeclaredMethods();
         for (Method method : methods) {
-            if (method.isAnnotationPresent(JsBridgeApi.class)) {
+            if (method.getModifiers() == Modifier.PUBLIC
+                    || method.isAnnotationPresent(JsBridgeApi.class)) {
                 Class<?>[] paramTypes = method.getParameterTypes();
                 Class<?> returnType = method.getReturnType();
                 if (!void.class.isAssignableFrom(returnType)
@@ -99,8 +102,12 @@ public class JsBridgeWebViewClient extends WebViewClient {
                                 + "方法的参数只允许String类型和Callback类型。");
                     }
                 }
-                JsBridgeApi api = method.getAnnotation(JsBridgeApi.class);
-                apiMap.put(api.value(), method);
+                if (method.isAnnotationPresent(JsBridgeApi.class)) {
+                    JsBridgeApi api = method.getAnnotation(JsBridgeApi.class);
+                    apiMap.put(api.value(), method);
+                } else {
+                    apiMap.put(method.getName(), method);
+                }
             }
         }
     }
@@ -165,7 +172,6 @@ public class JsBridgeWebViewClient extends WebViewClient {
                 view.loadUrl(finalJavascript);
             }
         });
-
     }
 
     public interface Callback {

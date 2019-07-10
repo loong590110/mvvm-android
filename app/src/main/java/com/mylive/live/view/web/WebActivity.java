@@ -2,6 +2,7 @@ package com.mylive.live.view.web;
 
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.webkit.WebResourceRequest;
@@ -26,13 +27,17 @@ public class WebActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
+        }
         String url = getIntent().getStringExtra("url");
         binding = DataBindingUtil.setContentView(this, R.layout.activity_web);
         binding.navigationBar.setRightButtonText("next");
         binding.navigationBar.setOnRightButtonClickListener(v -> {
-            WebActivityStarter.create("https://im.qq.com/").start(WebActivity.this);
+            WebActivityStarter.create("http://192.168.1.104:8080")
+                    .start(WebActivity.this);
         });
-        JsBridgeWebViewClient jsBridge = new JsBridgeWebViewClient() {
+        JsBridgeWebViewClient jsBridge = new JsBridgeWebViewClient(binding.webView) {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return super.shouldOverrideUrlLoading(view, request);
@@ -52,6 +57,7 @@ public class WebActivity extends BaseActivity {
         };
         jsBridge.addJsBridgeApi(new JsBridgeApiImpl());
         binding.webView.setWebViewClient(jsBridge);
+        binding.webView.clearCache(BuildConfig.DEBUG);
         binding.webView.loadUrl(url);
     }
 
