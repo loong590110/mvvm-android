@@ -1,12 +1,16 @@
 package com.mylive.live.arch.jsbrige;
 
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.mylive.live.arch.annotation.JsBridgeApi;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,28 +27,48 @@ import java.util.Objects;
 public class JsBridgeWebViewClient extends WebViewClient {
 
     private static final String JS_BRIDGE = "jsBridge";
+    private Handler handler = new Handler(Looper.getMainLooper());
     private Object jsBridgeApi;
+    private String invokeMethodName;
     private Map<String, Method> apiMap;
-    private WebView view;
+    private WeakReference<WebView> view;
+
+    {
+        Method[] methods = getClass().getMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(JsBridgeApi.class)
+                    && "invoke".equals(method.getAnnotation(JsBridgeApi.class).value())) {
+                invokeMethodName = method.getName();
+                break;
+            }
+        }
+    }
 
     @Override
     public final void onPageFinished(WebView view, String url) {
-        if (this.view != view) {
-            this.view = view;
+        super.onPageFinished(view, url);
+        if (this.view == null || this.view.get() != view) {
+            this.view = new WeakReference<>(view);
             view.getSettings().setJavaScriptEnabled(true);
             view.addJavascriptInterface(this, JS_BRIDGE);
         }
-        super.onPageFinished(view, url);
-        String js = "javascript:"
-                + "var version = window.jsBridge.invoke('version', 'ver');"
-                + "window.jsBridge.invoke('toast', version);";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            view.evaluateJavascript(js, value -> {
-
-            });
-        } else {
-            view.loadUrl(js);
+        if (view == null) {
+            return;
         }
+        String proxy = invokeMethodName != null && !"invoke".equals(invokeMethodName) ?
+                "window.jsBridge.invoke = function(name, params){"
+                        + "window.jsBridge.$invoke(name, params);"
+                        + "};"
+                : null;
+        String js = (proxy != null ? proxy.replace("$invoke", invokeMethodName) : "")
+                + "window.jsBridge.callback = function(name, returnValue){"
+                + "window.jsBridge.invoke('toast', new Array(name + ':' + returnValue));"
+                + "};"
+                + "window.jsBridge.error = function(error){"
+                + "console.log(error);"
+                + "};"
+                + "window.jsBridge.invoke('getUserId', new Array('callback'));";
+        evaluateJavascript(js);
         onPageFinished(view, this, url);
     }
 
@@ -81,27 +105,70 @@ public class JsBridgeWebViewClient extends WebViewClient {
         }
     }
 
+    @JsBridgeApi("invoke")
     @JavascriptInterface
-    public String invoke(String name, String params) {
-        try {
-            Method method = apiMap.get(name);
-            if (method != null) {
-                if (!method.isAccessible()) {
-                    method.setAccessible(true);
+    public void invoke(String name, String... params) {
+        Method method = apiMap.get(name);
+        if (method != null) {
+            handler.post(() -> {
+                try {
+                    if (!method.isAccessible()) {
+                        method.setAccessible(true);
+                    }
+                    Callback callback = returnValue -> callback(name, returnValue);
+                    Object[] args = new Object[params == null ? 0 : params.length];
+                    for (int i = 0; params != null && i < params.length; i++) {
+                        args[i] = "callback".equals(params[i]) ? callback : params[i];
+                    }
+                    if (String.class.isAssignableFrom(method.getReturnType())) {
+                        Object returnValue = method.invoke(jsBridgeApi, args);
+                        callback(name, (String) returnValue);
+                    } else {
+                        method.invoke(jsBridgeApi, args);
+                    }
+                } catch (Exception e) {
+                    error(e.getMessage());
                 }
-                Object returnValue = method.invoke(jsBridgeApi, params);
-                return callback(name, (String) returnValue);
-            }
-        } catch (Exception ignore) {
+            });
+            return;
         }
-        return "";
+        error("名为" + name + "的方法(函数)不存在。");
     }
 
-    public String callback(String name, String params) {
-        return String.format("{\"name\":\"%s\",\"return\":\"%s\"}", name, params);
+    private void callback(String name, String returnValue) {
+        String js = String.format("window.jsBridge.callback('%s','%s');", name, returnValue);
+        evaluateJavascript(js);
+    }
+
+    private void error(String error) {
+        String js = String.format("window.jsBridge.error('%s');", error);
+        evaluateJavascript(js);
+    }
+
+    private void evaluateJavascript(String javascript) {
+        if (TextUtils.isEmpty(javascript)) {
+            return;
+        }
+        WebView view = this.view.get();
+        if (view == null) {
+            return;
+        }
+        if (!javascript.startsWith("javascript:")) {
+            javascript = "javascript:" + javascript;
+        }
+        String finalJavascript = javascript;
+        handler.post(() -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                view.evaluateJavascript(finalJavascript, value -> {
+                });
+            } else {
+                view.loadUrl(finalJavascript);
+            }
+        });
+
     }
 
     public interface Callback {
-        void callback(String returnValue);
+        void call(String returnValue);
     }
 }

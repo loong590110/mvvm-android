@@ -1,13 +1,9 @@
 package com.mylive.live.arch.feature;
 
-import android.content.Intent;
-
 import com.mylive.live.arch.starter.ActivityStartProxy;
 import com.mylive.live.arch.starter.ActivityStarter;
 import com.mylive.live.arch.starter.Finisher;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Objects;
 
 /**
@@ -16,14 +12,6 @@ import java.util.Objects;
 public class FeaturesActivityStarter<T extends FeaturesActivity>
         extends ActivityStarter<T>
         implements Starter {
-
-    private Class<T> targetActivity;
-    @SuppressWarnings("WeakerAccess")
-    protected Intent intent;
-
-    protected FeaturesActivityStarter() {
-        intent = new Intent();
-    }
 
     @Override
     public Finisher start(Feature feature) {
@@ -65,17 +53,5 @@ public class FeaturesActivityStarter<T extends FeaturesActivity>
                     (FeaturesFragment) feature.getLifecycleOwner(),
                     intent, requestCode);
         }
-    }
-
-    private Class<T> getTargetActivity() {
-        if (targetActivity == null) {
-            Type type = getClass().getGenericSuperclass();
-            if (type instanceof ParameterizedType) {
-                //noinspection unchecked
-                targetActivity = (Class<T>) ((ParameterizedType) type)
-                        .getActualTypeArguments()[0];
-            }
-        }
-        return targetActivity;
     }
 }

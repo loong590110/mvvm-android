@@ -15,11 +15,7 @@ public class ActivityStarter<T extends FragmentActivity> implements Starter {
 
     private Class<T> targetActivity;
     @SuppressWarnings("WeakerAccess")
-    protected Intent intent;
-
-    protected ActivityStarter() {
-        intent = new Intent();
-    }
+    protected Intent intent = new Intent();
 
     @Override
     public Finisher start(FragmentActivity context) {
@@ -66,7 +62,7 @@ public class ActivityStarter<T extends FragmentActivity> implements Starter {
         ActivityStartProxy.startActivityForResult(fragment, intent, requestCode);
     }
 
-    private Class<T> getTargetActivity() {
+    protected Class<T> getTargetActivity() {
         if (targetActivity == null) {
             Type type = getClass().getGenericSuperclass();
             if (type instanceof ParameterizedType) {

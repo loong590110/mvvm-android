@@ -13,6 +13,7 @@ import com.mylive.live.arch.annotation.JsBridgeApi;
 import com.mylive.live.arch.jsbrige.JsBridgeWebViewClient;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityWebBinding;
+import com.mylive.live.router.WebActivityStarter;
 import com.mylive.live.utils.ToastUtils;
 
 /**
@@ -21,14 +22,17 @@ import com.mylive.live.utils.ToastUtils;
 public class WebActivity extends BaseActivity {
 
     private ActivityWebBinding binding;
-    private JsBridgeWebViewClient jsBridge;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String url = getIntent().getStringExtra("url");
         binding = DataBindingUtil.setContentView(this, R.layout.activity_web);
-        jsBridge = new JsBridgeWebViewClient() {
+        binding.navigationBar.setRightButtonText("next");
+        binding.navigationBar.setOnRightButtonClickListener(v -> {
+            WebActivityStarter.create("https://im.qq.com/").start(WebActivity.this);
+        });
+        JsBridgeWebViewClient jsBridge = new JsBridgeWebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return super.shouldOverrideUrlLoading(view, request);
@@ -51,16 +55,30 @@ public class WebActivity extends BaseActivity {
         binding.webView.loadUrl(url);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (binding.webView.canGoBack()) {
+            binding.webView.goBack();
+            return;
+        }
+        super.onBackPressed();
+    }
+
     private class JsBridgeApiImpl {
 
         @JsBridgeApi("version")
-        public String getVersion(String params) {
-            return params + BuildConfig.VERSION_NAME;
+        public String getVersion() {
+            return BuildConfig.VERSION_NAME;
         }
 
         @JsBridgeApi("toast")
         public void toast(String params) {
             ToastUtils.showShortToast(WebActivity.this, "toast:" + params);
+        }
+
+        @JsBridgeApi("getUserId")
+        public void getUserId(JsBridgeWebViewClient.Callback callback) {
+            callback.call("1000012");
         }
     }
 }
