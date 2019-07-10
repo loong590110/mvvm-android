@@ -51,7 +51,7 @@ public class SplashViewModel extends BaseViewModel {
                 .observe((Config config) -> {
                     this.config.postValue(config);
                 }, e -> {
-                    this.config.postValue(null);
+                    this.config.postValue(new Config());
                 });
         return config;
     }

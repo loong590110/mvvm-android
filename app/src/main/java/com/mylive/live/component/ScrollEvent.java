@@ -36,13 +36,12 @@ public class ScrollEvent extends Observable<ScrollEvent.Observer> {
         if (filter != null && !filter.onFilter()) {
             return;
         }
-        if (check != null && check.onCheck(direction)) {
-            currentDirection = direction;
-            latestDirection = direction;
-            return;
-        }
         latestDirection = direction;
         if (ignoreDirection) {
+            return;
+        }
+        if (check != null && check.onCheck(direction)) {
+            currentDirection = direction;
             return;
         }
         if (currentDirection == direction) {

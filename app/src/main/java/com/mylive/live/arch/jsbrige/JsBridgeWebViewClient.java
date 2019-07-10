@@ -8,7 +8,6 @@ import android.webkit.WebViewClient;
 import com.mylive.live.arch.annotation.JsBridgeApi;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -61,19 +60,23 @@ public class JsBridgeWebViewClient extends WebViewClient {
         apiMap.clear();
         Method[] methods = jsBridgeApi.getClass().getDeclaredMethods();
         for (Method method : methods) {
-            if (method.getModifiers() == Modifier.PUBLIC
-                    && method.isAnnotationPresent(JsBridgeApi.class)) {
+            if (method.isAnnotationPresent(JsBridgeApi.class)) {
                 Class<?>[] paramTypes = method.getParameterTypes();
                 Class<?> returnType = method.getReturnType();
-                if (paramTypes.length == 1 && String.class.isAssignableFrom(paramTypes[0])
-                        && String.class.isAssignableFrom(returnType)) {
-                    JsBridgeApi api = method.getAnnotation(JsBridgeApi.class);
-                    apiMap.put(api.value(), method);
-                    continue;
+                if (!void.class.isAssignableFrom(returnType)
+                        && !String.class.isAssignableFrom(returnType)) {
+                    throw new IllegalArgumentException("方法" + method.getName() + "无效，"
+                            + "方法的返回值只允许String类型和void类型。");
                 }
-                throw new IllegalArgumentException("方法" + method.getName() + "无效，" +
-                        "方法必须有且只有一个String参数，" +
-                        "而且返回值必须是String类型。");
+                for (Class<?> type : paramTypes) {
+                    if (!String.class.isAssignableFrom(type)
+                            && !Callback.class.isAssignableFrom(type)) {
+                        throw new IllegalArgumentException("方法" + method.getName() + "无效，"
+                                + "方法的参数只允许String类型和Callback类型。");
+                    }
+                }
+                JsBridgeApi api = method.getAnnotation(JsBridgeApi.class);
+                apiMap.put(api.value(), method);
             }
         }
     }
@@ -83,6 +86,9 @@ public class JsBridgeWebViewClient extends WebViewClient {
         try {
             Method method = apiMap.get(name);
             if (method != null) {
+                if (!method.isAccessible()) {
+                    method.setAccessible(true);
+                }
                 Object returnValue = method.invoke(jsBridgeApi, params);
                 return callback(name, (String) returnValue);
             }
@@ -93,5 +99,9 @@ public class JsBridgeWebViewClient extends WebViewClient {
 
     public String callback(String name, String params) {
         return String.format("{\"name\":\"%s\",\"return\":\"%s\"}", name, params);
+    }
+
+    public interface Callback {
+        void callback(String returnValue);
     }
 }

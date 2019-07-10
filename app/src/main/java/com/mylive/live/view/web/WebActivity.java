@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.mylive.live.BuildConfig;
 import com.mylive.live.R;
@@ -60,9 +59,8 @@ public class WebActivity extends BaseActivity {
         }
 
         @JsBridgeApi("toast")
-        public String toast(String params) {
+        public void toast(String params) {
             ToastUtils.showShortToast(WebActivity.this, "toast:" + params);
-            return "toast";
         }
     }
 }
