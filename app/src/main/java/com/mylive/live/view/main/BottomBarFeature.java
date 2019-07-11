@@ -14,7 +14,7 @@ import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.feature.FeaturesActivity;
 import com.mylive.live.arch.feature.FeaturesFragment;
 import com.mylive.live.base.BaseFeature;
-import com.mylive.live.component.ScrollEvent;
+import com.mylive.live.utils.ScrollEvent;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.view.home.HomeScrollEvent;
 
@@ -37,6 +37,8 @@ public class BottomBarFeature extends BaseFeature {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void onCreate() {
+        RecyclerView recyclerView
+                = binding.getRoot().findViewById(R.id.recycler_view);
         HomeScrollEvent.getInstance().registerObserver(
                 scrollEventObserver = direction -> {
                     int parentHeight = binding.getRoot().getHeight();
@@ -47,27 +49,28 @@ public class BottomBarFeature extends BaseFeature {
                     int endY = direction > 0 ? parentHeight
                             : parentHeight - bottomBarHeight;
                     Runnable resetRecyclerViewLayoutParams = () -> {
-                        RecyclerView recyclerView
-                                = binding.getRoot().findViewById(R.id.recycler_view);
                         ViewGroup.MarginLayoutParams params
                                 = (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
                         params.bottomMargin = direction > 0 ? 0 : bottomBarHeight;
                         recyclerView.setLayoutParams(params);
                     };
-                    if (direction > 0) {
-                        resetRecyclerViewLayoutParams.run();
-                    }
+                    resetRecyclerViewLayoutParams.run();
                     ValueAnimator valueAnimator = ValueAnimator.ofInt(startY, endY);
                     valueAnimator.addUpdateListener(animation -> {
                         binding.btnJump.setY((int) animation.getAnimatedValue());
+                        Runnable resetRecyclerViewLayoutParams2 = () -> {
+                            int marginBottom = (int) (parentHeight - binding.btnJump.getY());
+                            ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
+                            ((ViewGroup.MarginLayoutParams) params).bottomMargin
+                                    = Math.max(0, marginBottom);
+                            recyclerView.setLayoutParams(params);
+                        };
+                        resetRecyclerViewLayoutParams2.run();
                     });
                     valueAnimator.addListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             HomeScrollEvent.getInstance().onFeedBack(direction);
-                            if (direction < 0) {
-                                resetRecyclerViewLayoutParams.run();
-                            }
                         }
                     });
                     valueAnimator.setInterpolator(new DecelerateInterpolator());

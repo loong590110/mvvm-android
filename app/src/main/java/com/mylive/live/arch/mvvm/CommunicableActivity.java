@@ -18,11 +18,11 @@ public class CommunicableActivity extends FeaturesActivity implements LifecycleO
 
     public static final String SCHEDULER_HOLDER_CLASSNAME = SchedulerHolder.class.getName();
 
-    private static class SchedulerHolder {
+    private static final class SchedulerHolder {
         private static final Scheduler SCHEDULER = new SubscribesScheduler();
     }
 
-    private Scheduler schedulerAndPublisherProxy = new PublisherAndSchedulerProxy(
+    private final Scheduler schedulerAndPublisherProxy = new PublisherAndSchedulerProxy(
             CommunicableActivity.SchedulerHolder.SCHEDULER
     );
 

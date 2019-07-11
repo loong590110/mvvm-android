@@ -8,5 +8,6 @@ public class LiveList {
 
     public class LiveListItem {
         public long id;
+        public String desc;
     }
 }

@@ -1,4 +1,4 @@
-package com.mylive.live.component;
+package com.mylive.live.utils;
 
 import android.database.Observable;
 import android.os.Handler;

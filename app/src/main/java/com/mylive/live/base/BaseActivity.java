@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.mylive.live.arch.mvvm.CommunicableActivity;
+import com.mylive.live.arch.mvvm.ViewModelActivity;
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.workflow.BackgroundWorker;
 import com.mylive.live.arch.workflow.WorkFlow;
@@ -25,7 +25,7 @@ import com.mylive.live.widget.NavigationBar;
  * Created by Developer Zailong Shi on 2019-06-27.
  */
 @SuppressLint("Registered")
-public class BaseActivity extends CommunicableActivity
+public class BaseActivity extends ViewModelActivity
         implements NavigationBar.OnBackButtonClickListener {
 
     @Deprecated

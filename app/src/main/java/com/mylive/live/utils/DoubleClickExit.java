@@ -1,4 +1,4 @@
-package com.mylive.live.component;
+package com.mylive.live.utils;
 
 /**
  * Created by Developer Zailong Shi on 2019-07-09.

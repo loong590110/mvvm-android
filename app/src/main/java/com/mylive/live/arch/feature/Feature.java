@@ -26,17 +26,22 @@ public class Feature implements LifecycleObserver {
     public Feature(FeaturesActivity activity) {
         Objects.requireNonNull(activity);
         this.lifecycleOwner = activity;
-        init();
+        onConstructing();
+        onAttach();
     }
 
     public Feature(FeaturesFragment fragment) {
         Objects.requireNonNull(fragment);
         this.lifecycleOwner = fragment;
-        init();
+        onConstructing();
+        onAttach();
     }
 
-    private void init() {
+    protected void onConstructing() {
         Mapper.from(lifecycleOwner).to(this);
+    }
+
+    protected void onAttach() {
         lifecycleOwner.getLifecycle().addObserver(this);
     }
 

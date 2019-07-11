@@ -14,30 +14,14 @@ import com.mylive.live.service.LiveListService;
  */
 public class LiveListViewModel extends BaseViewModel {
 
-    private MutableLiveData<SparseArray<LiveList>> liveListMap = new MutableLiveData<>();
     @Service
     private LiveListService liveListService;
 
-    public LiveData<LiveList> getLiveList(boolean more) {
+    public LiveData<LiveList> getLiveList(boolean more, int size) {
         MutableLiveData<LiveList> finalLiveList = new MutableLiveData<>();
-        liveListService.getLiveList()
+        liveListService.getLiveList(size)
                 .dispose(this)
-                .observe((LiveList liveList) -> {
-                    SparseArray<LiveList> liveListArray = liveListMap.getValue();
-                    if (liveListArray == null) {
-                        liveListArray = new SparseArray<>();
-                    }
-                    if (!more) {
-                        liveListArray.put(liveList.type, liveList);
-                    } else {
-                        LiveList _liveList = liveListArray.get(liveList.type);
-                        liveList.list.removeAll(_liveList.list);
-                        _liveList.list.addAll(liveList.list);
-                        liveListArray.put(_liveList.type, _liveList);
-                    }
-                    liveListMap.setValue(liveListArray);
-                    finalLiveList.postValue(liveList);
-                });
+                .observe(finalLiveList::postValue);
         return finalLiveList;
     }
 }

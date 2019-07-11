@@ -11,7 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.mylive.live.R;
 import com.mylive.live.arch.permission.PermissionsRequester;
 import com.mylive.live.base.BaseActivity;
-import com.mylive.live.component.DoubleClickExit;
+import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.databinding.ActivitySplashBinding;
 import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.router.MainActivityStarter;

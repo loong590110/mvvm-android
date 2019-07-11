@@ -1,11 +1,21 @@
 package com.mylive.live.interceptor;
 
+import android.util.Log;
+
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.thread.ThreadsScheduler;
 import com.mylive.live.config.HttpStatusCode;
+import com.sun.script.javascript.RhinoScriptEngine;
 
 import java.io.IOException;
+import java.util.Set;
 
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+
+import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.internal.http.RealResponseBody;
 import okio.Buffer;
@@ -15,11 +25,20 @@ import okio.Buffer;
  */
 public class HttpResponseInterceptor extends ObservableInterceptor<Observer<String>> {
 
+    private ScriptEngine scriptEngine = new RhinoScriptEngine();
+
     @Override
     public Response intercept(Chain chain) throws IOException {
         Response response = chain.proceed(chain.request());
         if (response.isSuccessful() && response.body() != null) {
             String respText = response.body().string();
+            //region: intercept scripts
+            String result = handleScript(response.request(), respText);
+            if (result != null) {
+                respText = result;
+            }
+            //endregion
+            //region: intercept code
             String respTextCopy = String.copyValueOf(respText.toCharArray());
             int code = parseCodeValue(respTextCopy);
             switch (code) {
@@ -28,6 +47,7 @@ public class HttpResponseInterceptor extends ObservableInterceptor<Observer<Stri
                     notifyObservers(code, respText);
                     break;
             }
+            //endregion
             return new Response.Builder()
                     .request(response.request())
                     .protocol(response.protocol())
@@ -41,6 +61,25 @@ public class HttpResponseInterceptor extends ObservableInterceptor<Observer<Stri
                     .build();
         }
         return response;
+    }
+
+    private String handleScript(Request request, String script) {
+        try {
+            String url = request.url().toString();
+            if (url.contains("/api/")) {
+                Set<String> names = request.url().queryParameterNames();
+                Bindings bindings = new SimpleBindings();
+                for (String name : names) {
+                    bindings.put(name, request.url().queryParameter(name));
+                }
+                return (String) scriptEngine.eval(script, bindings);
+            }
+        } catch (ScriptException ignore) {
+            Log.e("handleScript", ignore.getMessage());
+        } catch (Exception ignore) {
+            Log.e("handleScript", ignore.getMessage());
+        }
+        return null;
     }
 
     private int parseCodeValue(String text) {

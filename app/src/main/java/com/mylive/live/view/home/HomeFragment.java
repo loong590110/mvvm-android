@@ -17,6 +17,7 @@ import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentHomeBinding;
 import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.model.HttpResp;
+import com.mylive.live.utils.ScrollEvent;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
@@ -44,6 +45,16 @@ public class HomeFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         binding.navigationBar.setTitle("home fragment + 2");
         binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (!recyclerView.canScrollVertically(-1)) {
+                        HomeScrollEvent.getInstance().notifyObservers(ScrollEvent.Direction.DOWN);
+                    }
+                }
+            }
+
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);

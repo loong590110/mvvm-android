@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PublisherAndSchedulerProxy implements Scheduler {
 
-    private Map<Class, Subscriber> subscribers = new ConcurrentHashMap<>();
-    private Scheduler publisherAndScheduler;
+    private final Map<Class, Subscriber> subscribers = new ConcurrentHashMap<>();
+    private final Scheduler publisherAndScheduler;
 
     public PublisherAndSchedulerProxy(Scheduler scheduler) {
         this.publisherAndScheduler = scheduler;

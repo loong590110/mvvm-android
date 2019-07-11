@@ -20,8 +20,9 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
      *
      * @param parent
      */
+    @Deprecated
     public BaseViewHolder(@NonNull ViewGroup parent) {
-        super(null);
+        this(parent, android.R.layout.simple_list_item_1);
     }
 
     public BaseViewHolder(@NonNull ViewGroup parent, @LayoutRes int layoutResId) {

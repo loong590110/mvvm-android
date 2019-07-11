@@ -1,6 +1,6 @@
 package com.mylive.live.view.home;
 
-import com.mylive.live.component.ScrollEvent;
+import com.mylive.live.utils.ScrollEvent;
 
 /**
  * Create by zailongshi on 2019/7/8

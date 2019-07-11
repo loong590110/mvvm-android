@@ -11,7 +11,7 @@ import android.webkit.WebView;
 import com.mylive.live.BuildConfig;
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.JsBridgeApi;
-import com.mylive.live.arch.jsbrige.JsBridgeWebViewClient;
+import com.mylive.live.component.jsbrige.JsBridgeWebViewClient;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityWebBinding;
 import com.mylive.live.router.WebActivityStarter;

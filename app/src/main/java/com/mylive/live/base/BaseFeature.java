@@ -5,14 +5,13 @@ import android.os.Bundle;
 
 import com.mylive.live.arch.feature.FeaturesActivity;
 import com.mylive.live.arch.feature.FeaturesFragment;
-import com.mylive.live.arch.mvvm.CommunicableFeature;
-import com.mylive.live.arch.mvvm.CommunicableFragment;
+import com.mylive.live.arch.mvvm.ViewModelFeature;
 import com.mylive.live.exception.ProhibitedException;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
  */
-public class BaseFeature extends CommunicableFeature {
+public class BaseFeature extends ViewModelFeature {
 
     public BaseFeature(FeaturesActivity activity) {
         super(activity);

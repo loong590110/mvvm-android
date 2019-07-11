@@ -10,7 +10,7 @@ import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
-import com.mylive.live.component.DoubleClickExit;
+import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.event.TestEvent;
 import com.mylive.live.router.LiveRoomActivityStarter;
