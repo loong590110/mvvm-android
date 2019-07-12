@@ -42,7 +42,7 @@ public class HttpResponseInterceptor extends ObservableInterceptor<Observer<Stri
             String respTextCopy = String.copyValueOf(respText.toCharArray());
             int code = parseCodeValue(respTextCopy);
             switch (code) {
-                case HttpStatusCode.OK:
+                case HttpStatusCode.NOT_LOGGED_IN:
                 case HttpStatusCode.TOKEN_EXPIRE:
                     notifyObservers(code, respText);
                     break;

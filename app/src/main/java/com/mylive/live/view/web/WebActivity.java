@@ -10,10 +10,13 @@ import android.webkit.WebView;
 
 import com.mylive.live.BuildConfig;
 import com.mylive.live.R;
-import com.mylive.live.arch.annotation.JsBridgeApi;
-import com.mylive.live.component.jsbrige.JsBridgeWebViewClient;
+import com.mylive.live.component.JsBridgeWebViewClient.Callback;
+import com.mylive.live.component.JsBridgeWebViewClient.JsBridgeApi;
+import com.mylive.live.component.JsBridgeWebViewClient;
 import com.mylive.live.base.BaseActivity;
+import com.mylive.live.config.HttpConfig;
 import com.mylive.live.databinding.ActivityWebBinding;
+import com.mylive.live.model.Config;
 import com.mylive.live.router.WebActivityStarter;
 import com.mylive.live.utils.ToastUtils;
 
@@ -34,7 +37,8 @@ public class WebActivity extends BaseActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_web);
         binding.navigationBar.setRightButtonText("next");
         binding.navigationBar.setOnRightButtonClickListener(v -> {
-            WebActivityStarter.create("http://192.168.1.104:8080")
+            Config.instance().homePage = "http://172.16.14.151:8080";
+            WebActivityStarter.create(Config.instance().homePage)
                     .start(WebActivity.this);
         });
         JsBridgeWebViewClient jsBridge = new JsBridgeWebViewClient(binding.webView) {
@@ -72,19 +76,19 @@ public class WebActivity extends BaseActivity {
 
     private class JsBridgeApiImpl {
 
-        @JsBridgeApi("version")
+        @JsBridgeApi("getVersion")
         public String getVersion() {
             return BuildConfig.VERSION_NAME;
         }
 
-        @JsBridgeApi("toast")
-        public void toast(String params) {
-            ToastUtils.showShortToast(WebActivity.this, "toast:" + params);
+        @JsBridgeApi("getUserId")
+        public void getUserId(Callback callback) {
+            callback.call("1000012");
         }
 
-        @JsBridgeApi("getUserId")
-        public void getUserId(JsBridgeWebViewClient.Callback callback) {
-            callback.call("1000012");
+        @JsBridgeApi("toast")
+        public void toast(String params) {
+            ToastUtils.showShortToast(WebActivity.this, "toast: " + params);
         }
     }
 }

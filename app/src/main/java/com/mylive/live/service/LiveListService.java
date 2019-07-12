@@ -28,6 +28,6 @@ public interface LiveListService {
      * @param size
      * @return
      */
-    @GET("http://172.16.14.151:8080/api/livelist.js?desc_head=live")
+    @GET("/pages/api/livelist.js?desc_head=live")
     Observable<HttpResp<LiveList>> getLiveList(@Query("size") int size);
 }

@@ -5,6 +5,7 @@ package com.mylive.live.config;
  */
 public final class HttpConfig {
     public static final String BASE_URL = "https://aaron0110.gitee.io/";
+    public static final String HOME_PAGE = "https://aaron0110.gitee.io/pages/index.html";
     public static final String[] USER_AGENT = {
             /*key:*/"User-Agent",
             /*value:*/"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) " +

@@ -1,4 +1,4 @@
-package com.mylive.live.component.jsbrige;
+package com.mylive.live.component;
 
 import android.os.Build;
 import android.os.Handler;
@@ -8,8 +8,10 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.mylive.live.arch.annotation.JsBridgeApi;
-
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -62,6 +64,15 @@ public class JsBridgeWebViewClient extends WebViewClient {
     @Override
     public final void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
+        injectBridgeApi();
+        injectCustomApi();
+        onPageFinished(view, this, url);
+    }
+
+    public void onPageFinished(WebView view, JsBridgeWebViewClient client, String url) {
+    }
+
+    private void injectBridgeApi() {
         String proxy = invokeMethodName != null && !"invoke".equals(invokeMethodName) ?
                 ("window.jsBridge.invoke = function(name, params){"
                         + "window.jsBridge.$invoke(name, params);"
@@ -76,18 +87,56 @@ public class JsBridgeWebViewClient extends WebViewClient {
                 : "";
         String injectScript = proxy
                 + "window.jsBridge.callbacks={};"
-                + "window.jsBridge.callback = function(name, returnValue){"
-                + "window.jsBridge.callbacks[name](returnValue);"
+                + "window.jsBridge.callback = function(callbackId, returnValue){"
+                + "window.jsBridge.callbacks[callbackId](returnValue);"
                 + "};"
                 + "window.jsBridge.error = function(error){"
-                + "console.log(error);"
-                + "};"
-                + "window.jsBridge.invoke('getUserId', ['callback']);";
+                + "console.error('jsBridge: ' + error);"
+                + "};";
         evaluateJavascript(injectScript);
-        onPageFinished(view, this, url);
     }
 
-    public void onPageFinished(WebView view, JsBridgeWebViewClient client, String url) {
+    private void injectCustomApi() {
+        if (apiMap == null) {
+            return;
+        }
+        StringBuilder injectScript = new StringBuilder();
+        for (Map.Entry<String, Method> entry : apiMap.entrySet()) {
+            String name = entry.getKey();
+            Class<?>[] paramTypes = entry.getValue().getParameterTypes();
+            StringBuilder saveCallbacks = new StringBuilder();
+            String[] args = new String[paramTypes.length];
+            int argIndex = 1, callbackIndex = 1;
+            for (int i = 0; i < paramTypes.length; i++) {
+                if (Callback.class.isAssignableFrom(paramTypes[i])) {
+                    args[i] = "callback" + callbackIndex++;
+                    saveCallbacks.append("window.jsBridge.callbacks['")
+                            .append(name).append("#").append(args[i])
+                            .append("']=").append(args[i]).append(";");
+                } else {
+                    args[i] = "arg" + argIndex++;
+                }
+            }
+            StringBuilder argsStr = new StringBuilder();
+            StringBuilder argsStrArr = new StringBuilder();
+            for (int i = 0; i < args.length; i++) {
+                argsStr.append(args[i]);
+                argsStrArr.append(args[i].startsWith("callback") ?
+                        "'" + args[i] + "'" : args[i]);
+                if (i < args.length - 1) {
+                    argsStr.append(",");
+                    argsStrArr.append(",");
+                }
+
+            }
+            injectScript.append("window.jsBridge.").append(name)
+                    .append("=function(").append(argsStr).append("){")
+                    .append(saveCallbacks)
+                    .append("return window.jsBridge.invoke('").append(name)
+                    .append("',[").append(argsStrArr).append("]);")
+                    .append("};");
+        }
+        evaluateJavascript(injectScript.toString());
     }
 
     public void addJsBridgeApi(Object jsBridgeApi) {
@@ -97,7 +146,6 @@ public class JsBridgeWebViewClient extends WebViewClient {
             apiMap = new HashMap<>();
         }
         apiMap.clear();
-        StringBuilder injectScript = new StringBuilder();
         Method[] methods = jsBridgeApi.getClass().getDeclaredMethods();
         for (Method method : methods) {
             if (method.getModifiers() == Modifier.PUBLIC
@@ -120,22 +168,8 @@ public class JsBridgeWebViewClient extends WebViewClient {
                         method.getAnnotation(JsBridgeApi.class).value()
                         : method.getName();
                 apiMap.put(name, method);
-                StringBuilder args = new StringBuilder();
-                for (int i = 0; i < paramTypes.length; i++) {
-                    args.append("arg").append(i);
-                    if (i < paramTypes.length - 1) {
-                        args.append(",");
-                    }
-                }
-                injectScript.append("window.jsBridge.").append(name)
-                        .append("=function(").append(args).append("){")
-                        .append("window.jsBridge.callbacks[").append(name).append("]")
-                        .append("=").append(";")
-                        .append("window.jsBridge.invoke('getUserId', ['callback']);")
-                        .append("};");
             }
         }
-        evaluateJavascript(injectScript.toString());
     }
 
     @JsBridgeApi("invoke")
@@ -151,11 +185,13 @@ public class JsBridgeWebViewClient extends WebViewClient {
                 for (int i = 0; params != null && i < params.length; i++) {
                     String param = params[i];
                     args[i] = param.startsWith("callback") ?
-                            (Callback) returnValue -> callback(name + param, returnValue)
+                            (Callback) returnValue -> callback(name + "#" + param,
+                                    returnValue)
                             : param;
                 }
                 if (String.class.isAssignableFrom(method.getReturnType())) {
-                    return (String) method.invoke(jsBridgeApi, args);
+                    Object returnValue = method.invoke(jsBridgeApi, args);
+                    return (String) returnValue;
                 } else {
                     method.invoke(jsBridgeApi, args);
                 }
@@ -208,5 +244,11 @@ public class JsBridgeWebViewClient extends WebViewClient {
 
     public interface Callback {
         void call(String returnValue);
+    }
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface JsBridgeApi {
+        String value();
     }
 }
