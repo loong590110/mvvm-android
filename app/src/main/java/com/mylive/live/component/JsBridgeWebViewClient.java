@@ -74,23 +74,24 @@ public class JsBridgeWebViewClient extends WebViewClient {
 
     private void injectBridgeApi() {
         String proxy = invokeMethodName != null && !"invoke".equals(invokeMethodName) ?
-                ("window.jsBridge.invoke = function(name, params){"
+                ("window.jsBridge.invoke = function(name, params) {"
                         + "window.jsBridge.$invoke(name, params);"
                         + "};")
                         .replace("$invoke", invokeMethodName)
                 : "";
         proxy += onReturnMethodName != null && !"onReturn".equals(onReturnMethodName) ?
-                ("window.jsBridge.onReturn = function(name, params){"
+                ("window.jsBridge.onReturn = function(name, params) {"
                         + "window.jsBridge.$onReturn(name, params);"
                         + "};")
                         .replace("$invoke", onReturnMethodName)
                 : "";
         String injectScript = proxy
-                + "window.jsBridge.callbacks={};"
-                + "window.jsBridge.callback = function(callbackId, returnValue){"
-                + "window.jsBridge.callbacks[callbackId](returnValue);"
+                + "window.jsBridge.callbacks = {};"
+                + "window.jsBridge.callback = function(callbackId, returnValues) {"
+                + "var args = '\"' + returnValues.join('\",\"') + '\"';"
+                + "window.eval('window.jsBridge.callbacks[\"' + callbackId + '\"](' + args + ')');"
                 + "};"
-                + "window.jsBridge.error = function(error){"
+                + "window.jsBridge.error = function(error) {"
                 + "console.error('jsBridge: ' + error);"
                 + "};";
         evaluateJavascript(injectScript);
@@ -98,7 +99,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
 
     private void injectCustomApi() {
         if (apiMap == null) {
-            return;
+            throw new IllegalStateException("请在页面加载完成前设置JsBridgeApi对象。");
         }
         StringBuilder injectScript = new StringBuilder();
         for (Map.Entry<String, Method> entry : apiMap.entrySet()) {
@@ -109,12 +110,12 @@ public class JsBridgeWebViewClient extends WebViewClient {
             int argIndex = 1, callbackIndex = 1;
             for (int i = 0; i < paramTypes.length; i++) {
                 if (Callback.class.isAssignableFrom(paramTypes[i])) {
-                    args[i] = "callback" + callbackIndex++;
-                    saveCallbacks.append("window.jsBridge.callbacks['")
-                            .append(name).append("#").append(args[i])
-                            .append("']=").append(args[i]).append(";");
+                    args[i] = "callback$i".replace("$i", String.valueOf(callbackIndex++));
+                    saveCallbacks.append("window.jsBridge.callbacks['$callbackId']=$callback;"
+                            .replace("$callbackId", callbackId(name, args[i]))
+                            .replace("$callback", args[i]));
                 } else {
-                    args[i] = "arg" + argIndex++;
+                    args[i] = "arg$i".replace("$i", String.valueOf(argIndex++));
                 }
             }
             StringBuilder argsStr = new StringBuilder();
@@ -122,19 +123,24 @@ public class JsBridgeWebViewClient extends WebViewClient {
             for (int i = 0; i < args.length; i++) {
                 argsStr.append(args[i]);
                 argsStrArr.append(args[i].startsWith("callback") ?
-                        "'" + args[i] + "'" : args[i]);
+                        "'$callback'".replace("$callback", args[i])
+                        : args[i]);
                 if (i < args.length - 1) {
                     argsStr.append(",");
                     argsStrArr.append(",");
                 }
 
             }
-            injectScript.append("window.jsBridge.").append(name)
-                    .append("=function(").append(argsStr).append("){")
-                    .append(saveCallbacks)
-                    .append("return window.jsBridge.invoke('").append(name)
-                    .append("',[").append(argsStrArr).append("]);")
-                    .append("};");
+            injectScript.append(
+                    ("window.jsBridge.$name = function($args) {"
+                            + "$save_callbacks"
+                            + "return window.jsBridge.invoke('$name', [$argArray]);"
+                            + "};")
+                            .replace("$name", name)
+                            .replace("$args", argsStr)
+                            .replace("$save_callbacks", saveCallbacks)
+                            .replace("$argArray", argsStrArr)
+            );
         }
         evaluateJavascript(injectScript.toString());
     }
@@ -185,8 +191,8 @@ public class JsBridgeWebViewClient extends WebViewClient {
                 for (int i = 0; params != null && i < params.length; i++) {
                     String param = params[i];
                     args[i] = param.startsWith("callback") ?
-                            (Callback) returnValue -> callback(name + "#" + param,
-                                    returnValue)
+                            (Callback) returnValues -> callback(callbackId(name, param),
+                                    returnValues)
                             : param;
                 }
                 if (String.class.isAssignableFrom(method.getReturnType())) {
@@ -196,10 +202,23 @@ public class JsBridgeWebViewClient extends WebViewClient {
                     method.invoke(jsBridgeApi, args);
                 }
             } catch (Exception e) {
-                error(e.getMessage());
+                StringBuilder message = new StringBuilder();
+                message.append(e.toString()).append(": ").append(e.getMessage()).append("\n");
+                for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                    message.append("at ").append(stackTraceElement.toString()).append("\n");
+                }
+                if (e.getCause() != null) {
+                    message.append(e.getCause().toString()).append(": ")
+                            .append(e.getCause().getMessage()).append("\n");
+                    for (StackTraceElement stackTraceElement : e.getCause().getStackTrace()) {
+                        message.append("at ").append(stackTraceElement.toString()).append("\n");
+                    }
+                }
+                error(message.toString());
             }
+        } else {
+            error("找不到名为" + name + "的方法(函数)。");
         }
-        error("名为" + name + "的方法(函数)不存在。");
         return null;
     }
 
@@ -209,10 +228,23 @@ public class JsBridgeWebViewClient extends WebViewClient {
 
     }
 
-    private void callback(String name, String returnValue) {
-        String callCallbackFunc = String.format("window.jsBridge.callback('%s','%s');",
-                name, returnValue);
+    private void callback(String callbackId, String... returnValues) {
+        StringBuilder returnValuesString = new StringBuilder("['");
+        for (String returnValue : returnValues) {
+            returnValuesString.append(returnValue).append("','");
+        }
+        int index = returnValuesString.lastIndexOf("','");
+        if (index != -1) {
+            returnValuesString.delete(index, index + "','".length());
+        }
+        returnValuesString.append("']");
+        String callCallbackFunc = String.format("window.jsBridge.callback('%s', %s);",
+                callbackId, returnValuesString);
         evaluateJavascript(callCallbackFunc);
+    }
+
+    private String callbackId(String functionName, String callbackName) {
+        return functionName + "#" + callbackName;
     }
 
     private void error(String error) {
@@ -243,7 +275,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
     }
 
     public interface Callback {
-        void call(String returnValue);
+        void call(String... returnValues);
     }
 
     @Target(ElementType.METHOD)

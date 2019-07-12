@@ -26,10 +26,10 @@ public class FeaturesFragment extends Fragment {
     }
 
     /**
-     * 为了@FieldMap注解能够尽量同步更多字段，
-     * Feature类在resume周期才开始被创建对象。
+     * 为了@FieldMap注解能够同步create周期初始化的字段，
+     * Feature类在start周期才开始被创建对象。
      */
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private void onFeatureCreate() {
         if (!hasFeaturesCreated) {
             hasFeaturesCreated = true;
