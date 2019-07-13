@@ -16,6 +16,7 @@ import com.mylive.live.base.BaseFeature;
 import com.mylive.live.base.BaseViewHolder;
 import com.mylive.live.databinding.FragmentHomeBinding;
 import com.mylive.live.databinding.ItemLiveListBinding;
+import com.mylive.live.model.Config;
 import com.mylive.live.model.LiveList;
 import com.mylive.live.router.WebActivityStarter;
 import com.mylive.live.viewmodel.LiveListViewModel;
@@ -102,7 +103,7 @@ public class LiveListFeature extends BaseFeature {
             binding.txtContent.setBackgroundColor(0xff000000 |
                     ((int) (0xffffff * new Random().nextFloat())));
             binding.getRoot().setOnClickListener(v -> {
-                WebActivityStarter.create("https://im.qq.com/")
+                WebActivityStarter.create(Config.instance().homePage)
                         .start(LiveListFeature.this);
             });
         }

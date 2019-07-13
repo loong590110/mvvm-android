@@ -48,14 +48,15 @@ public class WebActivity extends BaseActivity {
             }
 
             @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
+            public void onPageStarted(WebView view, JsBridgeWebViewClient client,
+                                      String url, Bitmap favicon) {
+                super.onPageStarted(view, this, url, favicon);
                 binding.navigationBar.setTitle("正在打开...");
             }
 
             @Override
-            public void onPageFinished(WebView view, JsBridgeWebViewClient client, String url) {
-                super.onPageFinished(view, client, url);
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
                 binding.navigationBar.setTitle(view.getTitle());
             }
         };
@@ -79,6 +80,11 @@ public class WebActivity extends BaseActivity {
         @JsBridgeApi("getVersion")
         public String getVersion() {
             return BuildConfig.VERSION_NAME;
+        }
+
+        @JsBridgeApi("getInteger")
+        public int getInteger() {
+            return 100;
         }
 
         @JsBridgeApi("getUserId")

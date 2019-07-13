@@ -1,18 +1,24 @@
 package com.mylive.live.component;
 
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -29,12 +35,14 @@ import java.util.Objects;
  */
 public class JsBridgeWebViewClient extends WebViewClient {
 
+    private static final String TAG = JsBridgeWebViewClient.class.getSimpleName();
     private static final String JS_BRIDGE = "jsBridge";
     private Handler handler = new Handler(Looper.getMainLooper());
     private Object jsBridgeApi;
     private String invokeMethodName, onReturnMethodName;
     private Map<String, Method> apiMap;
     private WeakReference<WebView> view;
+    private String jsBridge;
 
     {
         Method[] methods = getClass().getMethods();
@@ -53,53 +61,60 @@ public class JsBridgeWebViewClient extends WebViewClient {
     }
 
     public JsBridgeWebViewClient(WebView view) {
+        this(view, JS_BRIDGE);
+    }
+
+    public JsBridgeWebViewClient(WebView view, String name) {
         Objects.requireNonNull(view);
+        Objects.requireNonNull(name);
+        this.jsBridge = name;
         if (this.view == null || this.view.get() != view) {
             this.view = new WeakReference<>(view);
         }
         view.getSettings().setJavaScriptEnabled(true);
-        view.addJavascriptInterface(this, JS_BRIDGE);
+        view.addJavascriptInterface(this, jsBridge);
     }
 
     @Override
-    public final void onPageFinished(WebView view, String url) {
-        super.onPageFinished(view, url);
+    public final void onPageStarted(WebView view, String url, Bitmap favicon) {
         injectBridgeApi();
         injectCustomApi();
-        onPageFinished(view, this, url);
+        super.onPageStarted(view, url, favicon);
+        onPageStarted(view, this, url, favicon);
     }
 
-    public void onPageFinished(WebView view, JsBridgeWebViewClient client, String url) {
+    public void onPageStarted(WebView view, JsBridgeWebViewClient client,
+                              String url, Bitmap favicon) {
     }
 
     private void injectBridgeApi() {
         String proxy = invokeMethodName != null && !"invoke".equals(invokeMethodName) ?
-                ("window.jsBridge.invoke = function(name, params) {"
-                        + "window.jsBridge.$invoke(name, params);"
+                ("window.$jsBridge.invoke = function(name, params) {"
+                        + "window.$jsBridge.$invoke(name, params);"
                         + "};")
                         .replace("$invoke", invokeMethodName)
                 : "";
         proxy += onReturnMethodName != null && !"onReturn".equals(onReturnMethodName) ?
-                ("window.jsBridge.onReturn = function(name, params) {"
-                        + "window.jsBridge.$onReturn(name, params);"
+                ("window.$jsBridge.onReturn = function(name, params) {"
+                        + "window.$jsBridge.$onReturn(name, params);"
                         + "};")
-                        .replace("$invoke", onReturnMethodName)
+                        .replace("$onReturn", onReturnMethodName)
                 : "";
         String injectScript = proxy
-                + "window.jsBridge.callbacks = {};"
-                + "window.jsBridge.callback = function(callbackId, returnValues) {"
+                + "window.$jsBridge.callbacks = {};"
+                + "window.$jsBridge.callback = function(callbackId, returnValues) {"
                 + "var args = '\"' + returnValues.join('\",\"') + '\"';"
-                + "window.eval('window.jsBridge.callbacks[\"' + callbackId + '\"](' + args + ')');"
+                + "window.eval('window.$jsBridge.callbacks[\"' + callbackId + '\"](' + args + ')');"
                 + "};"
-                + "window.jsBridge.error = function(error) {"
-                + "console.error('jsBridge: ' + error);"
+                + "window.$jsBridge.error = function(error) {"
+                + "console.error('JsBridge error: ' + error);"
                 + "};";
-        evaluateJavascript(injectScript);
+        evaluateJavascript(injectScript.replace("$jsBridge", jsBridge));
     }
 
     private void injectCustomApi() {
         if (apiMap == null) {
-            throw new IllegalStateException("请在页面加载完成前设置JsBridgeApi对象。");
+            throw new IllegalStateException("请在页面开始加载前设置JsBridgeApi对象。");
         }
         StringBuilder injectScript = new StringBuilder();
         for (Map.Entry<String, Method> entry : apiMap.entrySet()) {
@@ -111,7 +126,8 @@ public class JsBridgeWebViewClient extends WebViewClient {
             for (int i = 0; i < paramTypes.length; i++) {
                 if (Callback.class.isAssignableFrom(paramTypes[i])) {
                     args[i] = "callback$i".replace("$i", String.valueOf(callbackIndex++));
-                    saveCallbacks.append("window.jsBridge.callbacks['$callbackId']=$callback;"
+                    saveCallbacks.append("window.$jsBridge.callbacks['$callbackId']=$callback;"
+                            .replace("$jsBridge", jsBridge)
                             .replace("$callbackId", callbackId(name, args[i]))
                             .replace("$callback", args[i]));
                 } else {
@@ -132,10 +148,11 @@ public class JsBridgeWebViewClient extends WebViewClient {
 
             }
             injectScript.append(
-                    ("window.jsBridge.$name = function($args) {"
+                    ("window.$jsBridge.$name = function($args) {"
                             + "$save_callbacks"
-                            + "return window.jsBridge.invoke('$name', [$argArray]);"
+                            + "return window.$jsBridge.invoke('$name', [$argArray]);"
                             + "};")
+                            .replace("$jsBridge", jsBridge)
                             .replace("$name", name)
                             .replace("$args", argsStr)
                             .replace("$save_callbacks", saveCallbacks)
@@ -156,20 +173,20 @@ public class JsBridgeWebViewClient extends WebViewClient {
         for (Method method : methods) {
             if (method.getModifiers() == Modifier.PUBLIC
                     || method.isAnnotationPresent(JsBridgeApi.class)) {
-                Class<?>[] paramTypes = method.getParameterTypes();
-                Class<?> returnType = method.getReturnType();
-                if (!void.class.isAssignableFrom(returnType)
-                        && !String.class.isAssignableFrom(returnType)) {
-                    throw new IllegalArgumentException("方法" + method.getName() + "无效，"
-                            + "方法的返回值只允许String类型和void类型。");
-                }
-                for (Class<?> paramType : paramTypes) {
-                    if (!String.class.isAssignableFrom(paramType)
-                            && !Callback.class.isAssignableFrom(paramType)) {
-                        throw new IllegalArgumentException("方法" + method.getName() + "无效，"
-                                + "方法的参数只允许String类型和Callback类型。");
-                    }
-                }
+//                Class<?>[] paramTypes = method.getParameterTypes();
+//                Class<?> returnType = method.getReturnType();
+//                if (!void.class.isAssignableFrom(returnType)
+//                        && !String.class.isAssignableFrom(returnType)) {
+//                    throw new IllegalArgumentException("方法" + method.getName() + "无效，"
+//                            + "方法的返回值只允许String类型和void类型。");
+//                }
+//                for (Class<?> paramType : paramTypes) {
+//                    if (!String.class.isAssignableFrom(paramType)
+//                            && !Callback.class.isAssignableFrom(paramType)) {
+//                        throw new IllegalArgumentException("方法" + method.getName() + "无效，"
+//                                + "方法的参数只允许String类型和Callback类型。");
+//                    }
+//                }
                 String name = method.isAnnotationPresent(JsBridgeApi.class) ?
                         method.getAnnotation(JsBridgeApi.class).value()
                         : method.getName();
@@ -184,40 +201,24 @@ public class JsBridgeWebViewClient extends WebViewClient {
         Method method = apiMap.get(name);
         if (method != null) {
             try {
+                Object[] args = handleParams(method, name, params);
                 if (!method.isAccessible()) {
                     method.setAccessible(true);
                 }
-                Object[] args = new Object[params == null ? 0 : params.length];
-                for (int i = 0; params != null && i < params.length; i++) {
-                    String param = params[i];
-                    args[i] = param.startsWith("callback") ?
-                            (Callback) returnValues -> callback(callbackId(name, param),
-                                    returnValues)
-                            : param;
-                }
-                if (String.class.isAssignableFrom(method.getReturnType())) {
+                if (!void.class.isAssignableFrom(method.getReturnType())) {
                     Object returnValue = method.invoke(jsBridgeApi, args);
-                    return (String) returnValue;
+                    return handleReturnValue(returnValue);
                 } else {
                     method.invoke(jsBridgeApi, args);
                 }
             } catch (Exception e) {
-                StringBuilder message = new StringBuilder();
-                message.append(e.toString()).append(": ").append(e.getMessage()).append("\n");
-                for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-                    message.append("at ").append(stackTraceElement.toString()).append("\n");
-                }
-                if (e.getCause() != null) {
-                    message.append(e.getCause().toString()).append(": ")
-                            .append(e.getCause().getMessage()).append("\n");
-                    for (StackTraceElement stackTraceElement : e.getCause().getStackTrace()) {
-                        message.append("at ").append(stackTraceElement.toString()).append("\n");
-                    }
-                }
-                error(message.toString());
+                error(collectExceptionMessage(e));
+                e.printStackTrace();
             }
         } else {
-            error("找不到名为" + name + "的方法(函数)。");
+            String message = "JsBridge Exception: 找不到名为" + name + "的方法(函数)。";
+            Log.e(TAG, message);
+            error(message);
         }
         return null;
     }
@@ -238,7 +239,8 @@ public class JsBridgeWebViewClient extends WebViewClient {
             returnValuesString.delete(index, index + "','".length());
         }
         returnValuesString.append("']");
-        String callCallbackFunc = String.format("window.jsBridge.callback('%s', %s);",
+        String callCallbackFunc = String.format("window.$jsBridge.callback('%s', %s);"
+                        .replace("$jsBridge", jsBridge),
                 callbackId, returnValuesString);
         evaluateJavascript(callCallbackFunc);
     }
@@ -248,7 +250,8 @@ public class JsBridgeWebViewClient extends WebViewClient {
     }
 
     private void error(String error) {
-        String callErrorFunc = String.format("window.jsBridge.error('%s');", error);
+        String callErrorFunc = String.format("window.$jsBridge.error('%s');"
+                .replace("$jsBridge", jsBridge), error);
         evaluateJavascript(callErrorFunc);
     }
 
@@ -274,13 +277,112 @@ public class JsBridgeWebViewClient extends WebViewClient {
         });
     }
 
+    private Object[] handleParams(Method method, String name, String... params)
+            throws JSONException, InstantiationException, IllegalAccessException {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        Object[] args = new Object[paramTypes.length];
+        for (int i = 0; params != null && i < params.length && i < args.length; i++) {
+            String param = params[i];
+            Class<?> paramType = paramTypes[i];
+            if (String.class.isAssignableFrom(paramType)) {
+                args[i] = param;
+            } else if (Integer.class.isAssignableFrom(paramType)) {
+                args[i] = Integer.valueOf(param);
+            } else if (Long.class.isAssignableFrom(paramType)) {
+                args[i] = Long.valueOf(param);
+            } else if (Float.class.isAssignableFrom(paramType)) {
+                args[i] = Float.valueOf(param);
+            } else if (Double.class.isAssignableFrom(paramType)) {
+                args[i] = Double.valueOf(param);
+            } else if (JSONObject.class.isAssignableFrom(paramType)) {
+                args[i] = new JSONObject(param);
+            } else if (Callback.class.isAssignableFrom(paramType)) {
+                args[i] = (Callback) returnValues -> {
+                    String[] callbackArgs = new String[returnValues.length];
+                    for (int j = 0; j < callbackArgs.length; j++) {
+                        try {
+                            callbackArgs[j] = handleReturnValue(returnValues[j]);
+                        } catch (IllegalAccessException ignore) {
+                        } catch (JSONException e) {
+                            error(collectExceptionMessage(e));
+                            e.printStackTrace();
+                        }
+                    }
+                    callback(callbackId(name, param), callbackArgs);
+                };
+            } else {
+                JSONObject jsonObject = new JSONObject(param);
+                Object object = paramType.newInstance();
+                Field[] fields = object.getClass().getDeclaredFields();
+                for (Field field : fields) {
+                    String key = field.isAnnotationPresent(JsBridgeField.class) ?
+                            field.getAnnotation(JsBridgeField.class).value()
+                            : field.getName();
+                    if (!field.isAccessible()) {
+                        field.setAccessible(true);
+                    }
+                    field.set(object, jsonObject.get(key));
+                }
+            }
+        }
+        return args;
+    }
+
+    private String handleReturnValue(Object returnValue)
+            throws IllegalAccessException, JSONException {
+        if (returnValue instanceof String
+                || returnValue instanceof Integer
+                || returnValue instanceof Long
+                || returnValue instanceof Float
+                || returnValue instanceof Double
+                || returnValue instanceof JSONObject) {
+            return returnValue.toString();
+        } else if (returnValue != null) {
+            JSONObject jsonObject = new JSONObject();
+            Field[] fields = returnValue.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                String key = field.isAnnotationPresent(JsBridgeField.class) ?
+                        field.getAnnotation(JsBridgeField.class).value()
+                        : field.getName();
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                jsonObject.put(key, field.get(returnValue));
+            }
+            return jsonObject.toString();
+        }
+        return null;
+    }
+
+    private String collectExceptionMessage(Throwable e) {
+        StringBuilder message = new StringBuilder();
+        collectExceptionMessage(message, e);
+        return message.toString();
+    }
+
+    private void collectExceptionMessage(StringBuilder message, Throwable e) {
+        message.append(e.toString()).append(": ").append(e.getMessage()).append("\n");
+        for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+            message.append("at ").append(stackTraceElement.toString()).append("\n");
+        }
+        if (e.getCause() != null && e.getCause() != e) {
+            collectExceptionMessage(message, e);
+        }
+    }
+
     public interface Callback {
-        void call(String... returnValues);
+        void call(Object... args);
     }
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     public @interface JsBridgeApi {
+        String value();
+    }
+
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface JsBridgeField {
         String value();
     }
 }

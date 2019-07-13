@@ -1,7 +1,5 @@
 package com.mylive.live.interceptor;
 
-import com.mylive.live.config.HttpConfig;
-
 import java.io.IOException;
 
 import okhttp3.Interceptor;
@@ -19,7 +17,6 @@ public class HttpRequestInterceptor implements Interceptor {
 
     private Request rebuildRequest(Request request) {
         return new Request.Builder()
-                .header(HttpConfig.USER_AGENT[0], HttpConfig.USER_AGENT[1])
                 .method(request.method(), request.body())
                 .url(request.url())
                 .build();
