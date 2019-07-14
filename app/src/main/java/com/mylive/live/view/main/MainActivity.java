@@ -1,8 +1,8 @@
 package com.mylive.live.view.main;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.Features;

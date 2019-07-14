@@ -1,9 +1,9 @@
 package com.mylive.live.view.room;
 
-import android.arch.lifecycle.ViewModelProviders;
-import android.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.mylive.live.R;
 import com.mylive.live.arch.theme.StatusBarCompat;

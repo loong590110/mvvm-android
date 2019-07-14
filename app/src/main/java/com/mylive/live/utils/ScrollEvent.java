@@ -3,7 +3,7 @@ package com.mylive.live.utils;
 import android.database.Observable;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

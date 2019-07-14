@@ -1,10 +1,11 @@
 package com.mylive.live.view.home;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,6 @@ import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentHomeBinding;
-import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.model.HttpResp;
 import com.mylive.live.utils.ScrollEvent;
 

@@ -1,8 +1,7 @@
 package com.mylive.live.viewmodel;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.util.SparseArray;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.mylive.live.arch.annotation.Service;
 import com.mylive.live.base.BaseViewModel;

@@ -1,6 +1,6 @@
 package com.mylive.live.arch.http;
 
-import android.arch.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.mylive.live.arch.observer.Observer;
 import com.mylive.live.arch.thread.Scheduler;

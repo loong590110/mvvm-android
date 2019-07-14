@@ -1,9 +1,7 @@
 package com.mylive.live.arch.feature;
 
-import android.arch.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleOwner;
 import android.os.Bundle;
-
-import com.mylive.live.arch.mapper.Mapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

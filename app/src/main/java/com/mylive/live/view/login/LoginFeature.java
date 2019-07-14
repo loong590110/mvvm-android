@@ -1,7 +1,7 @@
 package com.mylive.live.view.login;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.feature.FeaturesActivity;

@@ -1,7 +1,7 @@
 package com.mylive.live.arch.starter;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Created by Developer Zailong Shi on 2018/12/21.

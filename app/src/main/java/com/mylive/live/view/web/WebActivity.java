@@ -1,24 +1,28 @@
 package com.mylive.live.view.web;
 
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 
 import com.mylive.live.BuildConfig;
 import com.mylive.live.R;
 import com.mylive.live.component.JsBridgeWebViewClient.Callback;
+import com.mylive.live.component.JsBridgeWebViewClient.Callback2;
 import com.mylive.live.component.JsBridgeWebViewClient.JsBridgeApi;
 import com.mylive.live.component.JsBridgeWebViewClient;
 import com.mylive.live.base.BaseActivity;
-import com.mylive.live.config.HttpConfig;
 import com.mylive.live.databinding.ActivityWebBinding;
+import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.model.Config;
 import com.mylive.live.router.WebActivityStarter;
 import com.mylive.live.utils.ToastUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Developer Zailong Shi on 2019-07-09.
@@ -26,6 +30,7 @@ import com.mylive.live.utils.ToastUtils;
 public class WebActivity extends BaseActivity {
 
     private ActivityWebBinding binding;
+    private RemoteApi remoteApi;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,26 +65,27 @@ public class WebActivity extends BaseActivity {
                 binding.navigationBar.setTitle(view.getTitle());
             }
         };
-        jsBridge.addJsBridgeApi(new JsBridgeApiImpl());
+        jsBridge.addLocalApi(new LocalApi());
+        remoteApi = jsBridge.createRemoteApi(RemoteApi.class);
         binding.webView.setWebViewClient(jsBridge);
         binding.webView.clearCache(BuildConfig.DEBUG);
         binding.webView.loadUrl(url);
     }
 
     @Override
-    public void onBackPressed() {
+    public void finish() {
         if (binding.webView.canGoBack()) {
             binding.webView.goBack();
             return;
         }
-        super.onBackPressed();
+        super.finish();
     }
 
-    private class JsBridgeApiImpl {
+    private class LocalApi {
 
         @JsBridgeApi("getVersion")
         public String getVersion() {
-            return BuildConfig.VERSION_NAME;
+            return "100";//BuildConfig.VERSION_NAME;
         }
 
         @JsBridgeApi("getInteger")
@@ -87,14 +93,68 @@ public class WebActivity extends BaseActivity {
             return 100;
         }
 
+        @JsBridgeApi("getBoolean")
+        public boolean getBoolean(boolean bool) {
+            return bool;
+        }
+
+        @JsBridgeApi("getArray")
+        public Object[] getArray() throws JSONException {
+            return new Object[]{"1000012", "1000013", true, false,
+                    new Object[]{"123", 123, new Object[]{"123", 123}},
+                    new JSONObject("{name: 'aaron', sex: 1}")};
+        }
+
+        @JsBridgeApi("getJson")
+        public JSONObject getJson() throws JSONException {
+            return new JSONObject("{\"name\": \"aaron\", \"sex\": \"male\"}");
+        }
+
         @JsBridgeApi("getUserId")
-        public void getUserId(Callback callback) {
-            callback.call("1000012", "1000013");
+        public void getUserId(Callback callback) throws JSONException {
+            callback.call("1000012", "1000013", true, false,
+                    new Object[]{"123", 123, new Object[]{"123", 123}},
+                    new JSONObject("{name: 'aaron', sex: 1}"));
         }
 
         @JsBridgeApi("toast")
-        public void toast(String params) {
-            ToastUtils.showShortToast(WebActivity.this, "toast: " + params);
+        public void toast(String message) {
+            ToastUtils.showShortToast(WebActivity.this, message);
         }
+
+        @JsBridgeApi("ask")
+        public void alert(String message) {
+            new AlertDialog.Builder(WebActivity.this)
+                    .setMessage(message)
+                    .setConfirmText("肯定")
+                    .setCancelText("否定")
+                    .setOnConfirmClickListener((dialog, which) -> {
+                        dialog.dismiss();
+                        remoteApi.feedback(true, args -> {
+                            String fb = args[0].toString();
+                            ToastUtils.showShortToast(WebActivity.this, fb);
+                        });
+                    })
+                    .setOnCancelClickListener((dialog, which) -> {
+                        dialog.dismiss();
+                        remoteApi.feedback(false, args -> {
+                            ToastUtils.showShortToast(WebActivity.this, args[0].toString());
+                        });
+                    })
+                    .setOnCancelListener(dialog -> {
+                        remoteApi.feedback(false, args -> {
+                            ToastUtils.showShortToast(WebActivity.this, args[0].toString());
+                        });
+                    })
+                    .show();
+        }
+    }
+
+    public interface RemoteApi {
+        @JsBridgeApi("feedback")
+        void feedback(boolean positive, Callback callback);
+
+        @JsBridgeApi("testCallback2")
+        void testCallback2(Callback2<String> callback);
     }
 }

@@ -3,9 +3,10 @@ package com.mylive.live.view.main;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.OnLifecycleEvent;
-import android.support.v7.widget.RecyclerView;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
