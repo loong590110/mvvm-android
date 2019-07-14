@@ -343,18 +343,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
                     callback(callbackId(name, param), objectArgs);
                 };
             } else {
-                JSONObject jsonObject = new JSONObject(param);
-                Object object = paramType.newInstance();
-                Field[] fields = object.getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    String key = field.isAnnotationPresent(JsBridgeField.class) ?
-                            field.getAnnotation(JsBridgeField.class).value()
-                            : field.getName();
-                    if (!field.isAccessible()) {
-                        field.setAccessible(true);
-                    }
-                    field.set(object, jsonObject.get(key));
-                }
+                args[i] = parseJSON(paramType.newInstance(), param);
             }
         }
         return args;
@@ -400,18 +389,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
         } else if (object instanceof JSONObject) {
             return "(" + object.toString() + ")";
         } else if (object != null) {
-            JSONObject jsonObject = new JSONObject();
-            Field[] fields = object.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                String key = field.isAnnotationPresent(JsBridgeField.class) ?
-                        field.getAnnotation(JsBridgeField.class).value()
-                        : field.getName();
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                jsonObject.put(key, field.get(object));
-            }
-            return "(" + object.toString() + ")";
+            return "(" + toJSONObject(object).toString() + ")";
         }
         return null;
     }
@@ -437,6 +415,21 @@ public class JsBridgeWebViewClient extends WebViewClient {
         return text;
     }
 
+    private JSONObject toJSONObject(Object object) throws IllegalAccessException, JSONException {
+        JSONObject jsonObject = new JSONObject();
+        Field[] fields = object.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            String key = field.isAnnotationPresent(JsBridgeField.class) ?
+                    field.getAnnotation(JsBridgeField.class).value()
+                    : field.getName();
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            jsonObject.put(key, field.get(object));
+        }
+        return jsonObject;
+    }
+
     private JSONArray toJSONArray(Object[] objects) {
         JSONArray jsonArray = new JSONArray();
         for (Object o : objects) {
@@ -448,6 +441,21 @@ public class JsBridgeWebViewClient extends WebViewClient {
             }
         }
         return jsonArray;
+    }
+
+    private Object parseJSON(Object object, String json) throws JSONException, IllegalAccessException {
+        JSONObject jsonObject = new JSONObject(json);
+        Field[] fields = object.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            String key = field.isAnnotationPresent(JsBridgeField.class) ?
+                    field.getAnnotation(JsBridgeField.class).value()
+                    : field.getName();
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            field.set(object, jsonObject.get(key));
+        }
+        return object;
     }
 
     private String construct(Object[] args) {
