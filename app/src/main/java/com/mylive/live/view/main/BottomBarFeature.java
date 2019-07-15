@@ -37,16 +37,21 @@ public class BottomBarFeature extends BaseFeature {
         HomeScrollEvent.getInstance().registerObserver(
                 scrollEventObserver = direction -> {
                     int parentHeight = binding.getRoot().getHeight();
-                    int bottomBarHeight = binding.tabBar.getHeight();
-                    int startY = direction > 0 ?
-                            parentHeight - bottomBarHeight
+                    //最大可见高度为中间tab的高度（也是整体高度）
+                    int bottomBarMaxHeight = binding.tabBar.getHeight();
+                    //最小可见高度为其余tab的高度（正好是背景高度）
+                    int bottomBarMinHeight = binding.tabBar
+                            .findViewById(R.id.background).getHeight();
+                    int startY = direction == ScrollEvent.Direction.UP ?
+                            parentHeight - bottomBarMaxHeight
                             : parentHeight;
-                    int endY = direction > 0 ? parentHeight
-                            : parentHeight - bottomBarHeight;
+                    int endY = direction == ScrollEvent.Direction.UP ? parentHeight
+                            : parentHeight - bottomBarMaxHeight;
                     Runnable resetRecyclerViewLayoutParams = () -> {
                         ViewGroup.MarginLayoutParams params
                                 = (ViewGroup.MarginLayoutParams) binding.fragmentHost.getLayoutParams();
-                        params.bottomMargin = direction > 0 ? 0 : bottomBarHeight;
+                        params.bottomMargin = direction == ScrollEvent.Direction.UP ?
+                                bottomBarMinHeight : 0;
                         binding.fragmentHost.setLayoutParams(params);
                     };
                     resetRecyclerViewLayoutParams.run();
@@ -54,10 +59,10 @@ public class BottomBarFeature extends BaseFeature {
                     valueAnimator.addUpdateListener(animation -> {
                         binding.tabBar.setY((int) animation.getAnimatedValue());
                         Runnable resetRecyclerViewLayoutParams2 = () -> {
-                            int marginBottom = (int) (parentHeight - binding.tabBar.getY());
+                            int marginBottom = bottomBarMinHeight - (int) animation.getAnimatedValue();
                             ViewGroup.LayoutParams params = binding.fragmentHost.getLayoutParams();
                             ((ViewGroup.MarginLayoutParams) params).bottomMargin
-                                    = Math.max(0, marginBottom);
+                                    = Math.min(bottomBarMinHeight, Math.max(0, marginBottom));
                             binding.fragmentHost.setLayoutParams(params);
                         };
                         resetRecyclerViewLayoutParams2.run();

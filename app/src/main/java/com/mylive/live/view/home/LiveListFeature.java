@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.annotation.ViewModel;
-import com.mylive.live.arch.feature.FeaturesFragment;
+import com.mylive.live.arch.feature.FeaturesManagerOwner;
 import com.mylive.live.base.BaseFeature;
 import com.mylive.live.base.BaseViewHolder;
 import com.mylive.live.databinding.FragmentHomeBinding;
@@ -35,8 +35,8 @@ public class LiveListFeature extends BaseFeature {
     private LiveListAdapter liveListAdapter;
     private int itemHeight;
 
-    public LiveListFeature(FeaturesFragment fragment) {
-        super(fragment);
+    public LiveListFeature(FeaturesManagerOwner owner) {
+        super(owner);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

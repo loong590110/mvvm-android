@@ -3,7 +3,6 @@ package com.mylive.live.view.main;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Html;
 
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.Features;
@@ -11,13 +10,11 @@ import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
-import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.event.TestEvent;
-import com.mylive.live.router.LiveRoomActivityStarter;
+import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.utils.ToastUtils;
-
-import java.io.IOException;
+import com.mylive.live.view.home.HomeFragment;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-19.
@@ -33,12 +30,9 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         StatusBarCompat.getSettings(this).setLightMode(true).apply();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        try {
-            String html = getAssets().open("about.html").toString();
-            binding.txtHtml.setText(Html.fromHtml(html));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_host, new HomeFragment())
+                .commitAllowingStateLoss();
     }
 
     @Override

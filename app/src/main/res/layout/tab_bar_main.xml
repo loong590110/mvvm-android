@@ -18,7 +18,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/tab_home"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tab_channel"
         app:layout_constraintHorizontal_weight="1"
@@ -41,7 +41,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/tab_channel"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tab_live"
         app:layout_constraintHorizontal_weight="1"
@@ -86,7 +86,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/tab_news"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tab_mine"
         app:layout_constraintHorizontal_weight="1"
@@ -109,7 +109,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/tab_mine"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"
