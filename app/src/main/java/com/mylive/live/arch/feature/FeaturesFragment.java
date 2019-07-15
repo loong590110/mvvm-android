@@ -14,11 +14,12 @@ import androidx.annotation.Nullable;
  * Created by Developer Zailong Shi on 2019-07-01.
  */
 @SuppressLint("Registered")
-public class FeaturesFragment extends Fragment {
+public class FeaturesFragment extends Fragment implements FeaturesManagerOwner {
 
     private FeaturesManager featuresManager;
     private boolean hasFeaturesCreated;
 
+    @Override
     public FeaturesManager getFeaturesManager() {
         if (featuresManager == null) {
             featuresManager = FeaturesManager.of(this);
@@ -72,12 +73,17 @@ public class FeaturesFragment extends Fragment {
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
+    public void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
         if (featuresManager != null) {
             for (Feature feature : featuresManager) {
                 feature.onRestoreInstanceState(savedInstanceState);
             }
         }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        onRestoreInstanceState(savedInstanceState);
     }
 }

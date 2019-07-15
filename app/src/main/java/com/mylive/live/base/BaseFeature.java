@@ -3,8 +3,7 @@ package com.mylive.live.base;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.mylive.live.arch.feature.FeaturesActivity;
-import com.mylive.live.arch.feature.FeaturesFragment;
+import com.mylive.live.arch.feature.FeaturesManagerOwner;
 import com.mylive.live.arch.mvvm.ViewModelFeature;
 import com.mylive.live.exception.ProhibitedException;
 
@@ -13,12 +12,8 @@ import com.mylive.live.exception.ProhibitedException;
  */
 public class BaseFeature extends ViewModelFeature {
 
-    public BaseFeature(FeaturesActivity activity) {
-        super(activity);
-    }
-
-    public BaseFeature(FeaturesFragment fragment) {
-        super(fragment);
+    public BaseFeature(FeaturesManagerOwner owner) {
+        super(owner);
     }
 
     @Deprecated

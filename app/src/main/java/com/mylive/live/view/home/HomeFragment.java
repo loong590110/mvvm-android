@@ -1,7 +1,9 @@
 package com.mylive.live.view.home;
 
 import androidx.databinding.DataBindingUtil;
+
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,6 +51,9 @@ public class HomeFragment extends BaseFragment {
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (!recyclerView.canScrollVertically(1)) {
+                        HomeScrollEvent.getInstance().notifyObservers(ScrollEvent.Direction.UP);
+                    }
                     if (!recyclerView.canScrollVertically(-1)) {
                         HomeScrollEvent.getInstance().notifyObservers(ScrollEvent.Direction.DOWN);
                     }

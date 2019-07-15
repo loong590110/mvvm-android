@@ -1,15 +1,19 @@
 package com.mylive.live.arch.feature;
 
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.View;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.mylive.live.arch.mapper.Mapper;
 
@@ -20,36 +24,42 @@ import java.util.Objects;
  */
 public class Feature implements LifecycleObserver {
 
-    private LifecycleOwner lifecycleOwner;
+    private FeaturesManagerOwner owner;
     private Bundle arguments;
 
-    public Feature(FeaturesActivity activity) {
-        Objects.requireNonNull(activity);
-        this.lifecycleOwner = activity;
-        onConstructing();
-        onAttach();
-    }
-
-    public Feature(FeaturesFragment fragment) {
-        Objects.requireNonNull(fragment);
-        this.lifecycleOwner = fragment;
+    public Feature(FeaturesManagerOwner owner) {
+        Objects.requireNonNull(owner);
+        if (owner instanceof Activity) {
+            if (!(owner instanceof FragmentActivity)) {
+                throw new IllegalArgumentException("Only support FragmentActivity.");
+            }
+        }
+        this.owner = owner;
         onConstructing();
         onAttach();
     }
 
     protected void onConstructing() {
-        Mapper.from(lifecycleOwner).to(this);
+        Mapper.from(owner).to(this);
     }
 
     protected void onAttach() {
-        lifecycleOwner.getLifecycle().addObserver(this);
+        owner.getLifecycle().addObserver(this);
     }
 
-    public FeaturesActivity getActivity() {
-        if (lifecycleOwner instanceof FeaturesActivity) {
-            return (FeaturesActivity) lifecycleOwner;
-        } else if (lifecycleOwner instanceof FeaturesFragment) {
-            return (FeaturesActivity) ((FeaturesFragment) lifecycleOwner).getActivity();
+    public FeaturesManagerOwner getFeaturesManagerOwner() {
+        return owner;
+    }
+
+    public LifecycleOwner getLifecycleOwner() {
+        return owner;
+    }
+
+    public FragmentActivity getActivity() {
+        if (owner instanceof FragmentActivity) {
+            return (FragmentActivity) owner;
+        } else if (owner instanceof Fragment) {
+            return ((Fragment) owner).getActivity();
         }
         return null;
     }
@@ -62,10 +72,6 @@ public class Feature implements LifecycleObserver {
         return getContext().getResources();
     }
 
-    public LifecycleOwner getLifecycleOwner() {
-        return lifecycleOwner;
-    }
-
     public <T extends View> T findViewById(@IdRes int id) {
         //noinspection unchecked
         return (T) getActivity().findViewById(id);
@@ -76,13 +82,13 @@ public class Feature implements LifecycleObserver {
     }
 
     public void startActivity(Intent intent, Bundle options) {
-        if (lifecycleOwner instanceof FeaturesActivity) {
+        if (owner instanceof FragmentActivity) {
             if (options != null) {
                 intent = intent.putExtras(options);
             }
-            ((FeaturesActivity) lifecycleOwner).startActivity(intent);
-        } else if (lifecycleOwner instanceof FeaturesFragment) {
-            ((FeaturesFragment) lifecycleOwner).startActivity(intent, options);
+            ((FragmentActivity) owner).startActivity(intent);
+        } else if (owner instanceof Fragment) {
+            ((Fragment) owner).startActivity(intent, options);
         }
     }
 
@@ -91,15 +97,13 @@ public class Feature implements LifecycleObserver {
     }
 
     public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
-        if (lifecycleOwner instanceof FeaturesActivity) {
+        if (owner instanceof FragmentActivity) {
             if (options != null) {
                 intent = intent.putExtras(options);
             }
-            ((FeaturesActivity) lifecycleOwner).startActivityForResult(
-                    intent, requestCode, options);
-        } else if (lifecycleOwner instanceof FeaturesFragment) {
-            ((FeaturesFragment) lifecycleOwner).startActivityForResult(
-                    intent, requestCode, options);
+            ((FragmentActivity) owner).startActivityForResult(intent, requestCode);
+        } else if (owner instanceof Fragment) {
+            ((Fragment) owner).startActivityForResult(intent, requestCode, options);
         }
     }
 

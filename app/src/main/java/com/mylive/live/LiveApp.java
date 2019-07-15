@@ -5,6 +5,9 @@ import android.app.Application;
 import com.mylive.live.arch.http.HttpConfigProvider;
 import com.mylive.live.config.HttpConfig;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
+import com.mylive.live.ssl.SSLContextWrapper;
+
+import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import okhttp3.OkHttpClient;
 
@@ -26,6 +29,13 @@ public class LiveApp extends Application {
         HttpConfigProvider.getConfig()
                 .setBaseUrl(HttpConfig.BASE_URL)
                 .setHttpClient(new OkHttpClient.Builder()
+                        //region: trust all crt.
+                        /*
+                        .sslSocketFactory(SSLContextWrapper.getInstance().getSocketFactory(),
+                                SSLContextWrapper.getX509TrustManager())
+                        .hostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
+                        */
+                        //endregion
                         .addInterceptor(
                                 HttpInterceptorsManager.getHttpRequestInterceptor())
                         .addInterceptor(

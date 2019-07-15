@@ -15,11 +15,11 @@ import java.util.Objects;
  */
 public final class FeaturesManager implements Iterable<Feature> {
 
-    private LifecycleOwner lifecycleOwner;
+    private FeaturesManagerOwner owner;
     private Map<Class<? extends Feature>, Feature> featureMap;
 
-    private FeaturesManager(LifecycleOwner lifecycleOwner) {
-        this.lifecycleOwner = lifecycleOwner;
+    private FeaturesManager(FeaturesManagerOwner owner) {
+        this.owner = owner;
     }
 
     public static FeaturesManager of(FeaturesActivity activity) {
@@ -40,21 +40,11 @@ public final class FeaturesManager implements Iterable<Feature> {
             featureMap = new HashMap<>();
         }
         try {
-            if (lifecycleOwner instanceof FeaturesActivity) {
-                Constructor<T> constructor = featureClass.getConstructor(
-                        FeaturesActivity.class);
-                Feature feature = constructor.newInstance(
-                        (FeaturesActivity) lifecycleOwner);
-                feature.setArguments(arguments);
-                featureMap.put(featureClass, feature);
-            } else if (lifecycleOwner instanceof FeaturesFragment) {
-                Constructor<T> constructor = featureClass.getConstructor(
-                        FeaturesFragment.class);
-                Feature feature = constructor.newInstance(
-                        (FeaturesFragment) lifecycleOwner);
-                feature.setArguments(arguments);
-                featureMap.put(featureClass, feature);
-            }
+            Constructor<T> constructor = featureClass.getConstructor(
+                    FeaturesManagerOwner.class);
+            Feature feature = constructor.newInstance(owner);
+            feature.setArguments(arguments);
+            featureMap.put(featureClass, feature);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (InstantiationException e) {
