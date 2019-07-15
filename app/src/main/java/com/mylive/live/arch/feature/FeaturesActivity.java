@@ -13,11 +13,12 @@ import android.support.v4.app.FragmentActivity;
  * Created by Developer Zailong Shi on 2019-07-01.
  */
 @SuppressLint("Registered")
-public class FeaturesActivity extends FragmentActivity {
+public class FeaturesActivity extends FragmentActivity implements FeaturesManagerOwner {
 
     private FeaturesManager featuresManager;
     private boolean hasFeaturesCreated;
 
+    @Override
     public FeaturesManager getFeaturesManager() {
         if (featuresManager == null) {
             featuresManager = FeaturesManager.of(this);

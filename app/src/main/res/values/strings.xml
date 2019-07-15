@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">mylive</string>
     <string name="double_click_exit_app">再按一次退出</string>
-    <!--alert dialog-->
+    <!--Main Activity-->
+    <string name="home">首页</string>
+    <string name="channel">频道</string>
+    <string name="news">动态</string>
+    <string name="mine">我的</string>
+    <!--Alert Dialog-->
     <string name="alert_default_title">提示</string>
     <string name="cancel">取消</string>
     <string name="confirm">确定</string>

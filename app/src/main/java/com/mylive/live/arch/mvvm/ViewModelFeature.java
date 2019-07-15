@@ -3,8 +3,7 @@ package com.mylive.live.arch.mvvm;
 import android.arch.lifecycle.ViewModelProviders;
 
 import com.mylive.live.arch.annotation.ViewModel;
-import com.mylive.live.arch.feature.FeaturesActivity;
-import com.mylive.live.arch.feature.FeaturesFragment;
+import com.mylive.live.arch.feature.FeaturesManagerOwner;
 
 import java.lang.reflect.Field;
 
@@ -12,12 +11,9 @@ import java.lang.reflect.Field;
  * Created by Developer Zailong Shi on 2019-07-11.
  */
 public class ViewModelFeature extends CommunicableFeature {
-    public ViewModelFeature(FeaturesActivity activity) {
-        super(activity);
-    }
 
-    public ViewModelFeature(FeaturesFragment fragment) {
-        super(fragment);
+    public ViewModelFeature(FeaturesManagerOwner owner) {
+        super(owner);
     }
 
     @Override

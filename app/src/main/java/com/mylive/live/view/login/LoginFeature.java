@@ -6,6 +6,7 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.feature.FeaturesActivity;
 import com.mylive.live.arch.feature.FeaturesFragment;
+import com.mylive.live.arch.feature.FeaturesManagerOwner;
 import com.mylive.live.base.BaseFeature;
 import com.mylive.live.databinding.ActivityLoginBinding;
 
@@ -17,12 +18,8 @@ public class LoginFeature extends BaseFeature {
     @FieldMap("binding")
     private ActivityLoginBinding binding;
 
-    public LoginFeature(FeaturesActivity activity) {
-        super(activity);
-    }
-
-    public LoginFeature(FeaturesFragment fragment) {
-        super(fragment);
+    public LoginFeature(FeaturesManagerOwner owner) {
+        super(owner);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

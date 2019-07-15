@@ -4,8 +4,7 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.OnLifecycleEvent;
 
 import com.mylive.live.arch.feature.Feature;
-import com.mylive.live.arch.feature.FeaturesActivity;
-import com.mylive.live.arch.feature.FeaturesFragment;
+import com.mylive.live.arch.feature.FeaturesManagerOwner;
 import com.mylive.live.arch.subscriber.PublisherAndSchedulerProxy;
 import com.mylive.live.arch.subscriber.Scheduler;
 
@@ -18,12 +17,8 @@ public class CommunicableFeature extends Feature {
 
     private Scheduler schedulerAndPublisherProxy;
 
-    public CommunicableFeature(FeaturesActivity activity) {
-        super(activity);
-    }
-
-    public CommunicableFeature(FeaturesFragment fragment) {
-        super(fragment);
+    public CommunicableFeature(FeaturesManagerOwner owner) {
+        super(owner);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
