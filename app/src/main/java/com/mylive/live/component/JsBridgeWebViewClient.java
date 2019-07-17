@@ -22,8 +22,13 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -343,7 +348,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
                     callback(callbackId(name, param), objectArgs);
                 };
             } else {
-                args[i] = parseJSON(paramType.newInstance(), param);
+                args[i] = parseJSON(param, paramType);
             }
         }
         return args;
@@ -425,27 +430,56 @@ public class JsBridgeWebViewClient extends WebViewClient {
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
-            jsonObject.put(key, field.get(object));
+            if (boolean.class.isAssignableFrom(field.getType())
+                    || int.class.isAssignableFrom(field.getType())
+                    || long.class.isAssignableFrom(field.getType())
+                    || float.class.isAssignableFrom(field.getType())
+                    || double.class.isAssignableFrom(field.getType())
+                    || Boolean.class.isAssignableFrom(field.getType())
+                    || Integer.class.isAssignableFrom(field.getType())
+                    || Long.class.isAssignableFrom(field.getType())
+                    || Float.class.isAssignableFrom(field.getType())
+                    || Double.class.isAssignableFrom(field.getType())
+                    || JSONObject.class.isAssignableFrom(field.getType())
+                    || JSONArray.class.isAssignableFrom(field.getType())) {
+                jsonObject.put(key, field.get(object));
+            } else {
+                jsonObject.put(key, toJSONObject(field.get(object)));
+            }
         }
         return jsonObject;
     }
 
-    private JSONArray toJSONArray(Object[] objects) {
+    private JSONArray toJSONArray(Object[] objects) throws JSONException, IllegalAccessException {
         JSONArray jsonArray = new JSONArray();
         for (Object o : objects) {
             if (o instanceof Object[]) {
                 //解决内部数组对象不会自动转成JSON数组的问题
                 jsonArray.put(toJSONArray((Object[]) o));
             } else {
-                jsonArray.put(o);
+                if (o instanceof Boolean
+                        || o instanceof Integer
+                        || o instanceof Long
+                        || o instanceof Float
+                        || o instanceof Double
+                        || o instanceof JSONObject
+                        || o instanceof JSONArray) {
+                    jsonArray.put(o);
+                } else {
+                    jsonArray.put(toJSONObject(o));
+                }
             }
         }
         return jsonArray;
     }
 
-    private Object parseJSON(Object object, String json) throws JSONException, IllegalAccessException {
-        JSONObject jsonObject = new JSONObject(json);
-        Field[] fields = object.getClass().getDeclaredFields();
+    private <T> T parseJSON(String json, Class<T> tClass) throws JSONException, InstantiationException, IllegalAccessException {
+        return parseJSON(new JSONObject(json), tClass);
+    }
+
+    private <T> T parseJSON(JSONObject jsonObject, Class<T> tClass) throws JSONException, IllegalAccessException, InstantiationException {
+        T object = tClass.newInstance();
+        Field[] fields = tClass.getDeclaredFields();
         for (Field field : fields) {
             String key = field.isAnnotationPresent(JsBridgeField.class) ?
                     field.getAnnotation(JsBridgeField.class).value()
@@ -453,7 +487,67 @@ public class JsBridgeWebViewClient extends WebViewClient {
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
-            field.set(object, jsonObject.get(key));
+            if (boolean.class.isAssignableFrom(field.getType())
+                    || int.class.isAssignableFrom(field.getType())
+                    || long.class.isAssignableFrom(field.getType())
+                    || float.class.isAssignableFrom(field.getType())
+                    || double.class.isAssignableFrom(field.getType())
+                    || Boolean.class.isAssignableFrom(field.getType())
+                    || Integer.class.isAssignableFrom(field.getType())
+                    || Long.class.isAssignableFrom(field.getType())
+                    || Float.class.isAssignableFrom(field.getType())
+                    || Double.class.isAssignableFrom(field.getType())
+                    || JSONObject.class.isAssignableFrom(field.getType())
+                    || JSONArray.class.isAssignableFrom(field.getType())) {
+                field.set(object, jsonObject.get(key));
+            } else if (List.class.isAssignableFrom(field.getType())) {
+                Type type = field.getGenericType();
+                Type[] types = type instanceof ParameterizedType ?
+                        ((ParameterizedType) type).getActualTypeArguments()
+                        : null;
+                if (types != null && types.length > 0) {
+                    JSONArray jsonArray = jsonObject.getJSONArray(key);
+                    if (jsonArray.length() > 0) {
+                        List list = new ArrayList();
+                        Class aClass = (Class) types[0];
+                        if (boolean.class.isAssignableFrom(aClass)
+                                || int.class.isAssignableFrom(aClass)
+                                || long.class.isAssignableFrom(aClass)
+                                || float.class.isAssignableFrom(aClass)
+                                || double.class.isAssignableFrom(aClass)
+                                || Boolean.class.isAssignableFrom(aClass)
+                                || Integer.class.isAssignableFrom(aClass)
+                                || Long.class.isAssignableFrom(aClass)
+                                || Float.class.isAssignableFrom(aClass)
+                                || Double.class.isAssignableFrom(aClass)
+                                || JSONObject.class.isAssignableFrom(aClass)
+                                || JSONArray.class.isAssignableFrom(aClass)) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                list.add(jsonArray.get(i));
+                            }
+                        } else {
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                                list.add(parseJSON(jsonObject1, aClass));
+                            }
+                        }
+                        field.set(object, list);
+                    }
+                }
+            } else if (Map.class.isAssignableFrom(field.getType())) {
+                JSONObject jsonObject1 = jsonObject.getJSONObject(key);
+                if (jsonObject1 != null) {
+                    Map<String, Object> map = new HashMap<>();
+                    Iterator<String> keys = jsonObject1.keys();
+                    while (keys.hasNext()) {
+                        String key1 = keys.next();
+                        map.put(key1, jsonObject1.get(key1));
+                    }
+                    field.set(object, map);
+                }
+            } else if (jsonObject.get(key) != null) {
+                field.set(object, parseJSON(jsonObject.getJSONObject(key), field.getType()));
+            }
         }
         return object;
     }
