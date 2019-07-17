@@ -3,6 +3,7 @@ package com.mylive.live.utils;
 import android.database.Observable;
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
@@ -24,12 +25,13 @@ public class ScrollEvent extends Observable<ScrollEvent.Observer> {
     private Filter filter;
     private Check check;
 
+
     /**
      * 向所有观察者发送方向值
      *
      * @param direction 被发送给观察者的方向值
      */
-    public void notifyObservers(@Direction int direction) {
+    private void notifyObservers(@Direction int direction) {
         if (mObservers.size() <= 0) {
             return;
         }
@@ -64,6 +66,15 @@ public class ScrollEvent extends Observable<ScrollEvent.Observer> {
                     Direction.UP : Direction.DOWN;
             notifyObservers(direction);
         }
+    }
+
+    public void toggle() {
+        notifyObservers(currentDirection == Direction.UP ?
+                Direction.DOWN : Direction.UP);
+    }
+
+    public void reset() {
+        notifyObservers(Direction.DOWN);
     }
 
     /**

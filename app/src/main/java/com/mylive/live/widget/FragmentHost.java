@@ -60,11 +60,13 @@ public final class FragmentHost {
             fragment1 = Fragment.instantiate(context, fragmentName, args);
             transaction.add(fragmentContainerId, fragment1, fragmentName);
         }
-        for (Class<? extends Fragment> willBeRemovedFragment : willBeRemovedFragments) {
-            String fragmentName2 = willBeRemovedFragment.getName();
-            Fragment fragment2 = fragmentManager.findFragmentByTag(fragmentName2);
-            if (fragment2 != null) {
-                transaction.remove(fragment2);
+        if (willBeRemovedFragments != null) {
+            for (Class<? extends Fragment> willBeRemovedFragment : willBeRemovedFragments) {
+                String fragmentName2 = willBeRemovedFragment.getName();
+                Fragment fragment2 = fragmentManager.findFragmentByTag(fragmentName2);
+                if (fragment2 != null) {
+                    transaction.remove(fragment2);
+                }
             }
         }
         boolean selectedFragmentRemoved = willBeRemovedFragments != null

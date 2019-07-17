@@ -48,7 +48,7 @@ public class LiveListFeature extends BaseFeature {
         binding.recyclerView.setAdapter(liveListAdapter = new LiveListAdapter());
         liveListViewModel.getLiveList(false, 2000)
                 .observe(getLifecycleOwner(), liveList -> {
-                    itemHeight = binding.recyclerView.getHeight() / 4 + 10;
+                    itemHeight = binding.recyclerView.getHeight() / 4;
                     liveListAdapter.setLiveList(liveList);
                 });
     }
