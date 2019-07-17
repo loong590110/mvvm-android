@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">mylive</string>
+    <string name="app_name">我的bili</string>
     <string name="double_click_exit_app">再按一次退出</string>
     <!--Main Activity-->
     <string name="home">首页</string>

@@ -7,27 +7,33 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/txt_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#666666"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <com.dinuscxj.progressbar.CircleProgressBar
+            android:id="@+id/progress_circular"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="5dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="test" />
+            app:progress_shader="sweep"
+            app:progress_stroke_cap="round"
+            app:progress_stroke_width="2dp"
+            app:progress_text_color="@color/colorPrimary"
+            app:progress_text_size="0sp"
+            app:style="solid_line" />
+
         <TextView
             android:id="@+id/txt_timer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorAccent"
-            android:textSize="66sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="10" />
+            android:includeFontPadding="false"
+            android:textColor="@color/colorPrimary"
+            android:textSize="21sp"
+            app:layout_constraintBottom_toBottomOf="@id/progress_circular"
+            app:layout_constraintEnd_toEndOf="@id/progress_circular"
+            app:layout_constraintStart_toStartOf="@id/progress_circular"
+            app:layout_constraintTop_toTopOf="@id/progress_circular"
+            tools:text="3" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

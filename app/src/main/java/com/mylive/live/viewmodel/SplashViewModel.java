@@ -2,6 +2,7 @@ package com.mylive.live.viewmodel;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import android.os.CountDownTimer;
 
 import com.mylive.live.arch.annotation.Service;
@@ -30,9 +31,11 @@ public class SplashViewModel extends BaseViewModel {
             countDownTimer = new MutableLiveData<>();
         }
         new CountDownTimer(COUNT_DOWN_TIME, COUNT_DOWN_INTERVAL) {
+            private long tick = COUNT_DOWN_TIME / COUNT_DOWN_INTERVAL;
+
             @Override
             public void onTick(long millisUntilFinished) {
-                countDownTimer.postValue((int) (millisUntilFinished / COUNT_DOWN_INTERVAL) + 1);
+                countDownTimer.postValue((int) tick--);
             }
 
             @Override

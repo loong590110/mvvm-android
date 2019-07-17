@@ -1,13 +1,13 @@
 package com.mylive.live.view.splash;
 
 import android.Manifest;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProviders;
 
-import com.alibaba.fastjson.JSON;
 import com.mylive.live.R;
 import com.mylive.live.arch.permission.PermissionsRequester;
 import com.mylive.live.base.BaseActivity;
@@ -37,23 +37,19 @@ public class SplashActivity extends BaseActivity {
                     @Override
                     protected void onAllEssentialPermissionsAreGranted() {
                         splashViewModel.getConfig().observe(SplashActivity.this, config -> {
-                            binding.txtTest.append(JSON.toJSONString(config) + "\n\n");
                             splashViewModel.startCountDownTimer().observe(SplashActivity.this,
                                     integer -> {
-                                        if (integer != null && integer == 0) {
+                                        if (binding.progressCircular.getMax() == 100) {
+                                            binding.progressCircular.setMax(integer);
+                                        }
+                                        binding.progressCircular.setProgress(integer);
+                                        binding.txtTimer.setText(String.valueOf(integer));
+                                        if (integer == 0) {
                                             MainActivityStarter.create()
                                                     .start(SplashActivity.this)
                                                     .finish();
-                                        } else {
-                                            binding.txtTimer.setText(String.valueOf(integer));
                                         }
                                     });
-                        });
-                        splashViewModel.getTestData().observe(SplashActivity.this, s -> {
-                            if (s != null && s.length() > 256) {
-                                s = s.substring(0, 256);
-                            }
-                            binding.txtTest.append(s + "\n\n");
                         });
                     }
 
@@ -64,6 +60,7 @@ public class SplashActivity extends BaseActivity {
                                 .setCancelText("暂时拒绝")
                                 .setConfirmText("重新申请")
                                 .setOnConfirmClickListener((dialog, which) -> {
+                                    dialog.dismiss();
                                     requester.request();
                                 })
                                 .show();
@@ -77,6 +74,7 @@ public class SplashActivity extends BaseActivity {
                                 .setCancelText("不再提醒")
                                 .setConfirmText("前往设置")
                                 .setOnConfirmClickListener((dialog, which) -> {
+                                    dialog.dismiss();
                                     //open settings
                                 })
                                 .show();
