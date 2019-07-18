@@ -52,8 +52,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
     private String invokeMethodName, onReturnMethodName;
     private Object localApi;
     private Map<String, Method> localApiMap;
-    private Map<String, Callback> callbackMap;
-    private Map<String, Callback2> callback2Map;
+    private Map<String, Object> callbackMap;
     private WeakReference<WebView> view;
     private String jsBridge;
 
@@ -251,13 +250,17 @@ public class JsBridgeWebViewClient extends WebViewClient {
     @JsBridgeApi("onReturn")
     @JavascriptInterface
     public void onReturn(String callbackName, String... params) {
-        Callback callback = callbackMap.get(callbackName);
+        Object callback = callbackMap.get(callbackName);
         if (callback != null) {
             Object[] args = new Object[params.length];
             for (int i = 0; i < params.length; i++) {
                 args[i] = convert(params[i]);
             }
-            callback.call(args);
+            if (callback instanceof Callback) {
+                ((Callback) callback).call(args);
+            } else if (callback instanceof Callback2) {
+                ((Callback2) callback).call(args.length > 0 ? args[0] : null);
+            }
         }
     }
 
@@ -422,9 +425,10 @@ public class JsBridgeWebViewClient extends WebViewClient {
             return "'" + object.toString() + "'";
         } else if (object instanceof Object[]) {
             return toJSONArray((Object[]) object).toString();
-        } else if (object instanceof Callback) {
+        } else if (object instanceof Callback
+                || object instanceof Callback2) {
             String name = object.toString();
-            callbackMap.put(name, (Callback) object);
+            callbackMap.put(name, object);
             return ("function() {"
                     + "var args = Array.prototype.slice.apply(arguments);"
                     + "for (var i = 0; i < args.length; i++) {"

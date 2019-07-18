@@ -2,6 +2,7 @@ package com.mylive.live.view.splash;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
+        binding.progressCircular.setVisibility(View.INVISIBLE);
         splashViewModel = ViewModelProviders.of(this).get(SplashViewModel.class);
         requester = PermissionsRequester.create(this, 100)
                 .addHandler(new PermissionsRequester.RequestResultHandler() {
@@ -42,6 +44,7 @@ public class SplashActivity extends BaseActivity {
                                         if (binding.progressCircular.getMax() == 100) {
                                             binding.progressCircular.setMax(integer);
                                         }
+                                        binding.progressCircular.setVisibility(View.VISIBLE);
                                         binding.progressCircular.setProgress(integer);
                                         binding.txtTimer.setText(String.valueOf(integer));
                                         if (integer == 0) {
