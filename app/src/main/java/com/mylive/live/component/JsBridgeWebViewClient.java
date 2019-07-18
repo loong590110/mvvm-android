@@ -18,8 +18,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -49,6 +53,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
     private Object localApi;
     private Map<String, Method> localApiMap;
     private Map<String, Callback> callbackMap;
+    private Map<String, Callback2> callback2Map;
     private WeakReference<WebView> view;
     private String jsBridge;
 
@@ -184,6 +189,9 @@ public class JsBridgeWebViewClient extends WebViewClient {
                 remoteApi.getClassLoader(),
                 new Class[]{remoteApi},
                 (proxy, method, args) -> {
+                    if (isNotProxyMethod(method)) {
+                        return invokeIsNotProxyMethod(proxy, method, args);
+                    }
                     String name = getMethodName(method);
                     if (!void.class.isAssignableFrom(method.getReturnType())) {
                         throw new IllegalStateException(name + "方法有返回值，"
@@ -275,6 +283,53 @@ public class JsBridgeWebViewClient extends WebViewClient {
         return method.isAnnotationPresent(JsBridgeApi.class) ?
                 method.getAnnotation(JsBridgeApi.class).value()
                 : method.getName();
+    }
+
+    private boolean isNotProxyMethod(Method method) {
+        if (method.getDeclaringClass() == Object.class) {
+            return true;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return method.isDefault();
+        }
+        return false;
+    }
+
+    private Object invokeIsNotProxyMethod(Object proxy, Method method, Object... args) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            try {
+                final Constructor<MethodHandles.Lookup> lookupConstructor;
+                lookupConstructor = MethodHandles.Lookup.class
+                        .getDeclaredConstructor(Class.class, int.class);
+                lookupConstructor.setAccessible(true);
+                Class<?> declaringClass = method.getDeclaringClass();
+                // Used mode -1 = TRUST, because Modifier.PRIVATE failed for me in Java 8.
+                MethodHandles.Lookup lookup
+                        = lookupConstructor.newInstance(declaringClass, -1);
+                try {
+                    return lookup.findSpecial(declaringClass, method.getName(),
+                            MethodType.methodType(method.getReturnType(),
+                                    method.getParameterTypes()), declaringClass)
+                            .bindTo(proxy)
+                            .invokeWithArguments(args);
+                } catch (Throwable e) {
+                    try {
+                        return lookup.unreflectSpecial(method, declaringClass)
+                                .bindTo(proxy)
+                                .invokeWithArguments(args);
+                    } catch (Throwable ignore) {
+                    }
+                }
+            } catch (Exception ignore) {
+            }
+        } else {
+            try {
+                method.invoke(this, args);
+            } catch (IllegalAccessException ignore) {
+            } catch (InvocationTargetException ignore) {
+            }
+        }
+        return null;
     }
 
     private void error(String error) {

@@ -42,7 +42,7 @@ public class WebActivity extends BaseActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_web);
         binding.navigationBar.setRightButtonText("next");
         binding.navigationBar.setOnRightButtonClickListener(v -> {
-            Config.instance().homePage = "http://192.168.1.104:8080";
+            //Config.instance().homePage = "http://192.168.1.104:8080";
             WebActivityStarter.create(Config.instance().homePage)
                     .start(WebActivity.this);
         });

@@ -5,6 +5,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -37,7 +40,7 @@ public class ExampleUnitTest {
     List<String> list;
 
     @Test
-    public void tesListGeneric() throws NoSuchFieldException {
+    public void testListGeneric() throws NoSuchFieldException {
         Type type = ExampleUnitTest.class.getDeclaredField("list").getGenericType();
         if (type instanceof ParameterizedType) {
             Type[] types = ((ParameterizedType) type).getActualTypeArguments();
@@ -45,5 +48,56 @@ public class ExampleUnitTest {
                 System.out.println(type1);
             }
         }
+    }
+
+    @Test
+    public void testProxy() {
+        Proxy proxy = (Proxy) java.lang.reflect.Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{Proxy.class}, (proxy1, method, args) -> {
+                    System.out.println(method.getDeclaringClass());
+                    if (!Proxy.class.isAssignableFrom(method.getDeclaringClass())
+                            || method.isDefault()) {
+                        try {
+                            final Constructor<MethodHandles.Lookup> lookupConstructor
+                                    = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+                            lookupConstructor.setAccessible(true);
+                            Class<?> declaringClass = method.getDeclaringClass();
+                            // Used mode -1 = TRUST, because Modifier.PRIVATE failed for me in Java 8.
+                            MethodHandles.Lookup lookup
+                                    = lookupConstructor.newInstance(declaringClass, -1);
+                            try {
+                                return lookup.findSpecial(declaringClass, method.getName(),
+                                        MethodType.methodType(method.getReturnType(),
+                                                method.getParameterTypes()), declaringClass)
+                                        .bindTo(proxy1)
+                                        .invokeWithArguments(args);
+                            } catch (IllegalAccessException e) {
+                                try {
+                                    return lookup.unreflectSpecial(method, declaringClass)
+                                            .bindTo(proxy1)
+                                            .invokeWithArguments(args);
+                                } catch (IllegalAccessException ignore) {
+                                }
+                            }
+                        } catch (Exception ignore) {
+                        }
+                        return null;
+                    }
+                    return "proxy";
+                });
+        System.out.println(proxy.toString());
+        System.out.println(proxy.toString());
+        System.out.println(proxy.hashCode());
+        System.out.println(proxy.def("hhh"));
+        System.out.println(proxy.proxy());
+    }
+
+    private interface Proxy {
+        default String def(String text) {
+            return "default:" + text;
+        }
+
+        String proxy();
     }
 }
