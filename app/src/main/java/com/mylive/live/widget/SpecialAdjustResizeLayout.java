@@ -1,15 +1,19 @@
 package com.mylive.live.widget;
 
+import android.app.Activity;
 import android.content.Context;
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +40,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     public SpecialAdjustResizeLayout(@NonNull Context context, @Nullable AttributeSet attrs,
                                      int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        AndroidBug5497Workaround.assistActivity(this);
     }
 
     @Override
@@ -154,5 +159,72 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
 
     public interface OnChangedListener {
         void onChanged(View focusedView, int height);
+    }
+
+    private static class AndroidBug5497Workaround {
+
+        // For more information, see https://code.google.com/p/android/issues/detail?id=5497
+        // To use this class, simply invoke assistActivity() on an Activity that already has its content view set.
+
+        private static void assistActivity(ViewGroup childOfContent) {
+            new AndroidBug5497Workaround(childOfContent);
+        }
+
+        private ViewGroup mChildOfContent;
+        private int usableHeightSansKeyboard;
+
+        private AndroidBug5497Workaround(ViewGroup childOfContent) {
+            mChildOfContent = childOfContent;
+            mChildOfContent.getViewTreeObserver()
+                    .addOnGlobalLayoutListener(
+                            this::possiblyResizeChildOfContent);
+        }
+
+        private void possiblyResizeChildOfContent() {
+            if (isImmersiveMode()) {
+                ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
+                int usableHeightNow = computeUsableHeight();
+                int usableHeightSansKeyboard = getUsableHeightSansKeyboard();
+                if (usableHeightNow != usableHeightSansKeyboard) {
+                    // keyboard probably just became visible
+                    params.height = usableHeightNow;
+                } else {
+                    // keyboard probably just became hidden
+                    params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                }
+                mChildOfContent.requestLayout();
+            }
+        }
+
+        private int getUsableHeightSansKeyboard() {
+            if (usableHeightSansKeyboard <= 0) {
+                for (int i = 0; i < mChildOfContent.getChildCount(); i++) {
+                    View child = mChildOfContent.getChildAt(i);
+                    ViewGroup.LayoutParams params = child.getLayoutParams();
+                    if (params.height == ViewGroup.LayoutParams.MATCH_PARENT) {
+                        usableHeightSansKeyboard = child.getHeight();
+                        break;
+                    }
+                }
+            }
+            return usableHeightSansKeyboard;
+        }
+
+        private int computeUsableHeight() {
+            Rect r = new Rect();
+            mChildOfContent.getWindowVisibleDisplayFrame(r);
+            return r.bottom;
+        }
+
+        private boolean isImmersiveMode() {
+            int systemUiVisibility = ((Activity) mChildOfContent.getContext()).getWindow()
+                    .getDecorView().getSystemUiVisibility();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                return !mChildOfContent.getFitsSystemWindows()
+                        && (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+                        == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            }
+            return false;
+        }
     }
 }
