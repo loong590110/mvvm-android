@@ -10,6 +10,7 @@ import android.webkit.WebView;
 
 import com.mylive.live.BuildConfig;
 import com.mylive.live.R;
+import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.component.JsBridgeWebViewClient.Callback;
 import com.mylive.live.component.JsBridgeWebViewClient.Callback2;
 import com.mylive.live.component.JsBridgeWebViewClient.JsBridgeApi;
@@ -34,6 +35,7 @@ public class WebActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        StatusBarCompat.getSettings(this).setLightMode(true).apply();
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
