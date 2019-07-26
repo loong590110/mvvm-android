@@ -35,7 +35,7 @@ public class WebActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        StatusBarCompat.getSettings(this).setLightMode(true).apply();
+        StatusBarCompat.getSettings(this).setImmersive(true).setLightMode(true).apply();
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);

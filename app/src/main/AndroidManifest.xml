@@ -30,6 +30,8 @@
         <activity android:name=".view.main.MainActivity" />
         <activity android:name=".view.room.LiveRoomActivity" />
         <activity android:name=".view.login.LoginActivity" />
-        <activity android:name=".view.web.WebActivity" />
+        <activity
+            android:name=".view.web.WebActivity"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
     </application>
 </manifest>
