@@ -38,9 +38,10 @@ import java.util.Objects;
 
 /**
  * 使用说明：
- * 1、
- * 2、
- * 注：利用注解实现防混淆，不需添加防混淆规则
+ * 1、通过addLocalApi方法注册供给Javascript调用的java方法。
+ * 默认注册的Javascript对象名称是“jsBridge”，可自定义该对象名称。
+ * 2、通过createRemoteApi方法创建动态代理类来调用Javascript注册在“jsBridge”对象上的函数。
+ * 注：可利用@JsBridgeApi和@JsBridgeField注解实现防混淆，或添加防混淆规则（本类已实现通过注解防混淆）
  * <p>
  * Created by Developer Zailong Shi on 2019-07-09.
  */
