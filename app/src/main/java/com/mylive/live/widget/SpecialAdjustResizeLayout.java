@@ -135,7 +135,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
     }
 
-    public void findEditTextView(View rootNode, View currentNode) {
+    private void findEditTextView(View rootNode, View currentNode) {
         if (currentNode instanceof EditText) {
             if (!adjustableViews.containsKey(currentNode)) {
                 adjustableViews.put((EditText) currentNode, rootNode);
@@ -171,7 +171,6 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
 
         private ViewGroup mChildOfContent;
-        private int usableHeightSansKeyboard;
 
         private AndroidBug5497Workaround(ViewGroup childOfContent) {
             mChildOfContent = childOfContent;
@@ -185,7 +184,11 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
                 ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
                 int usableHeightNow = computeUsableHeight();
                 int usableHeightSansKeyboard = getUsableHeightSansKeyboard();
-                if (usableHeightNow != usableHeightSansKeyboard) {
+                if (usableHeightSansKeyboard <= 0
+                        || usableHeightNow == usableHeightSansKeyboard) {
+                    return;
+                }
+                if (usableHeightNow < usableHeightSansKeyboard) {
                     // keyboard probably just became visible
                     params.height = usableHeightNow;
                 } else {
@@ -197,17 +200,15 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
 
         private int getUsableHeightSansKeyboard() {
-            if (usableHeightSansKeyboard <= 0) {
-                for (int i = 0; i < mChildOfContent.getChildCount(); i++) {
-                    View child = mChildOfContent.getChildAt(i);
-                    ViewGroup.LayoutParams params = child.getLayoutParams();
-                    if (params.height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                        usableHeightSansKeyboard = child.getHeight();
-                        break;
-                    }
+            //每次都重新获取，应付高度发生变化的情况
+            for (int i = 0; i < mChildOfContent.getChildCount(); i++) {
+                View child = mChildOfContent.getChildAt(i);
+                ViewGroup.LayoutParams params = child.getLayoutParams();
+                if (params.height == ViewGroup.LayoutParams.MATCH_PARENT) {
+                    return child.getHeight();
                 }
             }
-            return usableHeightSansKeyboard;
+            return 0;
         }
 
         private int computeUsableHeight() {
