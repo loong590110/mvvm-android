@@ -44,7 +44,7 @@ public class WebActivity extends BaseActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_web);
         binding.navigationBar.setRightButtonText("next");
         binding.navigationBar.setOnRightButtonClickListener(v -> {
-            //Config.instance().homePage = "http://192.168.1.104:8080";
+            Config.instance().homePage = "http://192.168.1.104:8080";
             WebActivityStarter.create(Config.instance().homePage)
                     .start(WebActivity.this);
         });
@@ -133,8 +133,7 @@ public class WebActivity extends BaseActivity {
                     .setOnConfirmClickListener((dialog, which) -> {
                         dialog.dismiss();
                         remoteApi.feedback(true, args -> {
-                            String fb = args[0].toString();
-                            ToastUtils.showShortToast(WebActivity.this, fb);
+                            ToastUtils.showShortToast(WebActivity.this, args[0].toString());
                         });
                     })
                     .setOnCancelClickListener((dialog, which) -> {
@@ -144,8 +143,8 @@ public class WebActivity extends BaseActivity {
                         });
                     })
                     .setOnCancelListener(dialog -> {
-                        remoteApi.feedback(false, args -> {
-                            ToastUtils.showShortToast(WebActivity.this, args[0].toString());
+                        remoteApi.testCallback2(text -> {
+                            ToastUtils.showShortToast(WebActivity.this, text);
                         });
                     })
                     .show();

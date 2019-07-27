@@ -48,11 +48,18 @@ public class JsBridgeWebViewClient extends WebViewClient {
 
     private static final String TAG = JsBridgeWebViewClient.class.getSimpleName();
     private static final String JS_BRIDGE = "jsBridge";
+    private static final String INVOKE = "invoke";
+    private static final String ON_CALLBACK = "onCallback";
+    private static final String CALLBACKS = "callbacks";
+    private static final String CALLBACK = "callback";
+    private static final String CALL = "call";
+    private static final String ERROR = "error";
     private Handler handler = new Handler(Looper.getMainLooper());
-    private String invokeMethodName, onReturnMethodName;
+    private String invokeMethodName, onCallbackMethodName;
     private Object localApi;
     private Map<String, Method> localApiMap;
     private Map<String, Object> callbackMap;
+    private List<String> reservedMethod;//保留方法
     private WeakReference<WebView> view;
     private String jsBridge;
 
@@ -60,16 +67,25 @@ public class JsBridgeWebViewClient extends WebViewClient {
         Method[] methods = getClass().getMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(JsBridgeApi.class)) {
-                if ("invoke".equals(method.getAnnotation(JsBridgeApi.class).value())) {
+                if (INVOKE.equals(method.getAnnotation(JsBridgeApi.class).value())) {
                     invokeMethodName = method.getName();
-                } else if ("onReturn".equals(method.getAnnotation(JsBridgeApi.class).value())) {
-                    onReturnMethodName = method.getName();
+                } else if (ON_CALLBACK.equals(method.getAnnotation(JsBridgeApi.class).value())) {
+                    onCallbackMethodName = method.getName();
                 }
-                if (invokeMethodName != null && onReturnMethodName != null) {
+                if (invokeMethodName != null && onCallbackMethodName != null) {
                     break;
                 }
             }
         }
+        reservedMethod = new ArrayList<>();
+        reservedMethod.add(INVOKE);
+        reservedMethod.add(ON_CALLBACK);
+        reservedMethod.add(invokeMethodName);//混淆以后这个方法名会变
+        reservedMethod.add(onCallbackMethodName);//同上
+        reservedMethod.add(CALLBACKS);
+        reservedMethod.add(CALLBACK);
+        reservedMethod.add(CALL);
+        reservedMethod.add(ERROR);
     }
 
     public JsBridgeWebViewClient(WebView view) {
@@ -100,29 +116,35 @@ public class JsBridgeWebViewClient extends WebViewClient {
     }
 
     private void injectBridgeApi() {
-        String proxy = invokeMethodName != null && !"invoke".equals(invokeMethodName) ?
-                ("window.$jsBridge.invoke = function(name, params) {"
-                        + "window.$jsBridge.$invoke(name, params);"
+        String proxy = invokeMethodName != null && !INVOKE.equals(invokeMethodName) ?
+                ("window.$jsBridge.$invoke = function(name, params) {"
+                        + "window.$jsBridge.$_invoke(name, params);"
                         + "};")
-                        .replace("$invoke", invokeMethodName)
+                        .replace("$_invoke", invokeMethodName)
+                        .replace("$invoke", INVOKE)
                 : "";
-        proxy += onReturnMethodName != null && !"onReturn".equals(onReturnMethodName) ?
-                ("window.$jsBridge.onReturn = function(name, params) {"
-                        + "window.$jsBridge.$onReturn(name, params);"
+        proxy += onCallbackMethodName != null && !ON_CALLBACK.equals(onCallbackMethodName) ?
+                ("window.$jsBridge.$onCallback = function(name, params) {"
+                        + "window.$jsBridge.$_onCallback(name, params);"
                         + "};")
-                        .replace("$onReturn", onReturnMethodName)
+                        .replace("$_onCallback", onCallbackMethodName)
+                        .replace("$onCallback", ON_CALLBACK)
                 : "";
         String injectScript = proxy
-                + "window.$jsBridge.callbacks = {};"
-                + "window.$jsBridge.callback = function(callbackId, args) {"
-                + "window.eval('window.$jsBridge.callbacks[\"' + callbackId + '\"](' + String(args) + ')');"
+                + ("window.$jsBridge.$callbacks = {};"
+                + "window.$jsBridge.$callback = function(callbackId, args) {"
+                + "window.eval('window.$jsBridge.$callbacks[\"' + callbackId + '\"](' + String(args) + ')');"
                 + "};"
-                + "window.$jsBridge.call = function(name, args) {"
+                + "window.$jsBridge.$call = function(name, args) {"
                 + "window.eval('window.$jsBridge.' + name + '(' + String(args) + ')');"
                 + "};"
-                + "window.$jsBridge.error = function(error) {"
+                + "window.$jsBridge.$error = function(error) {"
                 + "console.error('JsBridge error: ' + error);"
-                + "};";
+                + "};")
+                .replace("$callbacks", CALLBACKS)//此处优先“$callback”替换
+                .replace("$callback", CALLBACK)
+                .replace("$call", CALL)
+                .replace("$error", ERROR);
         evaluateJavascript(injectScript.replace("$jsBridge", jsBridge));
     }
 
@@ -140,10 +162,12 @@ public class JsBridgeWebViewClient extends WebViewClient {
             for (int i = 0; i < paramTypes.length; i++) {
                 if (Callback.class.isAssignableFrom(paramTypes[i])) {
                     args[i] = "callback$i".replace("$i", String.valueOf(callbackIndex++));
-                    saveCallbacks.append("window.$jsBridge.callbacks['$callbackId']=$callback;"
+                    saveCallbacks.append("window.$jsBridge.$callbacks['$callbackId']=$callback;"
                             .replace("$jsBridge", jsBridge)
+                            .replace("$callbacks", CALLBACKS)//此处优先“$callback”替换
                             .replace("$callbackId", callbackId(name, args[i]))
-                            .replace("$callback", args[i]));
+                            .replace("$callback", args[i])
+                    );
                 } else {
                     args[i] = "arg$i".replace("$i", String.valueOf(argIndex++));
                 }
@@ -165,13 +189,14 @@ public class JsBridgeWebViewClient extends WebViewClient {
             injectScript.append(
                     ("window.$jsBridge.$name = function($args) {"
                             + "$save_callbacks"
-                            + "return eval(window.$jsBridge.invoke('$name', [$argArray]));"
+                            + "return eval(window.$jsBridge.$invoke('$name', [$argArray]));"
                             + "};")
                             .replace("$jsBridge", jsBridge)
                             .replace("$name", name)
                             .replace("$args", argsStr)
                             .replace("$save_callbacks", saveCallbacks)
                             .replace("$argArray", argsStrArr)
+                            .replace("$invoke", INVOKE)
             );
         }
         evaluateJavascript(injectScript.toString());
@@ -196,7 +221,8 @@ public class JsBridgeWebViewClient extends WebViewClient {
                         throw new IllegalStateException(name + "方法有返回值，"
                                 + "调用Javascript函数不支持同步获取返回值，只可使用异步回调。");
                     }
-                    if (localApiMap.containsKey(name)) {
+                    if (localApiMap.containsKey(name)
+                            || reservedMethod.contains(name)) {
                         throw new IllegalStateException("Javascript函数" + name
                                 + "与本地方法冲突。");
                     }
@@ -222,7 +248,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
         }
     }
 
-    @JsBridgeApi("invoke")
+    @JsBridgeApi(INVOKE)
     @JavascriptInterface
     public String invoke(String name, String... params) {
         Method method = localApiMap.get(name);
@@ -247,9 +273,9 @@ public class JsBridgeWebViewClient extends WebViewClient {
         return null;
     }
 
-    @JsBridgeApi("onReturn")
+    @JsBridgeApi(ON_CALLBACK)
     @JavascriptInterface
-    public void onReturn(String callbackName, String... params) {
+    public void onCallback(String callbackName, String... params) {
         Object callback = callbackMap.get(callbackName);
         if (callback != null) {
             Object[] args = new Object[params.length];
@@ -259,21 +285,53 @@ public class JsBridgeWebViewClient extends WebViewClient {
             if (callback instanceof Callback) {
                 ((Callback) callback).call(args);
             } else if (callback instanceof Callback2) {
-                ((Callback2) callback).call(args.length > 0 ? args[0] : null);
+                Object arg = null;
+                if (args.length > 0) {
+                    arg = args[0];
+                    //仅实现JSONObject转换成简单的Java对象
+                    if (arg instanceof JSONObject) {
+                        Method[] methods = callback.getClass().getDeclaredMethods();
+                        for (Method method : methods) {
+                            if (method.isAnnotationPresent(JsBridgeApi.class)) {
+                                Type[] types = method.getGenericParameterTypes();
+                                if (types.length > 0 && types[0] instanceof Class) {
+                                    Class<?> cls = (Class) types[0];
+                                    if (!isAssignableFromBaseType(cls)) {
+                                        try {
+                                            arg = parseJSON((JSONObject) arg, cls);
+                                        } catch (JSONException e) {
+                                            log(e);
+                                        } catch (IllegalAccessException e) {
+                                            log(e);
+                                        } catch (InstantiationException e) {
+                                            log(e);
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    } else if (arg instanceof JSONArray) {
+                        //暂不支持JSONArray数组转换
+                    }
+                }
+                ((Callback2) callback).call(arg);
             }
         }
     }
 
     private void call(String function, Object... args) {
-        String callJsFunc = String.format("window.$jsBridge.call('%s', %s);"
-                        .replace("$jsBridge", jsBridge),
+        String callJsFunc = String.format("window.$jsBridge.$call('%s', %s);"
+                        .replace("$jsBridge", jsBridge)
+                        .replace("$call", CALL),
                 function, construct(args));
         evaluateJavascript(callJsFunc);
     }
 
     private void callback(String callbackId, Object... args) {
-        String callCallbackFunc = String.format("window.$jsBridge.callback('%s', %s);"
-                        .replace("$jsBridge", jsBridge),
+        String callCallbackFunc = String.format("window.$jsBridge.$callback('%s', %s);"
+                        .replace("$jsBridge", jsBridge)
+                        .replace("$callback", CALLBACK),
                 callbackId, construct(args));
         evaluateJavascript(callCallbackFunc);
     }
@@ -339,8 +397,12 @@ public class JsBridgeWebViewClient extends WebViewClient {
         if (error != null && error.contains("\n")) {
             error = error.replace("\n", "'\n+'");
         }
-        String callErrorFunc = String.format("window.$jsBridge.error('%s');"
-                .replace("$jsBridge", jsBridge), error);
+        String callErrorFunc = String.format(
+                ("window.$jsBridge.$error('%s');"
+                        .replace("$jsBridge", jsBridge)
+                        .replace("$error", ERROR)
+                ),
+                error);
         evaluateJavascript(callErrorFunc);
     }
 
@@ -446,9 +508,10 @@ public class JsBridgeWebViewClient extends WebViewClient {
                     + "             break;"
                     + "   }"
                     + "};"
-                    + "window.$jsBridge.onReturn('$name', args);"
+                    + "window.$jsBridge.$onCallback('$name', args);"
                     + "}")
                     .replace("$jsBridge", jsBridge)
+                    .replace("$onCallback", ON_CALLBACK)
                     .replace("$name", name);
         } else if (object instanceof JSONObject) {
             return "(" + object.toString() + ")";
@@ -489,18 +552,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
-            if (boolean.class.isAssignableFrom(field.getType())
-                    || int.class.isAssignableFrom(field.getType())
-                    || long.class.isAssignableFrom(field.getType())
-                    || float.class.isAssignableFrom(field.getType())
-                    || double.class.isAssignableFrom(field.getType())
-                    || Boolean.class.isAssignableFrom(field.getType())
-                    || Integer.class.isAssignableFrom(field.getType())
-                    || Long.class.isAssignableFrom(field.getType())
-                    || Float.class.isAssignableFrom(field.getType())
-                    || Double.class.isAssignableFrom(field.getType())
-                    || JSONObject.class.isAssignableFrom(field.getType())
-                    || JSONArray.class.isAssignableFrom(field.getType())) {
+            if (isAssignableFromBaseType(field.getType())) {
                 jsonObject.put(key, field.get(object));
             } else {
                 jsonObject.put(key, toJSONObject(field.get(object)));
@@ -516,13 +568,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
                 //解决内部数组对象不会自动转成JSON数组的问题
                 jsonArray.put(toJSONArray((Object[]) o));
             } else {
-                if (o instanceof Boolean
-                        || o instanceof Integer
-                        || o instanceof Long
-                        || o instanceof Float
-                        || o instanceof Double
-                        || o instanceof JSONObject
-                        || o instanceof JSONArray) {
+                if (instanceOfBaseType(o)) {
                     jsonArray.put(o);
                 } else {
                     jsonArray.put(toJSONObject(o));
@@ -546,18 +592,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
-            if (boolean.class.isAssignableFrom(field.getType())
-                    || int.class.isAssignableFrom(field.getType())
-                    || long.class.isAssignableFrom(field.getType())
-                    || float.class.isAssignableFrom(field.getType())
-                    || double.class.isAssignableFrom(field.getType())
-                    || Boolean.class.isAssignableFrom(field.getType())
-                    || Integer.class.isAssignableFrom(field.getType())
-                    || Long.class.isAssignableFrom(field.getType())
-                    || Float.class.isAssignableFrom(field.getType())
-                    || Double.class.isAssignableFrom(field.getType())
-                    || JSONObject.class.isAssignableFrom(field.getType())
-                    || JSONArray.class.isAssignableFrom(field.getType())) {
+            if (isAssignableFromBaseType(field.getType())) {
                 field.set(object, jsonObject.get(key));
             } else if (List.class.isAssignableFrom(field.getType())) {
                 Type type = field.getGenericType();
@@ -569,18 +604,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
                     if (jsonArray.length() > 0) {
                         List list = new ArrayList();
                         Class aClass = (Class) types[0];
-                        if (boolean.class.isAssignableFrom(aClass)
-                                || int.class.isAssignableFrom(aClass)
-                                || long.class.isAssignableFrom(aClass)
-                                || float.class.isAssignableFrom(aClass)
-                                || double.class.isAssignableFrom(aClass)
-                                || Boolean.class.isAssignableFrom(aClass)
-                                || Integer.class.isAssignableFrom(aClass)
-                                || Long.class.isAssignableFrom(aClass)
-                                || Float.class.isAssignableFrom(aClass)
-                                || Double.class.isAssignableFrom(aClass)
-                                || JSONObject.class.isAssignableFrom(aClass)
-                                || JSONArray.class.isAssignableFrom(aClass)) {
+                        if (isAssignableFromBaseType(aClass)) {
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 list.add(jsonArray.get(i));
                             }
@@ -609,6 +633,33 @@ public class JsBridgeWebViewClient extends WebViewClient {
             }
         }
         return object;
+    }
+
+    private boolean instanceOfBaseType(Object obj) {
+        return obj instanceof Boolean
+                || obj instanceof Integer
+                || obj instanceof Long
+                || obj instanceof Float
+                || obj instanceof Double
+                || obj instanceof String
+                || obj instanceof JSONObject
+                || obj instanceof JSONArray;
+    }
+
+    private boolean isAssignableFromBaseType(Class<?> cls) {
+        return boolean.class.isAssignableFrom(cls)
+                || int.class.isAssignableFrom(cls)
+                || long.class.isAssignableFrom(cls)
+                || float.class.isAssignableFrom(cls)
+                || double.class.isAssignableFrom(cls)
+                || Boolean.class.isAssignableFrom(cls)
+                || Integer.class.isAssignableFrom(cls)
+                || Long.class.isAssignableFrom(cls)
+                || Float.class.isAssignableFrom(cls)
+                || Double.class.isAssignableFrom(cls)
+                || String.class.isAssignableFrom(cls)
+                || JSONObject.class.isAssignableFrom(cls)
+                || JSONArray.class.isAssignableFrom(cls);
     }
 
     private String construct(Object[] args) {
@@ -662,6 +713,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
     }
 
     public interface Callback2<T> {
+        @JsBridgeApi(CALL)
         void call(T t);
     }
 
