@@ -1,5 +1,10 @@
 package com.mylive.live.arch.workflow;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
+
 import com.mylive.live.arch.thread.ThreadsScheduler;
 
 import java.util.Objects;
@@ -7,20 +12,37 @@ import java.util.Objects;
 /**
  * Create by zailongshi on 2019/7/5
  */
-public class WorkManagerImpl<T> implements WorkManager<T> {
+class WorkManagerImpl<T> implements WorkManager<T>, LifecycleObserver {
 
     private WorkManager<?> workManager;
     private Worker<?, T> worker;
     private T parcel;
+    private boolean finished;
 
-    public WorkManagerImpl() {
+    WorkManagerImpl() {
     }
 
-    public WorkManagerImpl(T parcel) {
+    WorkManagerImpl(LifecycleOwner owner) {
+        if (owner != null) {
+            owner.getLifecycle().addObserver(this);
+        }
+    }
+
+    WorkManagerImpl(T parcel) {
+        this(null, parcel);
+    }
+
+    WorkManagerImpl(LifecycleOwner owner, T parcel) {
+        this(owner);
         this.parcel = parcel;
     }
 
-    public WorkManagerImpl(WorkManager<?> workManager) {
+    WorkManagerImpl(WorkManager<?> workManager) {
+        this(null, workManager);
+    }
+
+    WorkManagerImpl(LifecycleOwner owner, WorkManager<?> workManager) {
+        this(owner);
         this.workManager = workManager;
     }
 
@@ -33,14 +55,14 @@ public class WorkManagerImpl<T> implements WorkManager<T> {
 
     @Override
     public void end(WorkEnd<T> workEnd) {
-        if (workManager != null) {
+        if (workManager == null) {
+            doWork(workEnd);//workManager为空表明没有上家，即为第一个
+        } else {
             workManager.end(parcel1 -> {
                 this.parcel = (T) parcel1;
                 doWork(workEnd);
             });
-            return;
         }
-        doWork(workEnd);
     }
 
     @Override
@@ -49,6 +71,10 @@ public class WorkManagerImpl<T> implements WorkManager<T> {
     }
 
     private <R> void doWork(WorkEnd<R> workEnd) {
+        if (finished) {
+            //已知Activity已经销毁,截断后面的工作
+            return;
+        }
         if (worker instanceof UiWorker) {
             ThreadsScheduler.runOnUiThread(() -> {
                 workEnd.onEnd((R) worker.doWork(parcel));
@@ -80,5 +106,10 @@ public class WorkManagerImpl<T> implements WorkManager<T> {
                 });
             }
         }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private void onDestroy() {
+        finished = true;
     }
 }
