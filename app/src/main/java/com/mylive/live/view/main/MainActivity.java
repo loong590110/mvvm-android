@@ -1,11 +1,10 @@
 package com.mylive.live.view.main;
 
-import androidx.databinding.DataBindingUtil;
-
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
 import com.mylive.live.R;
@@ -19,7 +18,6 @@ import com.mylive.live.event.TestEvent;
 import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.view.home.HomeFragment;
-import com.mylive.live.widget.FragmentHost;
 import com.mylive.live.widget.TabHost;
 
 /**
@@ -37,34 +35,47 @@ public class MainActivity extends BaseActivity {
         StatusBarCompat.getSettings(this).setLightMode(true).apply();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         TabHost.create()
-                .setTabs(binding.tabBar.findViewById(R.id.tab_home),
-                        binding.tabBar.findViewById(R.id.tab_channel),
-                        binding.tabBar.findViewById(R.id.tab_news),
-                        binding.tabBar.findViewById(R.id.tab_mine))
-                .setOnTabSelectedListener(new TabHost.OnTabSelectedListener() {
-                    private FragmentHost fragmentHost = FragmentHost.create(
-                            getSupportFragmentManager(),
-                            R.id.fragment_host
-                    );
-
+                .setAdapter(new TabHost.FragmentAdapter(getSupportFragmentManager(),
+                        R.id.fragment_host) {
                     @Override
-                    public void onTabSelected(View tab) {
-                        tab.setSelected(true);
-                        Class<? extends Fragment> fragment = HomeFragment.class;
+                    public Fragment getFragment(View tab) {
+                        Fragment fragment = null;
                         switch (tab.getId()) {
+                            case R.id.tab_home:
+                                fragment = HomeFragment.instantiate(
+                                        MainActivity.this,
+                                        HomeFragment.class.getName());
+                                break;
                             case R.id.tab_channel:
+                                fragment = HomeFragment.instantiate(
+                                        MainActivity.this,
+                                        HomeFragment.class.getName());
                                 break;
                             case R.id.tab_news:
+                                fragment = HomeFragment.instantiate(
+                                        MainActivity.this,
+                                        HomeFragment.class.getName());
                                 break;
                             case R.id.tab_mine:
+                                fragment = HomeFragment.instantiate(
+                                        MainActivity.this,
+                                        HomeFragment.class.getName());
                                 break;
                         }
-                        fragmentHost.show(tab.getContext(), fragment);
+                        return fragment;
+                    }
+                })
+                .setTabs(binding.tabBar.tabHome,
+                        binding.tabBar.tabChannel,
+                        binding.tabBar.tabNews,
+                        binding.tabBar.tabMine)
+                .setOnTabSelectedListener(new TabHost.OnTabSelectedListener() {
+                    @Override
+                    public void onTabSelected(View tab) {
                     }
 
                     @Override
                     public void onTabUnselected(View tab) {
-                        tab.setSelected(false);
                     }
                 })
                 .select(0);

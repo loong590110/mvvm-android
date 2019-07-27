@@ -33,7 +33,7 @@ public class BottomBarFeature extends BaseFeature {
         HomeScrollEvent.getInstance().registerObserver(
                 scrollEventObserver = direction -> {
                     int parentHeight = binding.getRoot().getHeight();
-                    int bottomBarHeight = binding.tabBar.getHeight();
+                    int bottomBarHeight = binding.tabBar.getRoot().getHeight();
                     int startY = direction == ScrollEvent.Direction.UP ?
                             parentHeight - bottomBarHeight
                             : parentHeight;
@@ -41,7 +41,7 @@ public class BottomBarFeature extends BaseFeature {
                             : parentHeight - bottomBarHeight;
                     ValueAnimator valueAnimator = ValueAnimator.ofInt(startY, endY);
                     valueAnimator.addUpdateListener(animation -> {
-                        binding.tabBar.setY((int) animation.getAnimatedValue());
+                        binding.tabBar.getRoot().setY((int) animation.getAnimatedValue());
                     });
                     valueAnimator.addListener(new AnimatorListenerAdapter() {
                         @Override

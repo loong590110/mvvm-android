@@ -17,7 +17,7 @@ public class SubscribesScheduler implements Scheduler {
 
     @Override
     public <T> Scheduler subscribe(Class<T> eventType, Subscriber<T> subscriber) {
-        int eventTypeCode = getEventTypeCode(eventType);
+        int eventTypeCode = System.identityHashCode(eventType);
         if (eventTypeCode > 0) {
             List<Subscriber> subscribers = this.subscribers.get(eventTypeCode);
             if (subscribers == null) {
@@ -33,7 +33,7 @@ public class SubscribesScheduler implements Scheduler {
 
     @Override
     public <T> Scheduler unsubscribe(Class<T> eventType, Subscriber<T> subscriber) {
-        int eventTypeCode = getEventTypeCode(eventType);
+        int eventTypeCode = System.identityHashCode(eventType);
         if (eventTypeCode > 0) {
             List<Subscriber> subscribers = this.subscribers.get(eventTypeCode);
             if (subscribers != null) {
@@ -53,7 +53,7 @@ public class SubscribesScheduler implements Scheduler {
     public <T> void publish(T event) {
         if (event == null)
             return;
-        int eventTypeCode = getEventTypeCode(event.getClass());
+        int eventTypeCode = System.identityHashCode(event.getClass());
         List<Subscriber> subscribers = this.subscribers.get(eventTypeCode);
         if (subscribers != null && subscribers.size() > 0) {
             for (Subscriber subscriber : subscribers) {
@@ -61,9 +61,5 @@ public class SubscribesScheduler implements Scheduler {
                 handler.post(() -> subscriber.onPublish(event));
             }
         }
-    }
-
-    private <T> int getEventTypeCode(Class<T> eventType) {
-        return eventType.hashCode();
     }
 }

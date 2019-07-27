@@ -17,7 +17,7 @@ import com.mylive.live.service.TestService;
 public class SplashViewModel extends BaseViewModel {
 
     private static final long COUNT_DOWN_TIME = 3 * 1000;
-    private static final long COUNT_DOWN_INTERVAL = 1000;
+    private static final long COUNT_DOWN_INTERVAL = 30;
     private MutableLiveData<Integer> countDownTimer;
     private MutableLiveData<Config> config;
     private MutableLiveData<String> test;

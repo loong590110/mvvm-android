@@ -9,8 +9,8 @@
 
         <com.dinuscxj.progressbar.CircleProgressBar
             android:id="@+id/progress_circular"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="15dp"
             android:layout_marginRight="5dp"
@@ -28,12 +28,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
+            android:text="@string/skip"
             android:textColor="@color/colorPrimary"
-            android:textSize="21sp"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@id/progress_circular"
             app:layout_constraintEnd_toEndOf="@id/progress_circular"
             app:layout_constraintStart_toStartOf="@id/progress_circular"
-            app:layout_constraintTop_toTopOf="@id/progress_circular"
-            tools:text="3" />
+            app:layout_constraintTop_toTopOf="@id/progress_circular" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

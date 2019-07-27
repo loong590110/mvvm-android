@@ -218,9 +218,9 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
 
         private boolean isImmersiveMode() {
-            int systemUiVisibility = ((Activity) mChildOfContent.getContext()).getWindow()
-                    .getDecorView().getSystemUiVisibility();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                int systemUiVisibility = ((Activity) mChildOfContent.getContext()).getWindow()
+                        .getDecorView().getSystemUiVisibility();
                 return !mChildOfContent.getFitsSystemWindows()
                         && (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
                         == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;

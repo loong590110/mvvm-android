@@ -8,7 +8,6 @@
         <item name="layout_constraintEnd_toEndOf">parent</item>
         <item name="layout_constraintStart_toStartOf">parent</item>
         <item name="layout_constraintTop_toTopOf">parent</item>
-        <item name="layout_constraintBottom_toTopOf">@id/text</item>
     </style>
 
     <style name="main_tab_text">
@@ -18,7 +17,6 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">10sp</item>
         <item name="android:textColor">@color/default_text_color_selector</item>
-        <item name="layout_constraintTop_toBottomOf">@id/icon</item>
         <item name="layout_constraintEnd_toEndOf">parent</item>
         <item name="layout_constraintStart_toStartOf">parent</item>
         <item name="layout_constraintBottom_toBottomOf">parent</item>

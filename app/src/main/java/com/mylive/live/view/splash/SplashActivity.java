@@ -39,18 +39,19 @@ public class SplashActivity extends BaseActivity {
                     @Override
                     protected void onAllEssentialPermissionsAreGranted() {
                         splashViewModel.getConfig().observe(SplashActivity.this, config -> {
-                            splashViewModel.startCountDownTimer().observe(SplashActivity.this,
-                                    integer -> {
+                            splashViewModel.startCountDownTimer().observe(
+                                    SplashActivity.this,
+                                    tick -> {
                                         if (binding.progressCircular.getMax() == 100) {
-                                            binding.progressCircular.setMax(integer);
+                                            binding.progressCircular.setMax(tick);
+                                            binding.progressCircular.setOnClickListener(v -> {
+                                                startNextActivity();
+                                            });
                                         }
                                         binding.progressCircular.setVisibility(View.VISIBLE);
-                                        binding.progressCircular.setProgress(integer);
-                                        binding.txtTimer.setText(String.valueOf(integer));
-                                        if (integer == 0) {
-                                            MainActivityStarter.create()
-                                                    .start(SplashActivity.this)
-                                                    .finish();
+                                        binding.progressCircular.setProgress(tick);
+                                        if (tick == 0) {
+                                            startNextActivity();
                                         }
                                     });
                         });
@@ -101,5 +102,11 @@ public class SplashActivity extends BaseActivity {
             return;
         }
         super.onBackPressed();
+    }
+
+    private void startNextActivity() {
+        MainActivityStarter.create()
+                .start(SplashActivity.this)
+                .finish();
     }
 }
