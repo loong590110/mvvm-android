@@ -14,6 +14,7 @@ import com.mylive.live.base.BaseFeature;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.utils.ScrollEvent;
 import com.mylive.live.view.home.HomeScrollEvent;
+import com.mylive.live.widget.TabHost;
 
 /**
  * Create by zailongshi on 2019/7/8
@@ -22,6 +23,8 @@ public class BottomBarFeature extends BaseFeature {
 
     @FieldMap("binding")
     private ActivityMainBinding binding;
+    @FieldMap("tabHost")
+    private TabHost tabHost;
     private ScrollEvent.Observer scrollEventObserver;
 
     public BottomBarFeature(FeaturesManagerOwner owner) {
@@ -30,8 +33,10 @@ public class BottomBarFeature extends BaseFeature {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void onCreate() {
-        HomeScrollEvent.getInstance().registerObserver(
-                scrollEventObserver = direction -> {
+        HomeScrollEvent.getInstance().filter(() ->
+                tabHost.getSelectedIndex() == 0
+        ).registerObserver(scrollEventObserver =
+                direction -> {
                     int parentHeight = binding.getRoot().getHeight();
                     int bottomBarHeight = binding.tabBar.getRoot().getHeight();
                     int startY = direction == ScrollEvent.Direction.UP ?

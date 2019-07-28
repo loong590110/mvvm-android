@@ -183,12 +183,12 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             if (isImmersiveMode()) {
                 ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
                 int usableHeightNow = computeUsableHeight();
-                int usableHeightSansKeyboard = getUsableHeightSansKeyboard();
-                if (usableHeightSansKeyboard <= 0
-                        || usableHeightNow == usableHeightSansKeyboard) {
+                int currentHeight = mChildOfContent.getHeight();
+                if (currentHeight <= 0
+                        || usableHeightNow == currentHeight) {
                     return;
                 }
-                if (usableHeightNow < usableHeightSansKeyboard) {
+                if (usableHeightNow < currentHeight) {
                     // keyboard probably just became visible
                     params.height = usableHeightNow;
                 } else {
@@ -197,18 +197,6 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
                 }
                 mChildOfContent.requestLayout();
             }
-        }
-
-        private int getUsableHeightSansKeyboard() {
-            //每次都重新获取，应付高度发生变化的情况
-            for (int i = 0; i < mChildOfContent.getChildCount(); i++) {
-                View child = mChildOfContent.getChildAt(i);
-                ViewGroup.LayoutParams params = child.getLayoutParams();
-                if (params.height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                    return child.getHeight();
-                }
-            }
-            return 0;
         }
 
         private int computeUsableHeight() {

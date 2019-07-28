@@ -42,7 +42,6 @@ public class LiveListFeature extends BaseFeature {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void onViewCreated() {
-        binding.navigationBar.setTitle("live list feature.");
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
         binding.recyclerView.setLayoutManager(gridLayoutManager);
         binding.recyclerView.setAdapter(liveListAdapter = new LiveListAdapter());

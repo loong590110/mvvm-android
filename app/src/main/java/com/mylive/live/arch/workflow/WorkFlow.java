@@ -8,15 +8,15 @@ import androidx.lifecycle.LifecycleOwner;
 public final class WorkFlow {
 
     public static <T> WorkManager<T> begin() {
-        return new WorkManagerImpl<>();
+        return begin(null, null);
     }
 
     public static <T> WorkManager<T> begin(LifecycleOwner owner) {
-        return new WorkManagerImpl<>(owner);
+        return begin(owner, null);
     }
 
     public static <T> WorkManager<T> begin(T parcel) {
-        return new WorkManagerImpl<>(parcel);
+        return begin(null, parcel);
     }
 
     public static <T> WorkManager<T> begin(LifecycleOwner owner, T parcel) {

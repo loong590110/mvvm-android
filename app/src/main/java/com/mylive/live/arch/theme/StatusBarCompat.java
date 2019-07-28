@@ -27,6 +27,7 @@ public final class StatusBarCompat {
         private Activity activity;
         private boolean lightMode;
         private boolean immersive;
+        private int statusBarColor;
 
         Settings(Activity activity) {
             this.activity = activity;
@@ -38,6 +39,9 @@ public final class StatusBarCompat {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 immersive = (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
                         == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                statusBarColor = activity.getWindow().getStatusBarColor();
             }
         }
 
@@ -61,6 +65,9 @@ public final class StatusBarCompat {
                 }
             }
             activity.getWindow().getDecorView().setSystemUiVisibility(systemUiVisibility);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                activity.getWindow().setStatusBarColor(statusBarColor);
+            }
         }
 
         public Settings setLightMode(boolean lightMode) {
@@ -70,6 +77,11 @@ public final class StatusBarCompat {
 
         public Settings setImmersive(boolean immersive) {
             this.immersive = immersive;
+            return this;
+        }
+
+        public Settings setStatusBarColor(int statusBarColor) {
+            this.statusBarColor = statusBarColor;
             return this;
         }
     }

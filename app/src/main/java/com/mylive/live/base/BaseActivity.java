@@ -1,8 +1,10 @@
 package com.mylive.live.base;
 
 import android.annotation.SuppressLint;
+
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -71,7 +73,7 @@ public class BaseActivity extends ViewModelActivity
     }
 
     private Observer<String> httpResponseObserver = respText -> {
-        WorkFlow.begin(respText)
+        WorkFlow.begin(this, respText)
                 .deliver(BackgroundWorker.work(parcel ->
                         (HttpResp) JSON.parseObject(parcel,
                                 new TypeReference<HttpResp<String>>() {

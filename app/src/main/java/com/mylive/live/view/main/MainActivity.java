@@ -17,7 +17,10 @@ import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.event.TestEvent;
 import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.utils.ToastUtils;
+import com.mylive.live.view.channel.ChannelFragment;
 import com.mylive.live.view.home.HomeFragment;
+import com.mylive.live.view.mine.MineFragment;
+import com.mylive.live.view.news.NewsFragment;
 import com.mylive.live.widget.TabHost;
 
 /**
@@ -28,13 +31,21 @@ public class MainActivity extends BaseActivity {
 
     @FieldMap("binding")
     private ActivityMainBinding binding;
+    @FieldMap("tabHost")
+    private TabHost tabHost;
+
+    private void onThemeUpdate() {
+        StatusBarCompat.getSettings(this)
+                .setImmersive(true)
+                .apply();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        onThemeUpdate();
         super.onCreate(savedInstanceState);
-        StatusBarCompat.getSettings(this).setLightMode(true).apply();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        TabHost.create()
+        tabHost = TabHost.create()
                 .setAdapter(new TabHost.FragmentAdapter(getSupportFragmentManager(),
                         R.id.fragment_host) {
                     @Override
@@ -42,24 +53,24 @@ public class MainActivity extends BaseActivity {
                         Fragment fragment = null;
                         switch (tab.getId()) {
                             case R.id.tab_home:
-                                fragment = HomeFragment.instantiate(
+                                fragment = Fragment.instantiate(
                                         MainActivity.this,
                                         HomeFragment.class.getName());
                                 break;
                             case R.id.tab_channel:
-                                fragment = HomeFragment.instantiate(
+                                fragment = Fragment.instantiate(
                                         MainActivity.this,
-                                        HomeFragment.class.getName());
+                                        ChannelFragment.class.getName());
                                 break;
                             case R.id.tab_news:
-                                fragment = HomeFragment.instantiate(
+                                fragment = Fragment.instantiate(
                                         MainActivity.this,
-                                        HomeFragment.class.getName());
+                                        NewsFragment.class.getName());
                                 break;
                             case R.id.tab_mine:
-                                fragment = HomeFragment.instantiate(
+                                fragment = Fragment.instantiate(
                                         MainActivity.this,
-                                        HomeFragment.class.getName());
+                                        MineFragment.class.getName());
                                 break;
                         }
                         return fragment;
@@ -77,8 +88,8 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onTabUnselected(View tab) {
                     }
-                })
-                .select(0);
+                });
+        tabHost.select(0);
     }
 
     @Override

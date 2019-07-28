@@ -33,6 +33,7 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
         binding.progressCircular.setVisibility(View.INVISIBLE);
+        binding.txtSkip.setVisibility(View.INVISIBLE);
         splashViewModel = ViewModelProviders.of(this).get(SplashViewModel.class);
         requester = PermissionsRequester.create(this, 100)
                 .addHandler(new PermissionsRequester.RequestResultHandler() {
@@ -47,8 +48,9 @@ public class SplashActivity extends BaseActivity {
                                             binding.progressCircular.setOnClickListener(v -> {
                                                 startNextActivity();
                                             });
+                                            binding.progressCircular.setVisibility(View.VISIBLE);
+                                            binding.txtSkip.setVisibility(View.VISIBLE);
                                         }
-                                        binding.progressCircular.setVisibility(View.VISIBLE);
                                         binding.progressCircular.setProgress(tick);
                                         if (tick == 0) {
                                             startNextActivity();

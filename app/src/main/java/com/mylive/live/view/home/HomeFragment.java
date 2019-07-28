@@ -42,7 +42,6 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.navigationBar.setTitle("home fragment + 2");
         int bottomBarHeight = getResources().getDimensionPixelSize(R.dimen.tab_bar_main_height);
         binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -75,7 +74,7 @@ public class HomeFragment extends BaseFragment {
     protected void onSubscribe(Scheduler scheduler) {
         super.onSubscribe(scheduler);
         scheduler.subscribe(HttpResp.class, httpResp -> {
-            binding.navigationBar.setTitle(httpResp.toString());
+
         });
     }
 }
