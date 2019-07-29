@@ -193,9 +193,12 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
                     params.height = usableHeightNow;
                 } else {
                     // keyboard probably just became hidden
+                    if (params.height == ViewGroup.LayoutParams.MATCH_PARENT) {
+                        return;
+                    }
                     params.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 }
-                mChildOfContent.requestLayout();
+                mChildOfContent.setLayoutParams(params);
             }
         }
 

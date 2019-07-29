@@ -1,10 +1,13 @@
 package com.mylive.live.view.web;
 
 import androidx.databinding.DataBindingUtil;
+
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
+
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 
