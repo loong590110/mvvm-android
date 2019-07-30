@@ -12,8 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.mylive.live.arch.mapper.Mapper;
 
@@ -47,12 +49,26 @@ public class Feature implements LifecycleObserver {
         owner.getLifecycle().addObserver(this);
     }
 
+    public final void onViewLifecycleCreated() {
+        if (getViewLifecycleOwner() != null) {
+            owner.getLifecycle().removeObserver(this);
+            getViewLifecycleOwner().getLifecycle().addObserver(this);
+        }
+    }
+
     public FeaturesManagerOwner getFeaturesManagerOwner() {
         return owner;
     }
 
     public LifecycleOwner getLifecycleOwner() {
         return owner;
+    }
+
+    public LifecycleOwner getViewLifecycleOwner() {
+        if (owner instanceof Fragment) {
+            return ((Fragment) owner).getViewLifecycleOwner();
+        }
+        return null;
     }
 
     public FragmentActivity getActivity() {

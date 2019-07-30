@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 若要支持fitsSystemWindows属性，需配合{@link FitsSystemWindowsFrameLayout}控件使用
+ * 若要支持fitsSystemWindows属性，
+ * 需用{@link FitsSystemWindowsFrameLayout}
+ * 控件作为Fragment的容器
  * Create by zailongshi on 2019/7/15
  */
 public final class TabHost {

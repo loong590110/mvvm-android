@@ -5,8 +5,13 @@ import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -39,6 +44,18 @@ public class FeaturesFragment extends Fragment implements FeaturesManagerOwner {
                 getFeaturesManager().add(clazz);
             });
         }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        if (featuresManager != null) {
+            for (Feature feature : featuresManager) {
+                feature.onViewLifecycleCreated();
+            }
+        }
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override

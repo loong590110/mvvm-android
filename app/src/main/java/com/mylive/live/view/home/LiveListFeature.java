@@ -1,13 +1,13 @@
 package com.mylive.live.view.home;
 
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
-import androidx.databinding.DataBindingUtil;
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.ViewGroup;
 
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.FieldMap;
@@ -15,7 +15,7 @@ import com.mylive.live.arch.annotation.ViewModel;
 import com.mylive.live.arch.feature.FeaturesManagerOwner;
 import com.mylive.live.base.BaseFeature;
 import com.mylive.live.base.BaseViewHolder;
-import com.mylive.live.databinding.FragmentHomeBinding;
+import com.mylive.live.databinding.FragmentHomeTabBinding;
 import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.model.Config;
 import com.mylive.live.model.LiveList;
@@ -30,7 +30,7 @@ import java.util.Random;
 public class LiveListFeature extends BaseFeature {
 
     @FieldMap("binding")
-    FragmentHomeBinding binding;
+    FragmentHomeTabBinding binding;
     @ViewModel
     LiveListViewModel liveListViewModel;
     private LiveListAdapter liveListAdapter;

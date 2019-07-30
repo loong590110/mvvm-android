@@ -35,13 +35,25 @@
                 android:id="@+id/tab_layout"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:background="@color/colorWhite" />
+                android:background="@color/colorWhite"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                app:tabBackground="@null"
+                app:tabIndicatorColor="@color/colorPrimary"
+                app:tabIndicatorFullWidth="false"
+                app:tabIndicatorHeight="2dp"
+                app:tabMode="scrollable"
+                app:tabRippleColor="@null"
+                app:tabSelectedTextColor="@color/colorPrimary"
+                app:tabTextColor="@color/titleTextColor"
+                app:tabUnboundedRipple="true" />
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:overScrollMode="never"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <!--为了解决更换状态栏颜色造成闪烁的问题，所以使用此法-->

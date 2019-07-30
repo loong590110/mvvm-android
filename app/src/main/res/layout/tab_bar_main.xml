@@ -8,14 +8,24 @@
         android:layout_height="wrap_content">
 
         <View
-            android:id="@+id/background"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/tab_bar_main_height"
-            android:background="@color/backgroundColor"
+            android:id="@+id/bg_center_item"
+            android:layout_width="51dp"
+            android:layout_height="51dp"
+            android:layout_marginBottom="12.5dp"
+            android:background="@drawable/bg_tab_bar_center_item"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:background="@color/colorPrimaryDark" />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/background"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/tab_bar_main_height"
+            android:background="@drawable/bg_tab_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/tab_home"
@@ -71,12 +81,11 @@
             android:id="@+id/tab_live"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="13.5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/bg_center_item"
             app:layout_constraintEnd_toStartOf="@id/tab_news"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/tab_channel"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="@id/bg_center_item">
 
             <ImageView
                 android:id="@+id/ico_live"
