@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
@@ -17,13 +18,14 @@ import androidx.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by Developer Zailong Shi on 2018/10/17.
  */
 public class SpecialAdjustResizeLayout extends FrameLayout {
 
-    private boolean resize, autoResize = true;
+    private boolean autoResize = true;
     private int offsetUp;
     private EditText focusedEditText;
     private Map<EditText, View> adjustableViews;
@@ -43,25 +45,30 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         AndroidBug5497Workaround.assistActivity(this);
     }
 
+    public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
+        if (hasFocusedEditText()) {
+            return insets;
+        }
+        return super.dispatchApplyWindowInsets(insets);
+    }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (resize && h > 0 && oldh > h) {
+        if (hasFocusedEditText() && h > 0 && oldh > h) {
             offsetUp = oldh - h;
         }
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        boolean immersive = isImmersiveMode();
-        if (resize && !immersive) {
-            if (offsetUp > 0) {
+        if (hasFocusedEditText()) {
+            if (changed && offsetUp > 0) {
                 if (autoResize) {
                     layoutChild();
                 }
-                offsetUp = 0;
                 notifyKeyboardStateChanged(offsetUp);
-                resize = false;
+                offsetUp = 0;
             }
             return;
         }
@@ -69,11 +76,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             super.onLayout(changed, left, top, right, bottom);
         }
         notifyKeyboardStateChanged(0);
-        //置空输入控件放在最后
-        if (focusedEditText != null) {
-            focusedEditText = null;
-        }
-        resize = false;
+        disposeFocusedEditText(this);
     }
 
     private boolean isImmersiveMode() {
@@ -88,12 +91,16 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     }
 
     private void layoutChild() {
-        if (focusedEditText == null || adjustableViews == null || adjustableViews.size() == 0)
+        if (focusedEditText == null || adjustableViews == null
+                || adjustableViews.size() == 0) {
             return;
+        }
         View adjustableView = adjustableViews.get(focusedEditText);
         if (adjustableView != null) {
-            adjustableView.layout(adjustableView.getLeft(), adjustableView.getTop() - offsetUp,
-                    adjustableView.getRight(), adjustableView.getBottom() - offsetUp);
+            adjustableView.layout(adjustableView.getLeft(),
+                    adjustableView.getTop() - offsetUp,
+                    adjustableView.getRight(),
+                    adjustableView.getBottom() - offsetUp);
         }
     }
 
@@ -110,7 +117,6 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             if (v instanceof EditText) {
                 if (focusedEditText == null) {
                     focusedEditText = (EditText) v;
-                    resize = true;
                 }
             }
             if ((event.getAction() & MotionEvent.ACTION_MASK)
@@ -162,12 +168,33 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
     }
 
+    private boolean hasAdjustableViews() {
+        return adjustableViews != null
+                && adjustableViews.size() > 0;
+    }
+
+    private boolean hasFocusedEditText() {
+        return focusedEditText != null;
+    }
+
+    private void disposeFocusedEditText(Object disposer) {
+        if (!isImmersiveMode() && disposer instanceof SpecialAdjustResizeLayout) {
+            focusedEditText = null;
+        } else if (isImmersiveMode() && disposer instanceof AndroidBug5497Workaround) {
+            focusedEditText = null;
+        }
+    }
+
     public void setOnChangedListener(OnChangedListener onChangedListener) {
         this.onChangedListener = onChangedListener;
     }
 
     public void setAutoResize(boolean autoResize) {
         this.autoResize = autoResize;
+    }
+
+    public boolean isKeyboardVisible() {
+        return getLayoutParams().height != ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
     public interface OnChangedListener {
@@ -193,7 +220,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
 
         private void possiblyResizeChildOfContent() {
-            if (isImmersiveMode() && mChildOfContent.resize) {
+            if (isImmersiveMode() && hasFocusedEditText()) {
                 ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
                 int usableHeightNow = computeUsableHeight();
                 int currentHeight = mChildOfContent.getHeight();
@@ -210,6 +237,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
                         return;
                     }
                     params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                    disposeFocusedEditText(this);
                 }
                 mChildOfContent.setLayoutParams(params);
             }
@@ -223,6 +251,14 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
 
         private boolean isImmersiveMode() {
             return mChildOfContent.isImmersiveMode();
+        }
+
+        private boolean hasFocusedEditText() {
+            return mChildOfContent.hasFocusedEditText();
+        }
+
+        private void disposeFocusedEditText(Object disposer) {
+            mChildOfContent.disposeFocusedEditText(disposer);
         }
     }
 }
