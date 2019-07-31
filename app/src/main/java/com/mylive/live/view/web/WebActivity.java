@@ -51,6 +51,7 @@ public class WebActivity extends BaseActivity {
             WebActivityStarter.create(Config.instance().homePage)
                     .start(WebActivity.this);
         });
+        binding.resizeLayout.addAdjustableViews(R.id.input_panel);
         JsBridgeWebViewClient jsBridge = new JsBridgeWebViewClient(binding.webView) {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {

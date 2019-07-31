@@ -53,15 +53,16 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (resize) {
+        boolean immersive = isImmersiveMode();
+        if (resize && !immersive) {
             if (offsetUp > 0) {
                 if (autoResize) {
                     layoutChild();
                 }
                 offsetUp = 0;
                 notifyKeyboardStateChanged(offsetUp);
+                resize = false;
             }
-            resize = false;
             return;
         }
         if (autoResize || focusedEditText == null) {
@@ -72,6 +73,18 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         if (focusedEditText != null) {
             focusedEditText = null;
         }
+        resize = false;
+    }
+
+    private boolean isImmersiveMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            int systemUiVisibility = ((Activity) getContext()).getWindow()
+                    .getDecorView().getSystemUiVisibility();
+            return !getFitsSystemWindows()
+                    && (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+                    == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+        }
+        return false;
     }
 
     private void layoutChild() {
@@ -166,13 +179,13 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         // For more information, see https://code.google.com/p/android/issues/detail?id=5497
         // To use this class, simply invoke assistActivity() on an Activity that already has its content view set.
 
-        private static void assistActivity(ViewGroup childOfContent) {
+        private static void assistActivity(SpecialAdjustResizeLayout childOfContent) {
             new AndroidBug5497Workaround(childOfContent);
         }
 
-        private ViewGroup mChildOfContent;
+        private SpecialAdjustResizeLayout mChildOfContent;
 
-        private AndroidBug5497Workaround(ViewGroup childOfContent) {
+        private AndroidBug5497Workaround(SpecialAdjustResizeLayout childOfContent) {
             mChildOfContent = childOfContent;
             mChildOfContent.getViewTreeObserver()
                     .addOnGlobalLayoutListener(
@@ -180,7 +193,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
 
         private void possiblyResizeChildOfContent() {
-            if (isImmersiveMode()) {
+            if (isImmersiveMode() && mChildOfContent.resize) {
                 ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
                 int usableHeightNow = computeUsableHeight();
                 int currentHeight = mChildOfContent.getHeight();
@@ -209,14 +222,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
 
         private boolean isImmersiveMode() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                int systemUiVisibility = ((Activity) mChildOfContent.getContext()).getWindow()
-                        .getDecorView().getSystemUiVisibility();
-                return !mChildOfContent.getFitsSystemWindows()
-                        && (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-                        == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            }
-            return false;
+            return mChildOfContent.isImmersiveMode();
         }
     }
 }
