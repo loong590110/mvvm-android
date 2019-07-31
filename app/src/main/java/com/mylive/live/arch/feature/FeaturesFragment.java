@@ -1,8 +1,6 @@
 package com.mylive.live.arch.feature;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,8 +46,10 @@ public class FeaturesFragment extends Fragment implements FeaturesManagerOwner {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public final void onActivityResult(int requestCode, int resultCode,
+                                       @Nullable android.content.Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        onActivityResult(requestCode, resultCode, new Intent(data));
         if (featuresManager != null) {
             for (Feature feature : featuresManager) {
                 feature.onActivityResult(requestCode, resultCode, data);
@@ -57,10 +57,14 @@ public class FeaturesFragment extends Fragment implements FeaturesManagerOwner {
         }
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public final void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                                 @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        onRequestPermissionsResult(requestCode, grantResults, permissions);
         if (featuresManager != null) {
             for (Feature feature : featuresManager) {
                 feature.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -68,28 +72,7 @@ public class FeaturesFragment extends Fragment implements FeaturesManagerOwner {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (featuresManager != null) {
-            for (Feature feature : featuresManager) {
-                feature.onSaveInstanceState(outState);
-            }
-        }
-    }
-
-    @Override
-    public void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
-        if (featuresManager != null) {
-            for (Feature feature : featuresManager) {
-                feature.onRestoreInstanceState(savedInstanceState);
-            }
-        }
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        onRestoreInstanceState(savedInstanceState);
+    protected void onRequestPermissionsResult(int requestCode, @NonNull int[] grantResults,
+                                              @NonNull String[] permissions) {
     }
 }

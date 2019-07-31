@@ -17,8 +17,4 @@ public interface FeaturesManagerOwner extends LifecycleOwner {
 
     void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                     @NonNull int[] grantResults);
-
-    void onSaveInstanceState(@NonNull Bundle outState);
-
-    void onRestoreInstanceState(@Nullable Bundle savedInstanceState);
 }

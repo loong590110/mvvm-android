@@ -2,13 +2,11 @@ package com.mylive.live.arch.feature;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Created by Developer Zailong Shi on 2019-07-01.
@@ -42,8 +40,10 @@ public class FeaturesActivity extends FragmentActivity implements FeaturesManage
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public final void onActivityResult(int requestCode, int resultCode,
+                                       @Nullable android.content.Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        onActivityResult(requestCode, resultCode, new Intent(data));
         if (featuresManager != null) {
             for (Feature feature : featuresManager) {
                 feature.onActivityResult(requestCode, resultCode, data);
@@ -51,10 +51,14 @@ public class FeaturesActivity extends FragmentActivity implements FeaturesManage
         }
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public final void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                                 @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        onRequestPermissionsResult(requestCode, grantResults, permissions);
         if (featuresManager != null) {
             for (Feature feature : featuresManager) {
                 feature.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -62,23 +66,7 @@ public class FeaturesActivity extends FragmentActivity implements FeaturesManage
         }
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (featuresManager != null) {
-            for (Feature feature : featuresManager) {
-                feature.onSaveInstanceState(outState);
-            }
-        }
-    }
-
-    @Override
-    public void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (featuresManager != null) {
-            for (Feature feature : featuresManager) {
-                feature.onRestoreInstanceState(savedInstanceState);
-            }
-        }
+    protected void onRequestPermissionsResult(int requestCode, @NonNull int[] grantResults,
+                                              @NonNull String[] permissions) {
     }
 }

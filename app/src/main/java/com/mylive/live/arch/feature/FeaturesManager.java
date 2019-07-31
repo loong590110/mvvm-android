@@ -1,6 +1,5 @@
 package com.mylive.live.arch.feature;
 
-import androidx.lifecycle.LifecycleOwner;
 import android.os.Bundle;
 
 import java.lang.reflect.Constructor;

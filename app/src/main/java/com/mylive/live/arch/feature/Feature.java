@@ -139,20 +139,6 @@ public class Feature implements LifecycleObserver {
                                            @NonNull int[] grantResults) {
     }
 
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        //noinspection ConstantConditions
-        if (outState != null) {
-            outState.putBundle("arguments", arguments);
-        }
-    }
-
-    public void onRestoreInstanceState(@NonNull Bundle outState) {
-        //noinspection ConstantConditions
-        if (outState != null) {
-            arguments = outState.getBundle("arguments");
-        }
-    }
-
     public Bundle getArguments() {
         return arguments;
     }

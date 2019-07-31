@@ -91,9 +91,9 @@ public class SplashActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    protected void onRequestPermissionsResult(int requestCode, @NonNull int[] grantResults,
+                                              @NonNull String[] permissions) {
+        super.onRequestPermissionsResult(requestCode, grantResults, permissions);
         requester.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
