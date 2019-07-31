@@ -12,10 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.OnLifecycleEvent;
 
 import com.mylive.live.arch.mapper.Mapper;
 
@@ -31,27 +29,37 @@ public class Feature implements LifecycleObserver {
 
     public Feature(FeaturesManagerOwner owner) {
         Objects.requireNonNull(owner);
+        this.owner = owner;
         if (owner instanceof Activity) {
             if (!(owner instanceof FragmentActivity)) {
                 throw new IllegalArgumentException("Only support FragmentActivity.");
             }
         }
-        this.owner = owner;
         onConstructing();
         onAttach();
     }
 
     protected void onConstructing() {
-        Mapper.from(owner).to(this);
+        mapperFields();
     }
 
     protected void onAttach() {
-        owner.getLifecycle().addObserver(this);
+        if (owner instanceof Activity) {
+            owner.getLifecycle().addObserver(this);
+        } else if (owner instanceof Fragment) {
+            onViewLifecycleCreated(false);
+        }
     }
 
-    public final void onViewLifecycleCreated() {
+    private void mapperFields() {
+        Mapper.from(owner).to(this);
+    }
+
+    public final void onViewLifecycleCreated(boolean mapper) {
         if (getViewLifecycleOwner() != null) {
-            owner.getLifecycle().removeObserver(this);
+            if (mapper) {
+                mapperFields();
+            }
             getViewLifecycleOwner().getLifecycle().addObserver(this);
         }
     }
