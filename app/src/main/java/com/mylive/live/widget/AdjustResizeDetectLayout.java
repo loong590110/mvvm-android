@@ -14,36 +14,28 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by Developer Zailong Shi on 2018/10/17.
  */
-public class SpecialAdjustResizeLayout extends FrameLayout {
+public class AdjustResizeDetectLayout extends FrameLayout {
 
-    private EditText focusedEditText;
-    private View focusedAdjustableView;
-    private Map<EditText, View> adjustableViews;
+    private EditText focusedEditText, lastFocusedEditText;
     private OnChangedListener onChangedListener;
     private AdjustResizeDetector resizeDetector;
 
-    public SpecialAdjustResizeLayout(@NonNull Context context) {
+    public AdjustResizeDetectLayout(@NonNull Context context) {
         this(context, null);
     }
 
-    public SpecialAdjustResizeLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public AdjustResizeDetectLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public SpecialAdjustResizeLayout(@NonNull Context context, @Nullable AttributeSet attrs,
-                                     int defStyleAttr) {
+    public AdjustResizeDetectLayout(@NonNull Context context, @Nullable AttributeSet attrs,
+                                    int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         resizeDetector = AdjustResizeDetector.assist(this);
-        resizeDetector.setOnChangedListener(height -> {
-            layoutAdjustableView();
-            notifyKeyboardStateChanged(height);
-        });
+        resizeDetector.setOnChangedListener(this::notifyKeyboardStateChanged);
     }
 
     public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
@@ -53,31 +45,9 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         return super.dispatchApplyWindowInsets(insets);
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (hasFocusedEditText()) {
-            return;
-        }
-        super.onLayout(changed, left, top, right, bottom);
-    }
-
-    private void layoutAdjustableView() {
-        if (!hasFocusedEditText() || !hasAdjustableViews()) {
-            return;
-        }
-        View adjustableView = adjustableViews.get(focusedEditText);
-        focusedAdjustableView = adjustableView;
-        if (adjustableView != null) {
-            adjustableView.layout(adjustableView.getLeft(),
-                    adjustableView.getTop() - resizeDetector.getResizeOffset(),
-                    adjustableView.getRight(),
-                    adjustableView.getBottom() - resizeDetector.getResizeOffset());
-        }
-    }
-
     private void notifyKeyboardStateChanged(int height) {
         if (onChangedListener != null) {
-            onChangedListener.onChanged(focusedAdjustableView, height);
+            onChangedListener.onChanged(lastFocusedEditText, height);
         }
     }
 
@@ -87,6 +57,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             if (v instanceof EditText) {
                 if (focusedEditText == null) {
                     focusedEditText = (EditText) v;
+                    lastFocusedEditText = focusedEditText;
                 }
             }
             if ((event.getAction() & MotionEvent.ACTION_MASK)
@@ -97,62 +68,36 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
     };
 
-    public void addAdjustableViews(View... views) {
+    public void addEditTexts(EditText... views) {
         if (views != null && views.length > 0) {
-            if (adjustableViews == null) {
-                adjustableViews = new HashMap<>();
-            }
             for (int i = 0; i < views.length; i++) {
                 if (views[i] == null) {
                     throw new IllegalArgumentException("Element index " + i + "in views is null");
                 }
-                findEditTextView(views[i], views[i]);
+                views[i].setOnTouchListener(onTouchListener);
             }
         }
     }
 
-    public void addAdjustableViews(@IdRes int... viewIds) {
+    public void addEditTexts(@IdRes int... viewIds) {
         if (viewIds != null && viewIds.length > 0) {
-            View[] views = new View[viewIds.length];
+            EditText[] views = new EditText[viewIds.length];
             for (int i = 0; i < viewIds.length; i++) {
                 views[i] = findViewById(viewIds[i]);
                 if (views[i] == null) {
                     throw new IllegalArgumentException("Not found the view by id " + viewIds[i]);
                 }
             }
-            addAdjustableViews(views);
+            addEditTexts(views);
         }
-    }
-
-    private void findEditTextView(View rootNode, View currentNode) {
-        if (currentNode instanceof EditText) {
-            if (!adjustableViews.containsKey(currentNode)) {
-                adjustableViews.put((EditText) currentNode, rootNode);
-                currentNode.setOnTouchListener(onTouchListener);
-            }
-        } else if (currentNode instanceof ViewGroup) {
-            for (int i = 0; i < ((ViewGroup) currentNode).getChildCount(); i++) {
-                View child = ((ViewGroup) currentNode).getChildAt(i);
-                findEditTextView(rootNode, child);
-            }
-        }
-    }
-
-    private boolean hasAdjustableViews() {
-        return adjustableViews != null
-                && adjustableViews.size() > 0;
     }
 
     private boolean hasFocusedEditText() {
         return focusedEditText != null;
     }
 
-    private void disposeFocusedEditText(Object disposer) {
-        if (disposer instanceof SpecialAdjustResizeLayout) {
-            focusedEditText = null;
-        } else if (disposer instanceof AdjustResizeDetector) {
-            focusedEditText = null;
-        }
+    private void disposeFocusedEditText() {
+        focusedEditText = null;
     }
 
     public void setOnChangedListener(OnChangedListener onChangedListener) {
@@ -164,7 +109,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     }
 
     public interface OnChangedListener {
-        void onChanged(View focusedView, int height);
+        void onChanged(EditText focusedEditText, int height);
     }
 
     private static class AdjustResizeDetector {
@@ -172,15 +117,15 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         // For more information, see https://code.google.com/p/android/issues/detail?id=5497
         // To use this class, simply invoke assistActivity() on an Activity that already has its content view set.
 
-        private static AdjustResizeDetector assist(SpecialAdjustResizeLayout childOfContent) {
+        private static AdjustResizeDetector assist(AdjustResizeDetectLayout childOfContent) {
             return new AdjustResizeDetector(childOfContent);
         }
 
-        private SpecialAdjustResizeLayout mChildOfContent;
+        private AdjustResizeDetectLayout mChildOfContent;
         private OnChangedListener onChangedListener;
         private int resizeOffset;
 
-        private AdjustResizeDetector(SpecialAdjustResizeLayout childOfContent) {
+        private AdjustResizeDetector(AdjustResizeDetectLayout childOfContent) {
             mChildOfContent = childOfContent;
             mChildOfContent.getViewTreeObserver()
                     .addOnGlobalLayoutListener(
@@ -202,7 +147,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
                     // keyboard probably just became hidden
                     resizeOffset = 0;
                     notifyKeyboardHeightChanged();
-                    disposeFocusedEditText(this);
+                    disposeFocusedEditText();
                 }
                 ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
                 if (params.height != ViewGroup.LayoutParams.MATCH_PARENT) {
@@ -228,8 +173,8 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             return mChildOfContent.hasFocusedEditText();
         }
 
-        private void disposeFocusedEditText(Object disposer) {
-            mChildOfContent.disposeFocusedEditText(disposer);
+        private void disposeFocusedEditText() {
+            mChildOfContent.disposeFocusedEditText();
         }
 
         private int getResizeOffset() {
