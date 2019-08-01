@@ -27,6 +27,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     private boolean autoResize = true;
     private int offsetUp;
     private EditText focusedEditText;
+    private View focusedAdjustableView;
     private Map<EditText, View> adjustableViews;
     private OnChangedListener onChangedListener;
 
@@ -62,29 +63,27 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if (hasFocusedEditText()) {
-            if (changed && offsetUp > 0) {
-                if (autoResize) {
-                    layoutChild();
-                }
+            if (offsetUp > 0) {
+                layoutChild();
                 notifyKeyboardStateChanged(offsetUp);
                 offsetUp = 0;
             }
             return;
         }
-        if (autoResize || focusedEditText == null) {
-            super.onLayout(changed, left, top, right, bottom);
-        }
+        super.onLayout(changed, left, top, right, bottom);
         notifyKeyboardStateChanged(0);
         disposeFocusedEditText(this);
     }
 
     private boolean isImmersiveMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            int systemUiVisibility = ((Activity) getContext()).getWindow()
-                    .getDecorView().getSystemUiVisibility();
-            return !getFitsSystemWindows()
-                    && (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-                    == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            if (getContext() instanceof Activity) {
+                int systemUiVisibility = ((Activity) getContext()).getWindow()
+                        .getDecorView().getSystemUiVisibility();
+                return !getFitsSystemWindows()
+                        && (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+                        == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            }
         }
         return false;
     }
@@ -104,9 +103,8 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     }
 
     private void notifyKeyboardStateChanged(int height) {
-        if (onChangedListener != null && focusedEditText != null) {
-            View adjustableView = adjustableViews.get(focusedEditText);
-            onChangedListener.onChanged(adjustableView, height);
+        if (onChangedListener != null) {
+            onChangedListener.onChanged(focusedAdjustableView, height);
         }
     }
 
@@ -116,6 +114,7 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             if (v instanceof EditText) {
                 if (focusedEditText == null) {
                     focusedEditText = (EditText) v;
+                    focusedAdjustableView = adjustableViews.get(focusedEditText);
                 }
             }
             if ((event.getAction() & MotionEvent.ACTION_MASK)
