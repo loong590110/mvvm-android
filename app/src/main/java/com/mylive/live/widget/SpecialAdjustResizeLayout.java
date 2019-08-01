@@ -1,9 +1,7 @@
 package com.mylive.live.widget;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,12 +22,11 @@ import java.util.Map;
  */
 public class SpecialAdjustResizeLayout extends FrameLayout {
 
-    private boolean autoResize = true;
-    private int offsetUp;
     private EditText focusedEditText;
     private View focusedAdjustableView;
     private Map<EditText, View> adjustableViews;
     private OnChangedListener onChangedListener;
+    private AdjustResizeDetector resizeDetector;
 
     public SpecialAdjustResizeLayout(@NonNull Context context) {
         this(context, null);
@@ -42,7 +39,11 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     public SpecialAdjustResizeLayout(@NonNull Context context, @Nullable AttributeSet attrs,
                                      int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        AndroidBug5497Workaround.assistActivity(this);
+        resizeDetector = AdjustResizeDetector.assist(this);
+        resizeDetector.setOnChangedListener(height -> {
+            layoutAdjustableView();
+            notifyKeyboardStateChanged(height);
+        });
     }
 
     public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
@@ -53,52 +54,24 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if (hasFocusedEditText() && h > 0 && oldh > h) {
-            offsetUp = oldh - h;
-        }
-    }
-
-    @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if (hasFocusedEditText()) {
-            if (offsetUp > 0) {
-                layoutChild();
-                notifyKeyboardStateChanged(offsetUp);
-                offsetUp = 0;
-            }
             return;
         }
         super.onLayout(changed, left, top, right, bottom);
-        notifyKeyboardStateChanged(0);
-        disposeFocusedEditText(this);
     }
 
-    private boolean isImmersiveMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (getContext() instanceof Activity) {
-                int systemUiVisibility = ((Activity) getContext()).getWindow()
-                        .getDecorView().getSystemUiVisibility();
-                return !getFitsSystemWindows()
-                        && (systemUiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-                        == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            }
-        }
-        return false;
-    }
-
-    private void layoutChild() {
-        if (focusedEditText == null || adjustableViews == null
-                || adjustableViews.size() == 0) {
+    private void layoutAdjustableView() {
+        if (!hasFocusedEditText() || !hasAdjustableViews()) {
             return;
         }
         View adjustableView = adjustableViews.get(focusedEditText);
+        focusedAdjustableView = adjustableView;
         if (adjustableView != null) {
             adjustableView.layout(adjustableView.getLeft(),
-                    adjustableView.getTop() - offsetUp,
+                    adjustableView.getTop() - resizeDetector.getResizeOffset(),
                     adjustableView.getRight(),
-                    adjustableView.getBottom() - offsetUp);
+                    adjustableView.getBottom() - resizeDetector.getResizeOffset());
         }
     }
 
@@ -114,7 +87,6 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             if (v instanceof EditText) {
                 if (focusedEditText == null) {
                     focusedEditText = (EditText) v;
-                    focusedAdjustableView = adjustableViews.get(focusedEditText);
                 }
             }
             if ((event.getAction() & MotionEvent.ACTION_MASK)
@@ -176,9 +148,9 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
     }
 
     private void disposeFocusedEditText(Object disposer) {
-        if (!isImmersiveMode() && disposer instanceof SpecialAdjustResizeLayout) {
+        if (disposer instanceof SpecialAdjustResizeLayout) {
             focusedEditText = null;
-        } else if (isImmersiveMode() && disposer instanceof AndroidBug5497Workaround) {
+        } else if (disposer instanceof AdjustResizeDetector) {
             focusedEditText = null;
         }
     }
@@ -187,30 +159,28 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         this.onChangedListener = onChangedListener;
     }
 
-    public void setAutoResize(boolean autoResize) {
-        this.autoResize = autoResize;
-    }
-
     public boolean isKeyboardVisible() {
-        return getLayoutParams().height != ViewGroup.LayoutParams.MATCH_PARENT;
+        return resizeDetector.getResizeOffset() > 0;
     }
 
     public interface OnChangedListener {
         void onChanged(View focusedView, int height);
     }
 
-    private static class AndroidBug5497Workaround {
+    private static class AdjustResizeDetector {
 
         // For more information, see https://code.google.com/p/android/issues/detail?id=5497
         // To use this class, simply invoke assistActivity() on an Activity that already has its content view set.
 
-        private static void assistActivity(SpecialAdjustResizeLayout childOfContent) {
-            new AndroidBug5497Workaround(childOfContent);
+        private static AdjustResizeDetector assist(SpecialAdjustResizeLayout childOfContent) {
+            return new AdjustResizeDetector(childOfContent);
         }
 
         private SpecialAdjustResizeLayout mChildOfContent;
+        private OnChangedListener onChangedListener;
+        private int resizeOffset;
 
-        private AndroidBug5497Workaround(SpecialAdjustResizeLayout childOfContent) {
+        private AdjustResizeDetector(SpecialAdjustResizeLayout childOfContent) {
             mChildOfContent = childOfContent;
             mChildOfContent.getViewTreeObserver()
                     .addOnGlobalLayoutListener(
@@ -218,26 +188,33 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
         }
 
         private void possiblyResizeChildOfContent() {
-            if (isImmersiveMode() && hasFocusedEditText()) {
-                ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
+            if (hasFocusedEditText()) {
                 int usableHeightNow = computeUsableHeight();
                 int currentHeight = mChildOfContent.getHeight();
-                if (currentHeight <= 0
-                        || usableHeightNow == currentHeight) {
+                if (currentHeight <= 0) {
                     return;
                 }
                 if (usableHeightNow < currentHeight) {
                     // keyboard probably just became visible
-                    params.height = usableHeightNow;
+                    resizeOffset = currentHeight - usableHeightNow;
+                    notifyKeyboardHeightChanged();
                 } else {
                     // keyboard probably just became hidden
-                    if (params.height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                        return;
-                    }
-                    params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                    resizeOffset = 0;
+                    notifyKeyboardHeightChanged();
                     disposeFocusedEditText(this);
                 }
-                mChildOfContent.setLayoutParams(params);
+                ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
+                if (params.height != ViewGroup.LayoutParams.MATCH_PARENT) {
+                    params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                    mChildOfContent.setLayoutParams(params);
+                }
+            }
+        }
+
+        private void notifyKeyboardHeightChanged() {
+            if (onChangedListener != null) {
+                onChangedListener.onChanged(resizeOffset);
             }
         }
 
@@ -247,16 +224,24 @@ public class SpecialAdjustResizeLayout extends FrameLayout {
             return r.bottom;
         }
 
-        private boolean isImmersiveMode() {
-            return mChildOfContent.isImmersiveMode();
-        }
-
         private boolean hasFocusedEditText() {
             return mChildOfContent.hasFocusedEditText();
         }
 
         private void disposeFocusedEditText(Object disposer) {
             mChildOfContent.disposeFocusedEditText(disposer);
+        }
+
+        private int getResizeOffset() {
+            return resizeOffset;
+        }
+
+        private void setOnChangedListener(OnChangedListener onChangedListener) {
+            this.onChangedListener = onChangedListener;
+        }
+
+        private interface OnChangedListener {
+            void onChanged(int height);
         }
     }
 }
