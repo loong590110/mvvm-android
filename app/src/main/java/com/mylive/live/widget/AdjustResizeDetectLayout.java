@@ -1,11 +1,11 @@
 package com.mylive.live.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -38,6 +38,17 @@ public class AdjustResizeDetectLayout extends FrameLayout {
         resizeDetector.setOnChangedListener(this::notifyKeyboardStateChanged);
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (hasFocusedEditText()) {
+            super.onMeasure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
+            return;
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
     public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
         if (hasFocusedEditText()) {
             return insets;
@@ -90,6 +101,16 @@ public class AdjustResizeDetectLayout extends FrameLayout {
             }
             addEditTexts(views);
         }
+    }
+
+    private boolean isImmersiveMode() {
+        if (getContext() instanceof Activity) {
+            int uiVisibility = ((Activity) getContext())
+                    .getWindow().getDecorView().getSystemUiVisibility();
+            return (uiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+                    == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+        }
+        return false;
     }
 
     private boolean hasFocusedEditText() {
@@ -154,11 +175,6 @@ public class AdjustResizeDetectLayout extends FrameLayout {
                         disposeFocusedEditText();
                     }
                 }
-                ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
-                if (params.height != ViewGroup.LayoutParams.MATCH_PARENT) {
-                    params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-                    mChildOfContent.setLayoutParams(params);
-                }
             }
         }
 
@@ -171,7 +187,11 @@ public class AdjustResizeDetectLayout extends FrameLayout {
         private int computeUsableHeight() {
             Rect r = new Rect();
             mChildOfContent.getWindowVisibleDisplayFrame(r);
-            return r.bottom;
+            return r.bottom - (isImmersiveMode() ? 0 : r.top);
+        }
+
+        private boolean isImmersiveMode() {
+            return mChildOfContent.isImmersiveMode();
         }
 
         private boolean hasFocusedEditText() {
