@@ -141,13 +141,18 @@ public class AdjustResizeDetectLayout extends FrameLayout {
                 }
                 if (usableHeightNow < currentHeight) {
                     // keyboard probably just became visible
-                    resizeOffset = currentHeight - usableHeightNow;
-                    notifyKeyboardHeightChanged();
+                    int diff = currentHeight - usableHeightNow;
+                    if (resizeOffset != diff) {
+                        resizeOffset = diff;
+                        notifyKeyboardHeightChanged();
+                    }
                 } else {
                     // keyboard probably just became hidden
-                    resizeOffset = 0;
-                    notifyKeyboardHeightChanged();
-                    disposeFocusedEditText();
+                    if (resizeOffset != 0) {
+                        resizeOffset = 0;
+                        notifyKeyboardHeightChanged();
+                        disposeFocusedEditText();
+                    }
                 }
                 ViewGroup.LayoutParams params = mChildOfContent.getLayoutParams();
                 if (params.height != ViewGroup.LayoutParams.MATCH_PARENT) {
