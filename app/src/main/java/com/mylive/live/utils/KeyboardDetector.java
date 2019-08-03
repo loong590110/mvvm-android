@@ -60,21 +60,25 @@ public final class KeyboardDetector {
             }
         };
         popupWindow.setContentView(view);
+        View parent = activity.getWindow().getDecorView();
         activity.getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            void onCreate() {
+                parent.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (parent.getWindowToken() != null) {
+                            popupWindow.showAtLocation(parent, 0, 0, 0);
+                        } else {
+                            parent.postDelayed(this, 50);
+                        }
+                    }
+                });
+            }
+
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             void onDestroy() {
                 popupWindow.dismiss();
-            }
-        });
-        View parent = activity.getWindow().getDecorView();
-        parent.post(new Runnable() {
-            @Override
-            public void run() {
-                if (parent.getWindowToken() != null) {
-                    popupWindow.showAtLocation(parent, 0, 0, 0);
-                } else {
-                    parent.postDelayed(this, 50);
-                }
             }
         });
     }
