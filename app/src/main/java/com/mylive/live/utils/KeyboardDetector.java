@@ -25,7 +25,6 @@ public final class KeyboardDetector {
 
     private KeyboardDetector(FragmentActivity activity, OnStateChangedListener l) {
         Objects.requireNonNull(activity);
-        Objects.requireNonNull(l);
         this.onStateChangedListener = l;
         PopupWindow popupWindow = new PopupWindow(0, ViewGroup.LayoutParams.MATCH_PARENT);
         popupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
