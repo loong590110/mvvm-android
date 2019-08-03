@@ -51,10 +51,9 @@ public class WebActivity extends BaseActivity {
             WebActivityStarter.create(Config.instance().homePage)
                     .start(WebActivity.this);
         });
-        binding.resizeLayout.addEditTexts(R.id.input_panel);
-        binding.resizeLayout.setOnChangedListener((focusedEditText, height) -> {
-            focusedEditText.setTranslationY(-height);
-        });
+//        binding.resizeLayout.setOnStateChangedListener(height -> {
+//            binding.inputPanel.setTranslationY(height);
+//        });
         JsBridgeWebViewClient jsBridge = new JsBridgeWebViewClient(binding.webView) {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {

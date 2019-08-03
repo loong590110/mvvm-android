@@ -1,39 +1,34 @@
 package com.mylive.live.widget;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Created by Developer Zailong Shi on 2018/10/17.
  */
 public class AdjustResizeDetectableLayout extends FrameLayout {
 
-    private int deltaHeight;
+    private int deltaHeight, screenHeight;
     private OnStateChangedListener onStateChangedListener;
 
-    public AdjustResizeDetectableLayout(@NonNull Context context) {
+    public AdjustResizeDetectableLayout(Context context) {
         this(context, null);
     }
 
-    public AdjustResizeDetectableLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public AdjustResizeDetectableLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AdjustResizeDetectableLayout(@NonNull Context context, @Nullable AttributeSet attrs,
+    public AdjustResizeDetectableLayout(Context context, AttributeSet attrs,
                                         int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @Override
-    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+    protected void onVisibilityChanged(View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         if (visibility != VISIBLE) {
             onKeyboardHidden();
@@ -42,13 +37,7 @@ public class AdjustResizeDetectableLayout extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (getWidth() > 0 && getHeight() > 0) {
-            possiblyAdjustResize();
-            super.onMeasure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
-            return;
-        }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec(heightMeasureSpec));
     }
 
     @Override
@@ -59,14 +48,21 @@ public class AdjustResizeDetectableLayout extends FrameLayout {
         return super.dispatchApplyWindowInsets(insets);
     }
 
-    private void possiblyAdjustResize() {
-        int currentHeight = getHeight();
-        if (currentHeight <= 0) {
-            return;
+    private int heightMeasureSpec(int heightMeasureSpec) {
+        int height = getHeight();
+        if (height <= 0) {
+            return heightMeasureSpec;
         }
-        int usableHeightNow = computeUsableHeight();
-        int diff = currentHeight - usableHeightNow;
+        int usableHeightNow = MeasureSpec.getSize(heightMeasureSpec);
+        int margin = getMarginTopAndBottom();
+        int diff = usableHeightNow - height - margin;
         if (diff > 0) {
+            height = usableHeightNow - margin;
+        } else if (diff < 0) {
+            if (-diff < getScreenHeight() / 4) {
+                height = usableHeightNow - margin;
+                return makeMeasureSpec(height);
+            }
             // keyboard probably just became visible
             if (deltaHeight != diff) {
                 deltaHeight = diff;
@@ -76,6 +72,26 @@ public class AdjustResizeDetectableLayout extends FrameLayout {
             // keyboard probably just became hidden
             onKeyboardHidden();
         }
+        return makeMeasureSpec(height);
+    }
+
+    private int makeMeasureSpec(int height) {
+        return MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+    }
+
+    private int getMarginTopAndBottom() {
+        if (getLayoutParams() instanceof MarginLayoutParams) {
+            MarginLayoutParams params = (MarginLayoutParams) getLayoutParams();
+            return params.topMargin + params.bottomMargin;
+        }
+        return 0;
+    }
+
+    private int getScreenHeight() {
+        if (screenHeight <= 0) {
+            screenHeight = getResources().getDisplayMetrics().heightPixels;
+        }
+        return screenHeight;
     }
 
     private void onKeyboardHidden() {
@@ -85,26 +101,10 @@ public class AdjustResizeDetectableLayout extends FrameLayout {
         }
     }
 
-    private int computeUsableHeight() {
-        Rect r = new Rect();
-        getWindowVisibleDisplayFrame(r);
-        return r.bottom - (isImmersiveMode() ? 0 : r.top);
-    }
-
     private void notifyKeyboardStateChanged() {
         if (onStateChangedListener != null) {
             onStateChangedListener.onStateChanged(deltaHeight);
         }
-    }
-
-    private boolean isImmersiveMode() {
-        if (getContext() instanceof Activity) {
-            int uiVisibility = ((Activity) getContext())
-                    .getWindow().getDecorView().getSystemUiVisibility();
-            return (uiVisibility & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-                    == View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-        }
-        return false;
     }
 
     public void setOnStateChangedListener(OnStateChangedListener onStateChangedListener) {
@@ -112,7 +112,7 @@ public class AdjustResizeDetectableLayout extends FrameLayout {
     }
 
     public boolean isKeyboardVisible() {
-        return deltaHeight > 0;
+        return deltaHeight < 0;
     }
 
     public interface OnStateChangedListener {

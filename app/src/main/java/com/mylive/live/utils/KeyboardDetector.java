@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public final class KeyboardDetector {
 
-    public static void detect(Activity activity, OnStateChangedListener l) {
+    public static void start(Activity activity, OnStateChangedListener l) {
         new KeyboardDetector(activity, l);
     }
 

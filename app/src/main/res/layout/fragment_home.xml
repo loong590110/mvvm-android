@@ -39,6 +39,7 @@
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
                 app:tabBackground="@null"
+                app:tabIndicator="@drawable/tab_indicator"
                 app:tabIndicatorColor="@color/colorPrimary"
                 app:tabIndicatorFullWidth="false"
                 app:tabIndicatorHeight="2dp"
