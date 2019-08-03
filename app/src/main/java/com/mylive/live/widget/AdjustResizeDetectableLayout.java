@@ -56,21 +56,17 @@ public class AdjustResizeDetectableLayout extends FrameLayout {
         int usableHeightNow = MeasureSpec.getSize(heightMeasureSpec);
         int margin = getMarginTopAndBottom();
         int diff = usableHeightNow - height - margin;
-        if (diff > 0) {
-            height = usableHeightNow - margin;
-        } else if (diff < 0) {
-            if (-diff < getScreenHeight() / 4) {
-                height = usableHeightNow - margin;
-                return makeMeasureSpec(height);
-            }
+        if (-diff > getScreenHeight() / 4) {
             // keyboard probably just became visible
             if (deltaHeight != diff) {
                 deltaHeight = diff;
                 notifyKeyboardStateChanged();
             }
-        } else {
+        } else if (diff == 0) {
             // keyboard probably just became hidden
             onKeyboardHidden();
+        } else {
+            height = usableHeightNow - margin;
         }
         return makeMeasureSpec(height);
     }
