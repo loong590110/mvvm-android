@@ -1,28 +1,27 @@
 package com.mylive.live.view.web;
 
-import androidx.databinding.DataBindingUtil;
-
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 
 import com.mylive.live.BuildConfig;
 import com.mylive.live.R;
 import com.mylive.live.arch.theme.StatusBarCompat;
+import com.mylive.live.base.BaseActivity;
+import com.mylive.live.component.JsBridgeWebViewClient;
 import com.mylive.live.component.JsBridgeWebViewClient.Callback;
 import com.mylive.live.component.JsBridgeWebViewClient.Callback2;
 import com.mylive.live.component.JsBridgeWebViewClient.JsBridgeApi;
-import com.mylive.live.component.JsBridgeWebViewClient;
-import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityWebBinding;
 import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.model.Config;
 import com.mylive.live.router.WebActivityStarter;
+import com.mylive.live.utils.KeyboardDetector;
 import com.mylive.live.utils.ToastUtils;
 
 import org.json.JSONException;
@@ -51,8 +50,8 @@ public class WebActivity extends BaseActivity {
             WebActivityStarter.create(Config.instance().homePage)
                     .start(WebActivity.this);
         });
-        binding.resizeLayout.setOnStateChangedListener(height -> {
-            binding.inputPanel.setTranslationY(height);
+        KeyboardDetector.start(this, deltaHeight -> {
+            binding.inputPanel.setTranslationY(deltaHeight);
         });
         JsBridgeWebViewClient jsBridge = new JsBridgeWebViewClient(binding.webView) {
             @Override

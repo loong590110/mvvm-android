@@ -1,9 +1,14 @@
 package com.mylive.live.utils;
 
-import android.app.Activity;
-import android.graphics.Rect;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.PopupWindow;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import java.util.Objects;
 
@@ -12,63 +17,70 @@ import java.util.Objects;
  */
 public final class KeyboardDetector {
 
-    public static void start(Activity activity, OnStateChangedListener l) {
+    public static void start(FragmentActivity activity, OnStateChangedListener l) {
         new KeyboardDetector(activity, l);
     }
 
-    private View view;
-    private int resizeOffset;
     private OnStateChangedListener onStateChangedListener;
 
-    private KeyboardDetector(Activity activity, OnStateChangedListener l) {
+    private KeyboardDetector(FragmentActivity activity, OnStateChangedListener l) {
         Objects.requireNonNull(activity);
         Objects.requireNonNull(l);
         this.onStateChangedListener = l;
-        view = new View(activity);
-        view.setBackgroundColor(0xffff0000);
-        view.getViewTreeObserver()
-                .addOnGlobalLayoutListener(this::possiblyResizeChildOfContent);
-        view.post(() -> {
-            PopupWindow window = new PopupWindow(100,
-                    100);
-            window.setContentView(view);
-            window.showAtLocation(view, 0, 0, 0);
+        PopupWindow popupWindow = new PopupWindow(0, ViewGroup.LayoutParams.MATCH_PARENT);
+        popupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+        popupWindow.setOutsideTouchable(false);
+        int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
+        View view = new View(activity) {
+            private int deltaHeight;
+
+            @Override
+            protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+                super.onSizeChanged(w, h, oldw, oldh);
+                int diff = h - oldh;
+                if (Math.abs(diff) > screenHeight / 4) {
+                    if (diff < 0) {
+                        if (deltaHeight != diff) {
+                            deltaHeight = diff;
+                            notifyKeyboardStateChanged();
+                        }
+                    } else {
+                        if (deltaHeight != 0) {
+                            deltaHeight = 0;
+                            notifyKeyboardStateChanged();
+                        }
+                    }
+                }
+            }
+
+            private void notifyKeyboardStateChanged() {
+                if (onStateChangedListener != null) {
+                    onStateChangedListener.onStateChanged(deltaHeight);
+                }
+            }
+        };
+        popupWindow.setContentView(view);
+        activity.getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            void onDestroy() {
+                popupWindow.dismiss();
+            }
+        });
+        View parent = activity.getWindow().getDecorView();
+        parent.post(new Runnable() {
+            @Override
+            public void run() {
+                if (parent.getWindowToken() != null) {
+                    popupWindow.showAtLocation(parent, 0, 0, 0);
+                } else {
+                    parent.postDelayed(this, 50);
+                }
+            }
         });
     }
 
-    private void possiblyResizeChildOfContent() {
-        int usableHeightNow = computeUsableHeight();
-        int currentHeight = view.getHeight();
-        if (currentHeight <= 0) {
-            return;
-        }
-        if (usableHeightNow < currentHeight) {
-            // keyboard probably just became visible
-            int diff = currentHeight - usableHeightNow;
-            if (resizeOffset != diff) {
-                resizeOffset = diff;
-                notifyKeyboardHeightChanged();
-            }
-        } else {
-            // keyboard probably just became hidden
-            if (resizeOffset != 0) {
-                resizeOffset = 0;
-                notifyKeyboardHeightChanged();
-            }
-        }
-    }
-
-    private void notifyKeyboardHeightChanged() {
-        onStateChangedListener.onStateChanged(resizeOffset);
-    }
-
-    private int computeUsableHeight() {
-        Rect r = new Rect();
-        view.getWindowVisibleDisplayFrame(r);
-        return r.bottom;
-    }
-
     public interface OnStateChangedListener {
-        void onStateChanged(int height);
+        void onStateChanged(int deltaHeight);
     }
 }

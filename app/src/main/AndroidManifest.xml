@@ -32,6 +32,6 @@
         <activity android:name=".view.login.LoginActivity" />
         <activity
             android:name=".view.web.WebActivity"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
     </application>
 </manifest>
