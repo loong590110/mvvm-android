@@ -44,7 +44,11 @@ public class HomeFragment extends BaseFragment {
         binding.viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
-                return Fragment.instantiate(getContext(), HomeTabFragment.class.getName());
+                Bundle args = new Bundle();
+                args.putInt("type", position);
+                return Fragment.instantiate(getContext(),
+                        HomeTabFragment.class.getName(),
+                        args);
             }
 
             @Override

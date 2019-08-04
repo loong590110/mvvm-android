@@ -27,7 +27,9 @@ import com.mylive.live.model.HttpResp;
 public class HomeTabFragment extends BaseFragment {
 
     @FieldMap("binding")
-    FragmentHomeTabBinding binding;
+    private FragmentHomeTabBinding binding;
+    @FieldMap("type")
+    private int type;
 
     @Nullable
     @Override
@@ -35,6 +37,9 @@ public class HomeTabFragment extends BaseFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        if (getArguments() != null) {
+            type = getArguments().getInt("type");
+        }
         return (binding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_home_tab, container, false)
         ).getRoot();
@@ -43,8 +48,11 @@ public class HomeTabFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        int bottomBarHeight = getResources().getDimensionPixelSize(R.dimen.tab_bar_main_height);
         binding.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            int bottomBarHeight = getResources().getDimensionPixelSize(
+                    R.dimen.tab_bar_main_height
+            );
+
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);

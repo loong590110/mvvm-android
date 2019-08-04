@@ -24,7 +24,15 @@ public final class ThreadsScheduler {
     }
 
     public static void runOnUiThread(Runnable runnable) {
-        UiThreadHandler.INSTANCE.post(runnable);
+        runOnUiThread(runnable, 0);
+    }
+
+    public static void runOnUiThread(Runnable runnable, long delayMillis) {
+        UiThreadHandler.INSTANCE.postDelayed(runnable, delayMillis);
+    }
+
+    public static void removeOnUiThread(Runnable runnable) {
+        UiThreadHandler.INSTANCE.removeCallbacks(runnable);
     }
 
     public static void runOnIoThread(Runnable runnable) {

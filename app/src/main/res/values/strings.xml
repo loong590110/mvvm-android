@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">我的哔哩</string>
     <string name="double_click_exit_app">再按一次退出</string>
+    <string name="network_exception">网络异常</string>
     <!--Splash Activity-->
     <string name="skip">跳过</string>
     <!--Main Activity-->

@@ -16,11 +16,14 @@ public class LiveListViewModel extends BaseViewModel {
     @Service
     private LiveListService liveListService;
 
-    public LiveData<LiveList> getLiveList(boolean more, int size) {
+    public LiveData<LiveList> getLiveList(int type, int size) {
         MutableLiveData<LiveList> finalLiveList = new MutableLiveData<>();
         liveListService.getLiveList(size)
                 .dispose(this)
-                .observe(finalLiveList::postValue);
+                .observe(
+                        finalLiveList::postValue,
+                        e -> finalLiveList.postValue(null)
+                );
         return finalLiveList;
     }
 }
