@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MarqueeTextView">
+        <attr name="marqueeText" format="string|reference" />
+        <attr name="marqueeTextColor" format="color|reference" />
+        <attr name="marqueeTextSize" format="float|reference" />
+        <attr name="textSpeed" format="float" />
+        <attr name="textDistance" format="integer" />
+        <attr name="textStartLocation" format="float" />
+        <attr name="isClickableStop" format="boolean" />
+        <attr name="isResetLocation" format="boolean" />
+        <attr name="repeatType" format="integer" />
+    </declare-styleable>
+</resources>
