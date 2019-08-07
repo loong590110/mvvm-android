@@ -27,9 +27,12 @@ public final class KeyboardDetector {
         Objects.requireNonNull(activity);
         this.onStateChangedListener = l;
         PopupWindow popupWindow = new PopupWindow(0, ViewGroup.LayoutParams.MATCH_PARENT);
-        popupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        popupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
         popupWindow.setOutsideTouchable(false);
+        popupWindow.setClippingEnabled(true);
+        popupWindow.setFocusable(false);
         int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
         View view = new View(activity) {
             private int deltaHeight;
