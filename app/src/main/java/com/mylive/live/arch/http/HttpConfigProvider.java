@@ -70,11 +70,11 @@ public final class HttpConfigProvider {
             return this;
         }
 
-        public Converter.Factory[] getConverterFactoris() {
+        public Converter.Factory[] getConverterFactories() {
             return converterFactories;
         }
 
-        public Config setConverterFactoris(Converter.Factory... converterFactories) {
+        public Config setConverterFactories(Converter.Factory... converterFactories) {
             Objects.requireNonNull(converterFactories);
             this.converterFactories = converterFactories;
             return this;

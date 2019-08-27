@@ -17,6 +17,7 @@ import com.mylive.live.R;
 
 /**
  * copyright(c) https://github.com/385841539/MarqueeView
+ *
  * Created by Developer Zailong Shi on 2019-07-30.
  */
 public class MarqueeTextView extends View {
@@ -39,7 +40,6 @@ public class MarqueeTextView extends View {
     private TextPaint paint;
     private Rect rect;
     private boolean resetInit;
-    private Thread thread;
     private String text;
     private float textHeight;
     private long lastFrameTimeNanos;
@@ -176,7 +176,7 @@ public class MarqueeTextView extends View {
                 }
         }
 
-        if (this.text != null) {
+        if (!TextUtils.isEmpty(this.text)) {
             canvas.drawText(this.text, this.xLocation,
                     (float) (this.getMeasuredHeight() / 2) + this.textHeight / 2.0F,
                     this.paint);
@@ -188,6 +188,8 @@ public class MarqueeTextView extends View {
                             this.paint);
                 }
             }
+        } else {
+            stopRoll();
         }
     }
 
@@ -200,7 +202,7 @@ public class MarqueeTextView extends View {
     private Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
         @Override
         public void doFrame(long frameTimeNanos) {
-            if (isRoll && !TextUtils.isEmpty(text)) {
+            if (isRoll) {
                 invalidate();
             }
         }
@@ -220,10 +222,6 @@ public class MarqueeTextView extends View {
 
     public void stopRoll() {
         this.isRoll = false;
-        if (this.thread != null) {
-            this.thread.interrupt();
-            this.thread = null;
-        }
     }
 
     private void setClickStop(boolean isClickStop) {
@@ -278,7 +276,7 @@ public class MarqueeTextView extends View {
     }
 
     public void setText(String text) {
-        if (!TextUtils.isEmpty(text)) {
+        if (!TextUtils.equals(this.text, text)) {
             if (this.isResetLocation) {
                 this.xLocation = (float) this.getWidth() * this.startLocation;
             }

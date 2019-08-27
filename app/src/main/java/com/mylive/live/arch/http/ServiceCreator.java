@@ -22,7 +22,7 @@ public final class ServiceCreator {
                             .addCallAdapterFactory(HttpConfigProvider.getConfig()
                                     .getCallAdapter());
                     for (Converter.Factory factory
-                            : HttpConfigProvider.getConfig().getConverterFactoris()) {
+                            : HttpConfigProvider.getConfig().getConverterFactories()) {
                         builder.addConverterFactory(factory);
                     }
                     instance = builder.build();
