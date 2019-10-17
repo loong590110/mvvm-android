@@ -2,6 +2,8 @@ package com.mylive.live.view.home;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -29,10 +31,12 @@ import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.Timer;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.LiveListViewModel;
+import com.mylive.live.widget.PagingScrollHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * Created by Developer Zailong Shi on 2019-07-01.
@@ -58,34 +62,17 @@ public class LiveListFeature extends BaseFeature {
         binding.refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         binding.refreshLayout.setOnRefreshListener(() -> loadData(true));
         binding.refreshLayout.setRefreshing(true);
+        new PagingScrollHelper(6).attachToRecyclerView(binding.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(
                 getContext(), 3
         );
         binding.recyclerView.setLayoutManager(gridLayoutManager);
-        binding.recyclerView.addItemDecoration(new DividerItemDecoration(
-                getContext(), GridLayoutManager.VERTICAL) {
-            private Paint paint;
-
+        binding.recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
-            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-                setOrientation(GridLayoutManager.HORIZONTAL);
-                super.onDraw(c, parent, state);
-                setOrientation(GridLayoutManager.VERTICAL);
-                super.onDraw(c, parent, state);
-            }
-
-            @Override
-            public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent,
-                                   @NonNull RecyclerView.State state) {
-                super.onDrawOver(c, parent, state);
-                if (paint == null) {
-                    paint = new Paint();
-                    paint.setStrokeWidth(DensityUtils.dp2px(getContext(), 1.5f));
-                    paint.setColor(getContext().getResources().getColor(
-                            R.color.colorAccent));
-                }
-                c.drawLine(0, 0, parent.getWidth(), 0, paint);
-                c.drawLine(0, 0, 0, parent.getHeight(), paint);
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                                       @NonNull RecyclerView parent,
+                                       @NonNull RecyclerView.State state) {
+                outRect.set(35, 35, 35, 35);
             }
         });
         binding.recyclerView.setAdapter(liveListAdapter = new LiveListAdapter());
@@ -139,8 +126,9 @@ public class LiveListFeature extends BaseFeature {
 
         @Override
         public int getItemCount() {
-            if (data == null)
+            if (data == null) {
                 return 0;
+            }
             if (data.size() > 12) {
                 //return 12;//测试ScrollEvent
             }
@@ -178,6 +166,8 @@ public class LiveListFeature extends BaseFeature {
                 WebActivityStarter.create(Config.instance().homePage)
                         .start(LiveListFeature.this);
             });
+            int color = (int) (new Random().nextFloat() * 0xffffff) + 0xff000000;
+            binding.getRoot().setBackgroundColor(color);
         }
     }
 }

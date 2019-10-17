@@ -30,16 +30,20 @@ public class LiveApp extends Application {
                 .setBaseUrl(HttpConfig.BASE_URL)
                 .setHttpClient(new OkHttpClient.Builder()
                         //region: trust all crt.
-                        /*
-                        .sslSocketFactory(SSLContextWrapper.getInstance().getSocketFactory(),
-                                SSLContextWrapper.getX509TrustManager())
-                        .hostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
-                        */
+                        .sslSocketFactory(
+                                SSLContextWrapper.getInstance().getSocketFactory(),
+                                SSLContextWrapper.getX509TrustManager()
+                        )
+                        .hostnameVerifier(
+                                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
+                        )
                         //endregion
                         .addInterceptor(
-                                HttpInterceptorsManager.getHttpRequestInterceptor())
+                                HttpInterceptorsManager.getHttpRequestInterceptor()
+                        )
                         .addInterceptor(
-                                HttpInterceptorsManager.getHttpResponseInterceptor())
+                                HttpInterceptorsManager.getHttpResponseInterceptor()
+                        )
                         .build())
                 .apply();
     }
