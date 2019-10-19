@@ -32,6 +32,32 @@ public class PagingScrollHelper extends SnapHelper {
         this.mPageSize = pageSize;
     }
 
+    public void setCurrentPageIndex(int currentPageIndex) {
+        this.mCurrentPageIndex = currentPageIndex;
+        int position = currentPageIndex * mPageSize;
+        if (mRecyclerView == null || mRecyclerView.getLayoutManager() == null) {
+            return;
+        }
+        RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForAdapterPosition(position);
+        if (viewHolder == null) {
+            return;
+        }
+        int[] snapDistance = calculateDistanceToFinalSnap(
+                mRecyclerView.getLayoutManager(),
+                viewHolder.itemView
+        );
+        if (snapDistance == null) {
+            return;
+        }
+        if (snapDistance[0] != 0 || snapDistance[1] != 0) {
+            mRecyclerView.smoothScrollBy(snapDistance[0], snapDistance[1]);
+        }
+    }
+
+    public int getPageSize() {
+        return mPageSize;
+    }
+
     @Override
     public void attachToRecyclerView(@Nullable RecyclerView recyclerView)
             throws IllegalStateException {

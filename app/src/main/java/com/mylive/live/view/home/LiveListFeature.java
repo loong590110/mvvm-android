@@ -1,7 +1,5 @@
 package com.mylive.live.view.home;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +23,6 @@ import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.model.Config;
 import com.mylive.live.model.LiveList;
 import com.mylive.live.router.WebActivityStarter;
-import com.mylive.live.utils.DensityUtils;
 import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.Timer;
 import com.mylive.live.utils.ToastUtils;
@@ -62,7 +58,8 @@ public class LiveListFeature extends BaseFeature {
         binding.refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         binding.refreshLayout.setOnRefreshListener(() -> loadData(true));
         binding.refreshLayout.setRefreshing(true);
-        new PagingScrollHelper(6).attachToRecyclerView(binding.recyclerView);
+        PagingScrollHelper pagingScrollHelper = new PagingScrollHelper(6);
+        pagingScrollHelper.attachToRecyclerView(binding.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(
                 getContext(), 3
         );
@@ -75,7 +72,15 @@ public class LiveListFeature extends BaseFeature {
                 outRect.set(35, 35, 35, 35);
             }
         });
-        binding.recyclerView.setAdapter(liveListAdapter = new LiveListAdapter());
+        binding.recyclerView.setAdapter(
+                liveListAdapter = new LiveListAdapter().setOnItemClickListener(
+                        (position, item) -> {
+                            pagingScrollHelper.setCurrentPageIndex(
+                                    position / pagingScrollHelper.getPageSize()
+                            );
+                        }
+                )
+        );
         binding.loadingView.setForegroundColorRes(R.color.colorPrimary);
         loadMoreHelper = LoadMoreHelper.create(binding.recyclerView, true);
         loadMoreHelper.setOnLoadMoreListener(() -> loadData(false));
@@ -110,11 +115,12 @@ public class LiveListFeature extends BaseFeature {
     private class LiveListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         private List<LiveList.LiveListItem> data;
+        private OnItemClickListener onItemClickListener;
 
         @NonNull
         @Override
         public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ItemViewHolder(parent);
+            return new ItemViewHolder(parent).setOnItemClickListener(onItemClickListener);
         }
 
         @Override
@@ -145,11 +151,17 @@ public class LiveListFeature extends BaseFeature {
             this.data.addAll(data);
             notifyDataSetChanged();
         }
+
+        public LiveListAdapter setOnItemClickListener(OnItemClickListener onItemClickListener) {
+            this.onItemClickListener = onItemClickListener;
+            return this;
+        }
     }
 
     private class ItemViewHolder extends BaseViewHolder {
 
         private ItemLiveListBinding binding;
+        private OnItemClickListener onItemClickListener;
 
         private ItemViewHolder(@NonNull ViewGroup parent) {
             super(parent, R.layout.item_live_list);
@@ -157,17 +169,31 @@ public class LiveListFeature extends BaseFeature {
         }
 
         private void onBindViewHolder(int position, LiveList.LiveListItem item) {
-            ViewGroup.LayoutParams params = itemView.getLayoutParams();
-            params.height = itemHeight;
-            itemView.setLayoutParams(params);
+//            ViewGroup.LayoutParams params = itemView.getLayoutParams();
+//            params.height = itemHeight;
+//            itemView.setLayoutParams(params);
             binding.txtContent.setText(String.format(Locale.getDefault(),
                     "%s-%d", item.desc, position));
             binding.getRoot().setOnClickListener(v -> {
-                WebActivityStarter.create(Config.instance().homePage)
-                        .start(LiveListFeature.this);
+                if (position < 3) {
+                    WebActivityStarter.create(Config.instance().homePage)
+                            .start(LiveListFeature.this);
+                }
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(position, item);
+                }
             });
             int color = (int) (new Random().nextFloat() * 0xffffff) + 0xff000000;
             binding.getRoot().setBackgroundColor(color);
         }
+
+        public ItemViewHolder setOnItemClickListener(OnItemClickListener onItemClickListener) {
+            this.onItemClickListener = onItemClickListener;
+            return this;
+        }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position, LiveList.LiveListItem item);
     }
 }
