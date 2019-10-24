@@ -128,7 +128,7 @@ public class CarouselViewPager extends ViewPager {
 
     public CarouselViewPager setAnimationDuration(int duration, Interpolator interpolator) {
         try {
-            animationDuration = duration;
+            this.animationDuration = duration;
             this.interpolator = interpolator == null ? DEFAULT_INTERPOLATOR : interpolator;
             Field mField = ViewPager.class.getDeclaredField("mScroller");
             mField.setAccessible(true);
@@ -148,7 +148,8 @@ public class CarouselViewPager extends ViewPager {
             mField.set(this, mScroller);
         } catch (NoSuchFieldException | IllegalArgumentException |
                 IllegalAccessException ignore) {
-            animationDuration = DEFAULT_ANIMATION_DURATION;
+            this.animationDuration = DEFAULT_ANIMATION_DURATION;
+            this.interpolator = DEFAULT_INTERPOLATOR;
         }
         return this;
     }
