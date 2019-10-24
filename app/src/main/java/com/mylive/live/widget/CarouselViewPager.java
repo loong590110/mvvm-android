@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,9 +13,7 @@ import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.Interpolator;
-import android.view.animation.TranslateAnimation;
 import android.widget.Scroller;
 
 import androidx.annotation.NonNull;
@@ -120,6 +119,22 @@ public class CarouselViewPager extends ViewPager {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         pause();
+    }
+
+    @Override
+    public void setAdapter(@Nullable PagerAdapter pagerAdapter) {
+        if (pagerAdapter == null) {
+            throw new NullPointerException();
+        }
+        if (getAdapter() != pagerAdapter) {
+            pagerAdapter.registerDataSetObserver(new DataSetObserver() {
+                @Override
+                public void onChanged() {
+                    resume();
+                }
+            });
+        }
+        super.setAdapter(pagerAdapter);
     }
 
     public CarouselViewPager setAnimationDuration(int duration) {
