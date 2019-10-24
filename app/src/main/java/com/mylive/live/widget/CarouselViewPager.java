@@ -190,6 +190,7 @@ public class CarouselViewPager extends ViewPager {
                     throw new IllegalStateException("unset adapter");
                 }
                 if (getAdapter().getCount() < 2) {
+                    pause();
                     return;
                 }
                 int nextItem = getCurrentItem() + 1;
