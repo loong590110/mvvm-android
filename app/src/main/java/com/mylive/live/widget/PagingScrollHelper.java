@@ -16,30 +16,73 @@ import androidx.recyclerview.widget.SnapHelper;
  */
 public class PagingScrollHelper extends SnapHelper {
 
-    private static final int MAX_SCROLL_ON_FLING_DURATION = 100; // ms
-    private static final float MILLISECONDS_PER_INCH = 100f;
+    private static final int MAX_SCROLL_ON_FLING_DURATION = 100; //default: 100 ms
+    private static final float MILLISECONDS_PER_INCH = 25f;//default:100f;
 
     @Nullable
     private OrientationHelper mVerticalHelper;
     @Nullable
     private OrientationHelper mHorizontalHelper;
 
+    private LinearSmoothScroller smoothScroller;
     private RecyclerView mRecyclerView;
     private int mPageSize, mCurrentPageIndex;
     private boolean scrollByFling;
+    private PositionConverter positionConverter;
+
+    public interface PositionConverter {
+        int getActualPosition(RecyclerView recyclerView, int virtualPosition);
+
+        int getVirtualPosition(RecyclerView recyclerView, int actualPosition);
+    }
 
     public PagingScrollHelper(int pageSize) {
+        this(pageSize, null);
+    }
+
+    public PagingScrollHelper(int pageSize, PositionConverter converter) {
         this.mPageSize = pageSize;
+        this.positionConverter = converter;
+    }
+
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
+    }
+
+    public PositionConverter getPositionConverter() {
+        return positionConverter;
+    }
+
+    public void setSelectedPosition(int position) {
+        //被选中礼物的区域没有完全显示的情况下切换到下一页，确保礼物被完全显示
+        RecyclerView.ViewHolder viewHolder =
+                mRecyclerView.findViewHolderForAdapterPosition(position);
+        if (viewHolder == null || viewHolder.itemView == null) {
+            return;
+        }
+        if (mVerticalHelper.getDecoratedEnd(viewHolder.itemView)
+                > mVerticalHelper.getTotalSpace()) {
+            setCurrentPageIndex(getCurrentPageIndex() + 1);
+        } else if (mVerticalHelper.getDecoratedStart(viewHolder.itemView)
+                < mVerticalHelper.getStartAfterPadding()) {
+            setCurrentPageIndex(getCurrentPageIndex() - 1);
+        }
+    }
+
+    public int getCurrentPageIndex() {
+        return mCurrentPageIndex;
     }
 
     public void setCurrentPageIndex(int currentPageIndex) {
         this.mCurrentPageIndex = currentPageIndex;
-        int position = currentPageIndex * mPageSize;
+        checkCurrentPageIndex();
+        int position = convertActual(currentPageIndex * mPageSize);
         if (mRecyclerView == null || mRecyclerView.getLayoutManager() == null) {
             return;
         }
         RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForAdapterPosition(position);
         if (viewHolder == null) {
+            scrollToTargetPosition(position);
             return;
         }
         int[] snapDistance = calculateDistanceToFinalSnap(
@@ -61,6 +104,9 @@ public class PagingScrollHelper extends SnapHelper {
     @Override
     public void attachToRecyclerView(@Nullable RecyclerView recyclerView)
             throws IllegalStateException {
+        if (recyclerView == null) {
+            throw new NullPointerException();
+        }
         this.mRecyclerView = recyclerView;
         super.attachToRecyclerView(recyclerView);
     }
@@ -135,7 +181,8 @@ public class PagingScrollHelper extends SnapHelper {
                 forwardDirection ? mCurrentPageIndex + 1 : mCurrentPageIndex - 1
                 :
                 forwardDirection ? mCurrentPageIndex - 1 : mCurrentPageIndex + 1;
-        final int targetPosition = mCurrentPageIndex * mPageSize;
+        checkCurrentPageIndex();
+        final int targetPosition = convertActual(mCurrentPageIndex * mPageSize);
         scrollByFling = true;
         return targetPosition;
     }
@@ -145,29 +192,33 @@ public class PagingScrollHelper extends SnapHelper {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             return null;
         }
-        return new LinearSmoothScroller(mRecyclerView.getContext()) {
-            @Override
-            protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
-                int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),
-                        targetView);
-                final int dx = snapDistances[0];
-                final int dy = snapDistances[1];
-                final int time = calculateTimeForDeceleration(Math.max(Math.abs(dx), Math.abs(dy)));
-                if (time > 0) {
-                    action.update(dx, dy, time, mDecelerateInterpolator);
+        if (smoothScroller == null) {
+            smoothScroller = new LinearSmoothScroller(mRecyclerView.getContext()) {
+                @Override
+                protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
+                    int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),
+                            targetView);
+                    final int dx = snapDistances[0];
+                    final int dy = snapDistances[1];
+                    final int time = calculateTimeForDeceleration(Math.max(Math.abs(dx), Math.abs(dy)));
+                    if (time > 0) {
+                        action.update(0, 0, time, mDecelerateInterpolator);
+                    }
                 }
-            }
 
-            @Override
-            protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
-                return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
-            }
+                @Override
+                protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+                    return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
+                }
 
-            @Override
-            protected int calculateTimeForScrolling(int dx) {
-                return Math.min(MAX_SCROLL_ON_FLING_DURATION, super.calculateTimeForScrolling(dx));
-            }
-        };
+                @Override
+                protected int calculateTimeForScrolling(int dx) {
+//          return Math.min(MAX_SCROLL_ON_FLING_DURATION, super.calculateTimeForScrolling(dx));
+                    return super.calculateTimeForScrolling(dx);
+                }
+            };
+        }
+        return smoothScroller;
     }
 
     private int distanceToTop(@NonNull RecyclerView.LayoutManager layoutManager,
@@ -178,11 +229,6 @@ public class PagingScrollHelper extends SnapHelper {
     @Nullable
     private View findTargetView(RecyclerView.LayoutManager layoutManager,
                                 OrientationHelper helper) {
-        if (scrollByFling) {
-            scrollByFling = false;
-            return null;
-        }
-
         int childCount = layoutManager.getChildCount();
         if (childCount == 0) {
             return null;
@@ -190,35 +236,91 @@ public class PagingScrollHelper extends SnapHelper {
 
         //region: 处理最后一页不满页的情况，判断拖拽到底部则认为滚到最后一页
         View lastChild = layoutManager.getChildAt(childCount - 1);
-        if (lastChild == null) {
-            return null;
-        }
         int lastPosition = layoutManager.getPosition(lastChild);
         if (lastPosition == layoutManager.getItemCount() - 1) {
             if (helper.getDecoratedEnd(lastChild) <= helper.getTotalSpace()) {
                 mCurrentPageIndex = lastPosition / mPageSize;
+                scrollByFling = false;
                 return lastChild;
             }
         }
         //endregion
 
-        View closestChild = layoutManager.getChildAt(0);
+        View closestChild = null;
+        for (int i = 0; i < childCount; i++) {
+            closestChild = layoutManager.getChildAt(i);
+            if (closestChild != null) {
+                if (helper.getDecoratedEnd(closestChild) > helper.getStartAfterPadding()) {
+                    break;
+                }
+            }
+        }
+
         if (closestChild == null) {
             return null;
         }
 
         int position = layoutManager.getPosition(closestChild);
-        int smallerPosition = position / mPageSize * mPageSize;
-        int largerPosition = smallerPosition + mPageSize;
-        int targetPosition = largerPosition - position > position - smallerPosition ?
-                smallerPosition : largerPosition;
-        mCurrentPageIndex = targetPosition / mPageSize;
-        closestChild = layoutManager.findViewByPosition(targetPosition);
-        return closestChild;
+        if (scrollByFling) {
+            //保障滚动到指定页面
+            int pageIndex = convertVirtual(position) / mPageSize;
+            if (pageIndex == mCurrentPageIndex) {
+                scrollByFling = false;
+            }
+        } else {
+            int smallerPosition = convertVirtual(position) / mPageSize * mPageSize;
+            int largerPosition = smallerPosition + mPageSize;
+            int virtualPosition = largerPosition - position > position - smallerPosition ?
+                    smallerPosition : largerPosition;
+            mCurrentPageIndex = virtualPosition / mPageSize;
+            checkCurrentPageIndex();
+        }
+        int actualPosition = convertActual(mCurrentPageIndex * mPageSize);
+        View targetChild = layoutManager.findViewByPosition(actualPosition);
+        if (targetChild == null) {
+            scrollToTargetPosition(actualPosition);
+            return null;
+        }
+        return targetChild;
+    }
+
+    private void checkCurrentPageIndex() {
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+        if (mCurrentPageIndex < 0) {
+            mCurrentPageIndex = 0;
+        } else if (mCurrentPageIndex * mPageSize >= convertVirtual(layoutManager.getItemCount())) {
+            mCurrentPageIndex -= 1;
+        }
+    }
+
+    private int convertActual(int position) {
+        if (positionConverter != null) {
+            return positionConverter.getActualPosition(
+                    mRecyclerView,
+                    position
+            );
+        }
+        return position;
+    }
+
+    private int convertVirtual(int position) {
+        if (positionConverter != null) {
+            return positionConverter.getVirtualPosition(
+                    mRecyclerView,
+                    position
+            );
+        }
+        return position;
+    }
+
+    private void scrollToTargetPosition(int position) {
+        scrollByFling = true;
+        mRecyclerView.smoothScrollToPosition(position);
     }
 
     @NonNull
-    private OrientationHelper getVerticalHelper(@NonNull RecyclerView.LayoutManager layoutManager) {
+    private OrientationHelper getVerticalHelper(@NonNull RecyclerView.LayoutManager
+                                                        layoutManager) {
         if (mVerticalHelper == null || mVerticalHelper.getLayoutManager() != layoutManager) {
             mVerticalHelper = OrientationHelper.createVerticalHelper(layoutManager);
         }

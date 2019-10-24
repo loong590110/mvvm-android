@@ -1,8 +1,11 @@
 package com.mylive.live.view.home;
 
+import android.content.Context;
 import android.graphics.Rect;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
@@ -19,6 +22,7 @@ import com.mylive.live.arch.thread.ThreadsScheduler;
 import com.mylive.live.base.BaseFeature;
 import com.mylive.live.base.BaseViewHolder;
 import com.mylive.live.databinding.FragmentHomeTabBinding;
+import com.mylive.live.databinding.ItemBannerBinding;
 import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.model.Config;
 import com.mylive.live.model.LiveList;
@@ -28,6 +32,7 @@ import com.mylive.live.utils.Timer;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.LiveListViewModel;
 import com.mylive.live.widget.PagingScrollHelper;
+import com.mylive.live.widget.CarouselViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +68,16 @@ public class LiveListFeature extends BaseFeature {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(
                 getContext(), 3
         );
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                int spanCount = gridLayoutManager.getSpanCount();
+                if (position == 0) {
+                    return spanCount;
+                }
+                return 1;
+            }
+        });
         binding.recyclerView.setLayoutManager(gridLayoutManager);
         binding.recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
@@ -114,31 +129,45 @@ public class LiveListFeature extends BaseFeature {
 
     private class LiveListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
+        private final int VIEW_TYPE_NORMAL = 0, VIEW_TYPE_BANNER = 1;
         private List<LiveList.LiveListItem> data;
         private OnItemClickListener onItemClickListener;
 
         @NonNull
         @Override
         public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            if (viewType == VIEW_TYPE_BANNER) {
+                return new BannerViewHolder(parent);
+            }
             return new ItemViewHolder(parent).setOnItemClickListener(onItemClickListener);
         }
 
         @Override
         public void onBindViewHolder(@NonNull BaseViewHolder viewHolder, int position) {
             if (viewHolder instanceof ItemViewHolder) {
-                ((ItemViewHolder) viewHolder).onBindViewHolder(position, data.get(position));
+                ((ItemViewHolder) viewHolder).onBindViewHolder(position, data.get(position - VIEW_TYPE_BANNER));
+            } else if (viewHolder instanceof BannerViewHolder) {
+                ((BannerViewHolder) viewHolder).onBindViewHolder(position);
             }
         }
 
         @Override
         public int getItemCount() {
             if (data == null) {
-                return 0;
+                return VIEW_TYPE_BANNER;
             }
             if (data.size() > 12) {
                 //return 12;//测试ScrollEvent
             }
-            return data.size();
+            return data.size() + VIEW_TYPE_BANNER;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position < VIEW_TYPE_BANNER) {
+                return VIEW_TYPE_BANNER;
+            }
+            return VIEW_TYPE_NORMAL;
         }
 
         public void setData(List<LiveList.LiveListItem> data, boolean append) {
@@ -190,6 +219,46 @@ public class LiveListFeature extends BaseFeature {
         public ItemViewHolder setOnItemClickListener(OnItemClickListener onItemClickListener) {
             this.onItemClickListener = onItemClickListener;
             return this;
+        }
+    }
+
+    private class BannerViewHolder extends BaseViewHolder {
+
+        private ItemBannerBinding binding;
+
+        private BannerViewHolder(@NonNull ViewGroup parent) {
+            super(parent, R.layout.item_banner);
+            binding = DataBindingUtil.bind(itemView);
+        }
+
+        private void onBindViewHolder(int position) {
+            List<String> banners = new ArrayList<>();
+            CarouselViewPager.Adapter adapter;
+            binding.viewPager.setAdapter(adapter = new CarouselViewPager.Adapter<CarouselViewPager.ViewHolder>() {
+                @Override
+                public int getCount() {
+                    return banners.size();
+                }
+
+                @Override
+                protected CarouselViewPager.ViewHolder onCreateViewHolder(Context context) {
+                    TextView view = new TextView(context);
+                    view.setGravity(Gravity.CENTER);
+                    return new CarouselViewPager.ViewHolder(view) {
+                    };
+                }
+
+                @Override
+                protected void onBindViewHolder(CarouselViewPager.ViewHolder holder, int position) {
+                    ((TextView) holder.itemView).setText(banners.get(position));
+                    holder.itemView.setBackgroundColor((int) (0xff000000 + new Random().nextFloat() * 0xffffff));
+                }
+            });
+            for (int i = 0; i < 10; i++) {
+                banners.add("ad " + (1 + i));
+            }
+            adapter.notifyDataSetChanged();
+            binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
         }
     }
 
