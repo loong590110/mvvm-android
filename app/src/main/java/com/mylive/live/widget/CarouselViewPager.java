@@ -1,5 +1,8 @@
 package com.mylive.live.widget;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -181,24 +184,31 @@ public class CarouselViewPager extends ViewPager {
                     if (getAdapter() instanceof Adapter) {
                         Adapter adapter = (Adapter) getAdapter();
                         View firstChild = adapter.getItemView(0);
-                        View lastChild = adapter.getItemView(adapter.getCount() - 1);
+                        int lastPosition = adapter.getCount() - 1;
+                        View lastChild = adapter.getItemView(lastPosition);
                         if (firstChild != null && lastChild != null) {
-                            TranslateAnimation animation = new TranslateAnimation(
-                                    Animation.RELATIVE_TO_SELF, 1f,
-                                    Animation.RELATIVE_TO_SELF, 0f,
-                                    Animation.RELATIVE_TO_SELF, 0f,
-                                    Animation.RELATIVE_TO_SELF, 0f
-                            );
-                            animation.setInterpolator(
+                            int width = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
+                            int offset = width * (lastPosition + 1);
+                            ValueAnimator valueAnimator = ValueAnimator.ofInt(width, 0);
+                            valueAnimator.setInterpolator(
                                     interpolator == null ? DEFAULT_INTERPOLATOR : interpolator
                             );
-                            animation.setDuration(animationDuration);
-                            lastChild.layout(
-                                    getScrollX() - lastChild.getWidth(),
-                                    0, 0, lastChild.getHeight()
-                            );
-                            firstChild.startAnimation(animation);
-                            lastChild.startAnimation(animation);
+                            valueAnimator.setDuration(animationDuration);
+                            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                @Override
+                                public void onAnimationUpdate(ValueAnimator animation) {
+                                    int x = (int) animation.getAnimatedValue();
+                                    lastChild.setTranslationX(-offset + x);
+                                    firstChild.setTranslationX(x);
+                                }
+                            });
+                            valueAnimator.addListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    lastChild.setTranslationX(0);
+                                }
+                            });
+                            valueAnimator.start();
                         }
                     }
                 }
