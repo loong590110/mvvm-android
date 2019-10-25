@@ -63,8 +63,8 @@ public class LiveListFeature extends BaseFeature {
         binding.refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         binding.refreshLayout.setOnRefreshListener(() -> loadData(true));
         binding.refreshLayout.setRefreshing(true);
-        PagingScrollHelper pagingScrollHelper = new PagingScrollHelper(6);
-        pagingScrollHelper.attachToRecyclerView(binding.recyclerView);
+//        PagingScrollHelper pagingScrollHelper = new PagingScrollHelper(6);
+//        pagingScrollHelper.attachToRecyclerView(binding.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(
                 getContext(), 3
         );
@@ -90,9 +90,9 @@ public class LiveListFeature extends BaseFeature {
         binding.recyclerView.setAdapter(
                 liveListAdapter = new LiveListAdapter().setOnItemClickListener(
                         (position, item) -> {
-                            pagingScrollHelper.setCurrentPageIndex(
-                                    position / pagingScrollHelper.getPageSize()
-                            );
+//                            pagingScrollHelper.setCurrentPageIndex(
+//                                    position / pagingScrollHelper.getPageSize()
+//                            );
                         }
                 )
         );

@@ -79,6 +79,7 @@ public class CarouselViewPager extends ViewPager {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        setCurrentItem(0);
         resume();
     }
 
