@@ -5,10 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -76,27 +74,6 @@ public class CarouselViewPager extends ViewPager {
                 }
             }
         });
-    }
-
-    @Override
-    public Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        Bundle state = new Bundle();
-        state.putParcelable("superState", superState);
-        state.putLong("interval", interval);
-        state.putBoolean("playing", playing);
-        state.putBoolean("paused", paused);
-        return state;
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        Bundle data = (Bundle) state;
-        Parcelable superState = data.getParcelable("superState");
-        super.onRestoreInstanceState(superState);
-        interval = data.getLong("interval");
-        playing = data.getBoolean("playing");
-        paused = data.getBoolean("paused");
     }
 
     @Override
