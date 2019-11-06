@@ -60,13 +60,37 @@ public class PagingScrollHelper extends SnapHelper {
         if (viewHolder == null || viewHolder.itemView == null) {
             return;
         }
-        if (mVerticalHelper.getDecoratedEnd(viewHolder.itemView)
-                > mVerticalHelper.getTotalSpace()) {
-            setCurrentPageIndex(getCurrentPageIndex() + 1);
-        } else if (mVerticalHelper.getDecoratedStart(viewHolder.itemView)
-                < mVerticalHelper.getStartAfterPadding()) {
-            setCurrentPageIndex(getCurrentPageIndex() - 1);
+        if (needScroll(viewHolder.itemView)) {
+            int virtualPosition = convertVirtual(position);
+            setCurrentPageIndex(virtualPosition / mPageSize);
         }
+    }
+
+    private boolean needScroll(View itemView) {
+        if (mRecyclerView.getLayoutManager().canScrollVertically()) {
+            if (mVerticalHelper == null) {
+                mVerticalHelper = getVerticalHelper(mRecyclerView.getLayoutManager());
+            }
+            if (mVerticalHelper.getDecoratedEnd(itemView)
+                    > mVerticalHelper.getTotalSpace()) {
+                return true;
+            } else if (mVerticalHelper.getDecoratedStart(itemView)
+                    < mVerticalHelper.getStartAfterPadding()) {
+                return true;
+            }
+        } else if (mRecyclerView.getLayoutManager().canScrollHorizontally()) {
+            if (mHorizontalHelper == null) {
+                mHorizontalHelper = getHorizontalHelper(mRecyclerView.getLayoutManager());
+            }
+            if (mHorizontalHelper.getDecoratedEnd(itemView)
+                    > mHorizontalHelper.getTotalSpace()) {
+                return true;
+            } else if (mHorizontalHelper.getDecoratedStart(itemView)
+                    < mHorizontalHelper.getStartAfterPadding()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getCurrentPageIndex() {
@@ -239,7 +263,18 @@ public class PagingScrollHelper extends SnapHelper {
         int lastPosition = layoutManager.getPosition(lastChild);
         if (lastPosition == layoutManager.getItemCount() - 1) {
             if (helper.getDecoratedEnd(lastChild) <= helper.getTotalSpace()) {
-                mCurrentPageIndex = lastPosition / mPageSize;
+                int completeVisiblePosition = 0;
+                for (int i = 0; i < layoutManager.getItemCount(); i++) {
+                    View child = layoutManager.getChildAt(i);
+                    if (child == null || child.getLayoutParams() == null) {
+                        continue;
+                    }
+                    if (helper.getDecoratedStart(child) >= helper.getStartAfterPadding()) {
+                        completeVisiblePosition = layoutManager.getPosition(child);
+                        break;
+                    }
+                }
+                mCurrentPageIndex = completeVisiblePosition / mPageSize;
                 scrollByFling = false;
                 return lastChild;
             }
