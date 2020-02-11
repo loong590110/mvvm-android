@@ -365,7 +365,7 @@ public class JsBridgeWebViewClient extends WebViewClient {
                         .getDeclaredConstructor(Class.class, int.class);
                 lookupConstructor.setAccessible(true);
                 Class<?> declaringClass = method.getDeclaringClass();
-                // Used mode -1 = TRUST, because Modifier.PRIVATE failed for me in Java 8.
+                // Used mode -1 = TRUST, because Modifier.PRIVATE failed for me in If 8.
                 MethodHandles.Lookup lookup
                         = lookupConstructor.newInstance(declaringClass, -1);
                 try {

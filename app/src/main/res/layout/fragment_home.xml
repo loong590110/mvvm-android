@@ -47,7 +47,8 @@
                 app:tabRippleColor="@null"
                 app:tabSelectedTextColor="@color/colorPrimary"
                 app:tabTextColor="@color/titleTextColor"
-                app:tabUnboundedRipple="true" />
+                app:tabUnboundedRipple="true"
+                tools:background="#ccc" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.viewpager.widget.ViewPager

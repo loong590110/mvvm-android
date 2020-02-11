@@ -31,8 +31,8 @@ import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.Timer;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.LiveListViewModel;
-import com.mylive.live.widget.PagingScrollHelper;
 import com.mylive.live.widget.CarouselViewPager;
+import com.mylive.live.widget.PagingScrollHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,17 +63,14 @@ public class LiveListFeature extends BaseFeature {
         binding.refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         binding.refreshLayout.setOnRefreshListener(() -> loadData(true));
         binding.refreshLayout.setRefreshing(true);
-        PagingScrollHelper pagingScrollHelper = new PagingScrollHelper(6);
-        pagingScrollHelper.attachToRecyclerView(binding.recyclerView);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(
-                getContext(), 3
-        );
+//        PagingScrollHelper pagingScrollHelper = new PagingScrollHelper(6);
+//        pagingScrollHelper.attachToRecyclerView(binding.recyclerView);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                int spanCount = gridLayoutManager.getSpanCount();
                 if (position == 0) {
-                    return spanCount;
+                    return gridLayoutManager.getSpanCount();
                 }
                 return 1;
             }
@@ -90,9 +87,9 @@ public class LiveListFeature extends BaseFeature {
         binding.recyclerView.setAdapter(
                 liveListAdapter = new LiveListAdapter().setOnItemClickListener(
                         (position, item) -> {
-                            pagingScrollHelper.setCurrentPageIndex(
-                                    position / pagingScrollHelper.getPageSize()
-                            );
+//                            pagingScrollHelper.setCurrentPageIndex(
+//                                    position / pagingScrollHelper.getPageSize()
+//                            );
                         }
                 )
         );
@@ -124,11 +121,6 @@ public class LiveListFeature extends BaseFeature {
                     }
                     itemHeight = binding.recyclerView.getHeight() / 4;
                     liveListAdapter.setData(liveList.list, !refresh);
-                    if (refresh) {
-                        binding.recyclerView.post(() -> {
-                            binding.recyclerView.smoothScrollToPosition(liveList.list.size() - 1);
-                        });
-                    }
                 });
     }
 

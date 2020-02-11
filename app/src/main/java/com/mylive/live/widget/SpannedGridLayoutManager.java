@@ -1,5 +1,6 @@
 package com.mylive.live.widget;
 
+import android.graphics.PointF;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.ViewGroup;
@@ -10,7 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Created by Developer Zailong Shi on 2019-11-04.
  */
-public class SpannedGridLayoutManager extends RecyclerView.LayoutManager {
+public class SpannedGridLayoutManager extends RecyclerView.LayoutManager implements
+        RecyclerView.SmoothScroller.ScrollVectorProvider {
 
     public static final int HORIZONTAL = RecyclerView.HORIZONTAL;
     public static final int VERTICAL = RecyclerView.VERTICAL;
@@ -18,8 +20,9 @@ public class SpannedGridLayoutManager extends RecyclerView.LayoutManager {
     private int spanCount;
     private int itemRatio;
     private int orientation;
+    private SpanSizeLookup spanSizeLookup;
 
-    private EdgeInfo[] edgeInfos;
+    private SaveState state;
 
     public SpannedGridLayoutManager(int spanCount) {
         this(spanCount, 1, VERTICAL);
@@ -30,22 +33,24 @@ public class SpannedGridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     public SpannedGridLayoutManager(int spanCount, int itemRatio, int orientation) {
+        if (spanCount < 1) {
+            throw new IllegalArgumentException("spanCount不能少于1。");
+        }
         this.spanCount = spanCount;
         this.itemRatio = itemRatio;
         this.orientation = orientation;
-        this.edgeInfos = new EdgeInfo[spanCount];
+        this.state = new SaveState(new EdgeInfo[spanCount]);
     }
 
     @Nullable
     @Override
     public Parcelable onSaveInstanceState() {
-        return new SaveState(edgeInfos);
+        return state;
     }
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
-        SaveState saveState = (SaveState) state;
-        edgeInfos = saveState.edgeInfos;
+        this.state = (SaveState) state;
     }
 
     @Override
@@ -58,11 +63,60 @@ public class SpannedGridLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        for (int i = 0; i < edgeInfos.length; i++) {
-            EdgeInfo edgeInfo = edgeInfos[i];
+        detachAndScrapAttachedViews(recycler);
+        for (int i = 0; i < this.state.edgeInfos.length; i++) {
+            EdgeInfo edgeInfo = this.state.edgeInfos[i];
             if (edgeInfo == null) {
-                edgeInfo = edgeInfos[i] = new EdgeInfo();
+                edgeInfo = this.state.edgeInfos[i] = new EdgeInfo();
             }
+        }
+    }
+
+    private void fill(RecyclerView.Recycler recycler, RecyclerView.State state) {
+
+    }
+
+    public int getSpanCount() {
+        return spanCount;
+    }
+
+    public void setSpanSizeLookup(SpanSizeLookup spanSizeLookup) {
+        this.spanSizeLookup = spanSizeLookup;
+    }
+
+    @Nullable
+    @Override
+    public PointF computeScrollVectorForPosition(int targetPosition) {
+        return null;
+    }
+
+    public static abstract class SpanSizeLookup {
+        public abstract SpanSize getSpanSize(int position);
+    }
+
+    public static class SpanSize {
+        private int columnSpan;
+        private int rowSpan;
+
+        public SpanSize(int columnSpan, int rowSpan) {
+            this.columnSpan = columnSpan;
+            this.rowSpan = rowSpan;
+        }
+
+        public int getColumnSpan() {
+            return columnSpan;
+        }
+
+        public void setColumnSpan(int columnSpan) {
+            this.columnSpan = columnSpan;
+        }
+
+        public int getRowSpan() {
+            return rowSpan;
+        }
+
+        public void setRowSpan(int rowSpan) {
+            this.rowSpan = rowSpan;
         }
     }
 
@@ -114,13 +168,18 @@ public class SpannedGridLayoutManager extends RecyclerView.LayoutManager {
 
     private static class SaveState implements Parcelable {
 
+        private int pendingScrollPosition = RecyclerView.NO_POSITION;
         private EdgeInfo[] edgeInfos;
 
         SaveState(EdgeInfo[] edgeInfos) {
             this.edgeInfos = edgeInfos;
+            for (int i = 0; i < this.edgeInfos.length; i++) {
+                this.edgeInfos[i] = new EdgeInfo();
+            }
         }
 
         protected SaveState(Parcel in) {
+            pendingScrollPosition = in.readInt();
             edgeInfos = (EdgeInfo[]) in.readParcelableArray(in.getClass().getClassLoader());
         }
 
@@ -143,6 +202,7 @@ public class SpannedGridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(pendingScrollPosition);
             dest.writeParcelableArray(edgeInfos, flags);
         }
     }
