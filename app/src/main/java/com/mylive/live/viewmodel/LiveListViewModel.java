@@ -16,9 +16,9 @@ public class LiveListViewModel extends BaseViewModel {
     @Service
     private LiveListService liveListService;
 
-    public LiveData<LiveList> getLiveList(int type, int size) {
+    public LiveData<LiveList> getLiveList(int pageIndex, int pageSize) {
         MutableLiveData<LiveList> finalLiveList = new MutableLiveData<>();
-        liveListService.getLiveList(size)
+        liveListService.getLiveList(pageIndex, pageSize)
                 .dispose(this)
                 .observe(
                         finalLiveList::postValue,

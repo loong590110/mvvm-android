@@ -1,4 +1,4 @@
-package com.mylive.live.widget;
+package com.mylive.live.recyclerview;
 
 import android.graphics.PointF;
 import android.util.DisplayMetrics;

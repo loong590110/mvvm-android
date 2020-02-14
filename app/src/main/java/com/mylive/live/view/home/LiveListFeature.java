@@ -2,10 +2,9 @@ package com.mylive.live.view.home;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
@@ -14,6 +13,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.drawee.generic.RoundingParams;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.annotation.ViewModel;
@@ -24,20 +25,18 @@ import com.mylive.live.base.BaseViewHolder;
 import com.mylive.live.databinding.FragmentHomeTabBinding;
 import com.mylive.live.databinding.ItemBannerBinding;
 import com.mylive.live.databinding.ItemLiveListBinding;
-import com.mylive.live.model.Config;
+import com.mylive.live.imageloader.ImageLoader;
 import com.mylive.live.model.LiveList;
-import com.mylive.live.router.WebActivityStarter;
+import com.mylive.live.utils.DensityUtils;
 import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.Timer;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.LiveListViewModel;
 import com.mylive.live.widget.CarouselViewPager;
-import com.mylive.live.widget.PagingScrollHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Random;
 
 /**
  * Created by Developer Zailong Shi on 2019-07-01.
@@ -53,6 +52,7 @@ public class LiveListFeature extends BaseFeature {
     private LiveListAdapter liveListAdapter;
     private LoadMoreHelper loadMoreHelper;
     private int itemHeight;
+    private int pageIndex = 1;
 
     public LiveListFeature(FeaturesManagerOwner owner) {
         super(owner);
@@ -65,7 +65,7 @@ public class LiveListFeature extends BaseFeature {
         binding.refreshLayout.setRefreshing(true);
 //        PagingScrollHelper pagingScrollHelper = new PagingScrollHelper(6);
 //        pagingScrollHelper.attachToRecyclerView(binding.recyclerView);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
@@ -78,10 +78,21 @@ public class LiveListFeature extends BaseFeature {
         binding.recyclerView.setLayoutManager(gridLayoutManager);
         binding.recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
-            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View child,
                                        @NonNull RecyclerView parent,
                                        @NonNull RecyclerView.State state) {
-                outRect.set(35, 35, 35, 35);
+                final GridLayoutManager.SpanSizeLookup lookup = gridLayoutManager.getSpanSizeLookup();
+                final int spanCount = gridLayoutManager.getSpanCount();
+                final int space = DensityUtils.dp2px(getContext(), 10);
+                final int position = parent.getChildLayoutPosition(child);
+                final int groupIndex = lookup.getSpanGroupIndex(position, spanCount);
+                final int spanIndex = lookup.getSpanIndex(position, spanCount);
+                final int spanSize = lookup.getSpanSize(position);
+                final int top = groupIndex == 0 ? space : 0;
+                final int bottom = space;
+                final int left = spanIndex == 0 ? space : space / 2;
+                final int right = spanSize == spanCount ? space : spanIndex == 0 ? space / 2 : space;
+                outRect.set(left, top, right, bottom);
             }
         });
         binding.recyclerView.setAdapter(
@@ -102,9 +113,12 @@ public class LiveListFeature extends BaseFeature {
     private void loadData(boolean refresh) {
         if (!refresh) {
             binding.loadingView.setLoading(true);
+            pageIndex += 1;
+        } else {
+            pageIndex = 1;
         }
         Timer timer = Timer.start();
-        liveListViewModel.getLiveList(type, 60)
+        liveListViewModel.getLiveList(pageIndex, 20)
                 .observe(getLifecycleOwner(), liveList -> {
                     ThreadsScheduler.runOnUiThread(() -> {
                         if (refresh) {
@@ -198,19 +212,13 @@ public class LiveListFeature extends BaseFeature {
 //            ViewGroup.LayoutParams params = itemView.getLayoutParams();
 //            params.height = itemHeight;
 //            itemView.setLayoutParams(params);
-            binding.txtContent.setText(String.format(Locale.getDefault(),
-                    "%s-%d", item.desc, position));
+            ImageLoader.getInstance().display(binding.imgCover, item.cover);
+            binding.txtContent.setText(item.desc);
             binding.getRoot().setOnClickListener(v -> {
-                if (position < 3) {
-                    WebActivityStarter.create(Config.instance().homePage)
-                            .start(LiveListFeature.this);
-                }
                 if (onItemClickListener != null) {
                     onItemClickListener.onItemClick(position, item);
                 }
             });
-            int color = (int) (new Random().nextFloat() * 0xffffff) + 0xff000000;
-            binding.getRoot().setBackgroundColor(color);
         }
 
         public ItemViewHolder setOnItemClickListener(OnItemClickListener onItemClickListener) {
@@ -229,9 +237,13 @@ public class LiveListFeature extends BaseFeature {
         }
 
         private void onBindViewHolder(int position) {
-            List<String> banners = new ArrayList<>();
-            CarouselViewPager.Adapter adapter;
-            binding.viewPager.setAdapter(adapter = new CarouselViewPager.Adapter<CarouselViewPager.ViewHolder>() {
+            List<String> banners = Arrays.asList(
+                    "https://i0.hdslb.com/bfs/archive/d60ae7764ef61d862843d5d0fd0094778d2e9937.jpg@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/18c9a8bb1e2c5bf27a467f716bef60ba4e21f4e3.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/9a4892084bbc77f141f50139dc05651f020cbae8.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp"
+            );
+            binding.viewPager.setAdapter(new CarouselViewPager.Adapter<CarouselViewPager.ViewHolder>() {
                 @Override
                 public int getCount() {
                     return banners.size();
@@ -239,22 +251,20 @@ public class LiveListFeature extends BaseFeature {
 
                 @Override
                 protected CarouselViewPager.ViewHolder onCreateViewHolder(Context context) {
-                    TextView view = new TextView(context);
-                    view.setGravity(Gravity.CENTER);
+                    SimpleDraweeView view = new SimpleDraweeView(context);
+                    view.getHierarchy().setRoundingParams(RoundingParams.fromCornersRadius(
+                            DensityUtils.dp2px(context, 10.f)
+                    ));
                     return new CarouselViewPager.ViewHolder(view) {
                     };
                 }
 
                 @Override
                 protected void onBindViewHolder(CarouselViewPager.ViewHolder holder, int position) {
-                    ((TextView) holder.itemView).setText(banners.get(position));
-                    holder.itemView.setBackgroundColor((int) (0xff000000 + new Random().nextFloat() * 0xffffff));
+                    ImageLoader.getInstance().display((ImageView) holder.itemView,
+                            banners.get(position));
                 }
             });
-            for (int i = 0; i < 10; i++) {
-                banners.add("ad " + (1 + i));
-            }
-            adapter.notifyDataSetChanged();
             binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
         }
     }

@@ -5,8 +5,7 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
@@ -17,26 +16,62 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fitsSystemWindows="true"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                app:layout_scrollFlags="noScroll">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <View
-                        android:layout_width="50dp"
+                    <ImageView
+                        android:id="@+id/logo"
+                        android:layout_width="wrap_content"
                         android:layout_height="50dp"
-                        android:background="@mipmap/ic_launcher"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/ic_bilibili_logo_light"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="ContentDescription,RtlHardcoded" />
+
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/bg_edit_text_gray"
+                        android:drawableLeft="@drawable/ic_search"
+                        android:drawablePadding="5dp"
+                        android:hint="输入搜索关键词"
+                        android:imeOptions="actionSearch"
+                        android:inputType="textAutoComplete"
+                        android:maxLines="1"
+                        android:paddingLeft="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingRight="12dp"
+                        android:paddingBottom="6dp"
+                        android:textColor="#666"
+                        android:textColorHint="#aaa"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/logo"
+                        app:layout_constraintRight_toLeftOf="@id/img_avatar"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="Autofill,HardcodedText,RtlHardcoded" />
+
+                    <com.facebook.drawee.view.SimpleDraweeView
+                        android:id="@+id/img_avatar"
+                        android:layout_width="36dp"
+                        android:layout_height="0dp"
+                        android:layout_marginRight="10dp"
+                        app:actualImageResource="@drawable/ic_avatar3"
+                        app:actualImageScaleType="fitCenter"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintDimensionRatio="1"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:roundAsCircle="true"
+                        tools:ignore="RtlHardcoded" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tab_layout"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@color/colorWhite" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView

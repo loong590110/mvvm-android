@@ -7,15 +7,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/txt_content"
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/img_cover"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:gravity="center"
-            app:layout_constraintDimensionRatio="1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:actualImageScaleType="centerCrop"
+            app:layout_constraintDimensionRatio="3:2"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="item" />
+            app:placeholderImage="@drawable/img_default_avatar"
+            app:placeholderImageScaleType="centerCrop"
+            app:roundedCornerRadius="8dp" />
+
+        <TextView
+            android:id="@+id/txt_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3.5dp"
+            android:textColor="@color/contentTextColor"
+            android:textSize="14sp"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/img_cover"
+            tools:text="【1月】某科学的超电磁炮T 05【独家正版】" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

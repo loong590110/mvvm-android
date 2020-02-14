@@ -15,6 +15,8 @@ import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.event.TestEvent;
+import com.mylive.live.model.Config;
+import com.mylive.live.router.WebActivityStarter;
 import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.view.channel.ChannelFragment;
@@ -45,6 +47,9 @@ public class MainActivity extends BaseActivity {
         onThemeUpdate();
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.tabBar.tabLive.setOnClickListener(v -> {
+            WebActivityStarter.create(Config.instance().homePage).start(this);
+        });
         tabHost = TabHost.create()
                 .setAdapter(new TabHost.FragmentAdapter(getSupportFragmentManager(),
                         R.id.fragment_host) {
@@ -53,24 +58,16 @@ public class MainActivity extends BaseActivity {
                         Fragment fragment = null;
                         switch (tab.getId()) {
                             case R.id.tab_home:
-                                fragment = Fragment.instantiate(
-                                        MainActivity.this,
-                                        HomeFragment.class.getName());
+                                fragment = new HomeFragment();
                                 break;
                             case R.id.tab_channel:
-                                fragment = Fragment.instantiate(
-                                        MainActivity.this,
-                                        ChannelFragment.class.getName());
+                                fragment = new ChannelFragment();
                                 break;
                             case R.id.tab_news:
-                                fragment = Fragment.instantiate(
-                                        MainActivity.this,
-                                        NewsFragment.class.getName());
+                                fragment = new NewsFragment();
                                 break;
                             case R.id.tab_mine:
-                                fragment = Fragment.instantiate(
-                                        MainActivity.this,
-                                        MineFragment.class.getName());
+                                fragment = new MineFragment();
                                 break;
                         }
                         return fragment;

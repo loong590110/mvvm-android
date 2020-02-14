@@ -8,6 +8,9 @@ public class LiveList {
 
     public class LiveListItem {
         public long id;
+        public String cover;
         public String desc;
+        //local field
+        public float dimenRatio;
     }
 }

@@ -9,6 +9,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 /**
+ * 为了解决更换状态栏颜色造成闪烁的问题，所以使用此法
  * Create by zailongshi on 2019/7/28
  */
 public class StatusBarMaskView extends View {

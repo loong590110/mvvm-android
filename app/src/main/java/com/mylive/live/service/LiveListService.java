@@ -10,24 +10,14 @@ import retrofit2.http.Query;
 public interface LiveListService {
 
     /**
-     * @script
-     * //GET: {host}/api/livelist.js?desc_head={desc_head}&size={size}
-     * var list = [];
-     * for (let i = 0; i < size; i++) {
-     *     list.push({"desc":desc_head + '_item' + i, "id": i + 1});
-     * };
-     * var json = {
-     *     "code":200,
-     *     "message":"ok",
-     *     "data": {
-     *         "type":100,
-     *         "list": list
-     *     }
-     * };
-     * JSON.stringify(json);
-     * @param size
-     * @return
+     * GET: {host}/api/livelist.js?page_index={page_index}&page_size={page_size}
+     *
+     * @param pageIndex 页码
+     * @param pageSize  每页条数
+     * @return data list
      */
-    @GET("/pages/api/livelist.js?desc_head=live")
-    Observable<HttpResp<LiveList>> getLiveList(@Query("size") int size);
+    @GET("/pages/api/livelist.js")
+    Observable<HttpResp<LiveList>> getLiveList(
+            @Query("page_index") int pageIndex, @Query("page_size") int pageSize
+    );
 }

@@ -31,6 +31,14 @@ public class HomeTabFragment extends BaseFragment {
     @FieldMap("type")
     private int type;
 
+    public static HomeTabFragment newInstance(int type) {
+        HomeTabFragment fragment = new HomeTabFragment();
+        Bundle args = new Bundle();
+        args.putInt("type", type);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,

@@ -4,6 +4,8 @@ import android.app.Application;
 
 import com.mylive.live.arch.http.HttpConfigProvider;
 import com.mylive.live.config.HttpConfig;
+import com.mylive.live.imageloader.FrescoImageLoader;
+import com.mylive.live.imageloader.ImageLoader;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
 import com.mylive.live.ssl.SSLContextWrapper;
 
@@ -26,6 +28,7 @@ public class LiveApp extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        //init http config
         HttpConfigProvider.getConfig()
                 .setBaseUrl(HttpConfig.BASE_URL)
                 .setHttpClient(new OkHttpClient.Builder()
@@ -46,5 +49,7 @@ public class LiveApp extends Application {
                         )
                         .build())
                 .apply();
+        //init image loader
+        ImageLoader.getInstance().init(new FrescoImageLoader(this));
     }
 }

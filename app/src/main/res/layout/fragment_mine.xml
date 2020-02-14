@@ -8,6 +8,7 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_mine_header">
@@ -19,39 +20,74 @@
 
                 <androidx.appcompat.widget.Toolbar
                     android:layout_width="match_parent"
-                    android:layout_height="25dp"
+                    android:layout_height="65dp"
                     app:layout_collapseMode="pin" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <View
-                        android:id="@+id/img_avatar"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginStart="30dp"
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/avatar_decor"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
                         android:layout_marginLeft="30dp"
                         android:layout_marginTop="50dp"
-                        android:layout_marginBottom="25dp"
-                        android:background="@mipmap/ic_launcher"
-                        android:visibility="visible"
+                        android:layout_marginBottom="65dp"
+                        app:cardCornerRadius="40dp"
+                        app:cardElevation="4dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="RtlHardcoded">
+
+                        <com.facebook.drawee.view.SimpleDraweeView
+                            android:id="@+id/img_avatar"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            app:actualImageResource="@drawable/ic_avatar1"
+                            app:actualImageScaleType="centerCrop"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:roundAsCircle="true"
+                            app:roundingBorderColor="@color/backgroundColor"
+                            app:roundingBorderWidth="2dp"
+                            tools:ignore="RtlHardcoded" />
+                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:id="@+id/txt_nickname"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:text="昵称"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="20dp"
+                        android:text="取一个特长的昵称"
                         android:textColor="@color/colorWhite"
-                        android:textSize="16sp"
-                        app:layout_constraintBottom_toBottomOf="@id/img_avatar"
-                        app:layout_constraintStart_toEndOf="@id/img_avatar"
-                        app:layout_constraintTop_toTopOf="@id/img_avatar" />
+                        android:textSize="24sp"
+                        app:layout_constraintBottom_toBottomOf="@id/avatar_decor"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toEndOf="@id/avatar_decor"
+                        app:layout_constraintTop_toTopOf="@id/avatar_decor"
+                        app:layout_constraintVertical_bias="0.25"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
+
+                    <TextView
+                        android:id="@+id/txt_signature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:text="写一段有趣的签名"
+                        android:textColor="@color/backgroundBorderColor"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@id/avatar_decor"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toStartOf="@id/txt_nickname"
+                        app:layout_constraintTop_toBottomOf="@id/txt_nickname"
+                        app:layout_constraintVertical_bias="0.25"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
@@ -60,13 +96,525 @@
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/backgroundBorderColor"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:layout_marginBottom="25dp"
+                android:background="@color/backgroundColor"
+                android:orientation="vertical"
+                android:paddingLeft="20dp"
+                android:paddingTop="25dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="常用功能"
+                    android:textColor="@color/contentTextColor"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@color/backgroundBorderColor" />
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/mine_in_comm_use_button_height"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="我的收藏"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t3" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="优惠券"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t4" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="地址管理"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t5" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="购买人信息"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+                    </TableRow>
+
+                    <TableRow>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/mine_in_comm_use_button_height"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t11" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="电子票"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t13" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="电子票验真"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t15" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="年卡"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t17" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="主题信用卡"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+                    </TableRow>
+
+                    <TableRow>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/mine_in_comm_use_button_height"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t19" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="建议反馈"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t20" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="在线客服"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t21" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="魔力仓库"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t22" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="我的奖品"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+                    </TableRow>
+
+                    <TableRow>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/mine_in_comm_use_button_height"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="@dimen/mine_button_icon_size"
+                                android:layout_height="@dimen/mine_button_icon_size"
+                                android:src="@drawable/ic_category_t23" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginRight="2dp"
+                                android:layout_marginBottom="2.5dp"
+                                android:text="我的圈子"
+                                android:textColor="@color/contentTextColor"
+                                android:textSize="12sp"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+                        </LinearLayout>
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
         </androidx.core.widget.NestedScrollView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/func_card"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:layout_anchor="@id/app_bar_layout"
+            app:layout_anchorGravity="bottom">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/mine_button_icon_size"
+                        android:layout_height="@dimen/mine_button_icon_size"
+                        android:src="@drawable/img_all_orders" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="全部订单"
+                        android:textColor="@color/contentTextColor"
+                        android:textSize="12sp"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/mine_button_icon_size"
+                        android:layout_height="@dimen/mine_button_icon_size"
+                        android:src="@drawable/img_pending_payment" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="待付款"
+                        android:textColor="@color/contentTextColor"
+                        android:textSize="12sp"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/mine_button_icon_size"
+                        android:layout_height="@dimen/mine_button_icon_size"
+                        android:src="@drawable/img_suplement" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="待开补款"
+                        android:textColor="@color/contentTextColor"
+                        android:textSize="12sp"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/mine_button_icon_size"
+                        android:layout_height="@dimen/mine_button_icon_size"
+                        android:src="@drawable/img_received" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="待收货"
+                        android:textColor="@color/contentTextColor"
+                        android:textSize="12sp"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/mine_button_icon_size"
+                        android:layout_height="@dimen/mine_button_icon_size"
+                        android:src="@drawable/img_appraise" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="待评价"
+                        android:textColor="@color/contentTextColor"
+                        android:textSize="12sp"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

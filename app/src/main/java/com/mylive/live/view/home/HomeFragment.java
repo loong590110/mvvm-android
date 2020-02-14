@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.mylive.live.R;
 import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
+import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentHomeBinding;
 import com.mylive.live.model.HttpResp;
@@ -31,24 +32,29 @@ public class HomeFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        StatusBarCompat.getSettings(getActivity()).setLightMode(true).apply();
         return (binding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_home, container, false)
         ).getRoot();
     }
 
     @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        StatusBarCompat.getSettings(getActivity()).setLightMode(!hidden).apply();
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String[] tabs = {"直播", "推荐", "音乐", "影视", "科技", "游戏", "生活", "娱乐"};
+        final String[] tabs = {"首页", "动画", "番剧", "国创", "音乐", "电视剧", "纪录片", "科技", "游戏", "生活", "娱乐"};
         binding.tabLayout.setupWithViewPager(binding.viewPager);
-        binding.viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
+        binding.viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager(),
+                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+            @NonNull
             @Override
             public Fragment getItem(int position) {
-                Bundle args = new Bundle();
-                args.putInt("type", position);
-                return Fragment.instantiate(getContext(),
-                        HomeTabFragment.class.getName(),
-                        args);
+                return HomeTabFragment.newInstance(position);
             }
 
             @Override
