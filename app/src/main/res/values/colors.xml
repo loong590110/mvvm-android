@@ -4,10 +4,13 @@
     <color name="colorPrimaryDark">#A83D5D</color>
     <color name="colorAccent">#666666</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorLightGray">#ccc</color>
+    <color name="colorGray">#999</color>
+    <color name="colorDarkGray">#333</color>
     <color name="translucent">#7F000000</color>
     <color name="transparent">#00000000</color>
     <color name="backgroundColor">#fcfcfc</color>
     <color name="backgroundBorderColor">#f3f3f3</color>
-    <color name="titleTextColor">#333333</color>
+    <color name="titleTextColor">@color/colorDarkGray</color>
     <color name="contentTextColor">@color/colorAccent</color>
 </resources>
