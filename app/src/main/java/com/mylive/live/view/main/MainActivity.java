@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity {
         onThemeUpdate();
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        binding.tabBar.tabLive.setOnClickListener(v -> {
+        binding.tabBar.icoLive.setOnClickListener(v -> {
             WebActivityStarter.create(Config.instance().homePage).start(this);
         });
         tabHost = TabHost.create()
