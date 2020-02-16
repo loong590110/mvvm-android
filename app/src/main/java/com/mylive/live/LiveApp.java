@@ -50,6 +50,6 @@ public class LiveApp extends Application {
                         .build())
                 .apply();
         //init image loader
-        ImageLoader.getInstance().init(new FrescoImageLoader(this));
+        ImageLoader.init(new ImageLoader.Config(new FrescoImageLoader(this)));
     }
 }

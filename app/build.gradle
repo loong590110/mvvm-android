@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    buildToolsVersion "29.0.3"
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.mylive.live"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "0.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -28,7 +29,7 @@ android {
 
 dependencies {
     { viewModelArchitectureImplementations ->
-        implementation 'com.android.support:appcompat-v7:28.0.0'
+        implementation 'com.android.support:appcompat-v7:29.0.0'
         implementation 'android.arch.lifecycle:extensions:1.1.1'
         implementation 'com.squareup.retrofit2:retrofit:2.6.0'
         implementation 'com.squareup.retrofit2:converter-scalars:2.6.0'
