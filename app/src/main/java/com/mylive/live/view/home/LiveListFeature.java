@@ -27,6 +27,7 @@ import com.mylive.live.databinding.ItemBannerBinding;
 import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.imageloader.ImageLoader;
 import com.mylive.live.model.LiveList;
+import com.mylive.live.router.LiveRoomActivityStarter;
 import com.mylive.live.utils.DensityUtils;
 import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.Timer;
@@ -101,6 +102,7 @@ public class LiveListFeature extends BaseFeature {
 //                            pagingScrollHelper.setCurrentPageIndex(
 //                                    position / pagingScrollHelper.getPageSize()
 //                            );
+                            LiveRoomActivityStarter.create().start(this);
                         }
                 )
         );

@@ -24,6 +24,7 @@ import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.imageloader.ImageLoader;
 import com.mylive.live.model.HttpResp;
 import com.mylive.live.model.LiveList;
+import com.mylive.live.router.LiveRoomActivityStarter;
 import com.mylive.live.utils.DensityUtils;
 import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.ToastUtils;
@@ -73,6 +74,9 @@ public class NewsFragment extends BaseFragment {
                 outRect.set(0, position > 0 ? space : 0, 0, 0);
             }
         });
+        adapter.setOnItemClickListener((position, item) -> {
+            LiveRoomActivityStarter.create().start(this);
+        });
         loadMoreHelper = LoadMoreHelper.create(binding.recyclerView, true);
         loadMoreHelper.setOnLoadMoreListener(() -> loadData(false));
         loadData(true);
@@ -106,11 +110,14 @@ public class NewsFragment extends BaseFragment {
     private class LiveListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         private List<LiveList.LiveListItem> data;
+        private OnItemClickListener onItemClickListener;
 
         @NonNull
         @Override
         public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ItemViewHolder(parent);
+            return new ItemViewHolder(parent).setOnItemClickListener(
+                    onItemClickListener
+            );
         }
 
         @Override
@@ -134,6 +141,10 @@ public class NewsFragment extends BaseFragment {
             }
             this.data.addAll(data);
             notifyDataSetChanged();
+        }
+
+        public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+            this.onItemClickListener = onItemClickListener;
         }
     }
 
@@ -165,6 +176,11 @@ public class NewsFragment extends BaseFragment {
             binding.getRoot().setBackgroundResource(R.color.backgroundColor);
             final int space = DensityUtils.dp2px(getContext(), 10);
             binding.getRoot().setPadding(space, space, space, space);
+        }
+
+        public ItemViewHolder setOnItemClickListener(OnItemClickListener onItemClickListener) {
+            this.onItemClickListener = onItemClickListener;
+            return this;
         }
     }
 

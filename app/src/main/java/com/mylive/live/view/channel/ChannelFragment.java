@@ -24,6 +24,7 @@ import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.imageloader.ImageLoader;
 import com.mylive.live.model.HttpResp;
 import com.mylive.live.model.LiveList;
+import com.mylive.live.router.LiveRoomActivityStarter;
 import com.mylive.live.utils.DensityUtils;
 import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.ToastUtils;
@@ -75,6 +76,9 @@ public class ChannelFragment extends BaseFragment {
                 outRect.set(space, space * multiple, space, space * 2);
             }
         });
+        adapter.setOnItemClickListener((position, item) -> {
+            LiveRoomActivityStarter.create().start(this);
+        });
         loadMoreHelper = LoadMoreHelper.create(binding.recyclerView, true);
         loadMoreHelper.setOnLoadMoreListener(() -> loadData(false));
         loadData(true);
@@ -108,11 +112,14 @@ public class ChannelFragment extends BaseFragment {
     private class LiveListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
         private List<LiveList.LiveListItem> data;
+        private OnItemClickListener onItemClickListener;
 
         @NonNull
         @Override
         public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ItemViewHolder(parent);
+            return new ItemViewHolder(parent).setOnItemClickListener(
+                    onItemClickListener
+            );
         }
 
         @Override
@@ -136,6 +143,10 @@ public class ChannelFragment extends BaseFragment {
             }
             this.data.addAll(data);
             notifyDataSetChanged();
+        }
+
+        public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+            this.onItemClickListener = onItemClickListener;
         }
     }
 
@@ -164,6 +175,11 @@ public class ChannelFragment extends BaseFragment {
                     onItemClickListener.onItemClick(position, item);
                 }
             });
+        }
+
+        public ItemViewHolder setOnItemClickListener(OnItemClickListener onItemClickListener) {
+            this.onItemClickListener = onItemClickListener;
+            return this;
         }
     }
 
