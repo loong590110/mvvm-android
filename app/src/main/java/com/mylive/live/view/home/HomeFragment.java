@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.ScaleAnimation;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +48,7 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((ViewGroup)view).setClipChildren(false);
         final String[] tabs = {"首页", "动画", "番剧", "国创", "音乐", "电视剧", "纪录片", "科技", "游戏", "生活", "娱乐"};
         binding.tabLayout.setupWithViewPager(binding.viewPager);
         binding.viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager(),
@@ -67,6 +69,16 @@ public class HomeFragment extends BaseFragment {
             public CharSequence getPageTitle(int position) {
                 return tabs[position];
             }
+        });
+        ScaleAnimation scaleAnimation = new ScaleAnimation(
+                1, 1.5f, 1, 1.5f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f
+        );
+        scaleAnimation.setRepeatCount(5);
+        scaleAnimation.setDuration(300);
+        binding.btnNew.setOnClickListener(v -> {
+            v.startAnimation(scaleAnimation);
         });
     }
 

@@ -91,8 +91,8 @@ public class LiveListFeature extends BaseFeature {
                 final int spanSize = lookup.getSpanSize(position);
                 final int top = groupIndex == 0 ? space : 0;
                 final int bottom = space;
-                final int left = spanIndex == 0 ? space : space / 2;
-                final int right = spanSize == spanCount ? space : spanIndex == 0 ? space / 2 : space;
+                final int left = position == 0 ? 0 : spanIndex == 0 ? space : space / 2;
+                final int right = position == 0 ? 0 : spanSize == spanCount ? space : spanIndex == 0 ? space / 2 : space;
                 outRect.set(left, top, right, bottom);
             }
         });
@@ -243,6 +243,16 @@ public class LiveListFeature extends BaseFeature {
                     "https://i0.hdslb.com/bfs/archive/d60ae7764ef61d862843d5d0fd0094778d2e9937.jpg@480w_300h.webp",
                     "https://i0.hdslb.com/bfs/archive/18c9a8bb1e2c5bf27a467f716bef60ba4e21f4e3.png@480w_300h.webp",
                     "https://i0.hdslb.com/bfs/archive/9a4892084bbc77f141f50139dc05651f020cbae8.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
                     "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp"
             );
             binding.viewPager.setAdapter(new CarouselViewPager.Adapter<CarouselViewPager.ViewHolder>() {

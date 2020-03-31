@@ -20,7 +20,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:background="@color/backgroundColor">
 
                     <ImageView
@@ -107,5 +107,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/backgroundColor" />
+
+        <FrameLayout
+            android:id="@+id/float_view"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="60dp">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_new"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:src="@drawable/ic_bilibili_logo_light"
+                app:backgroundTint="@color/colorPrimary" />
+        </FrameLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

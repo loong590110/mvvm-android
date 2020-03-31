@@ -6,15 +6,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipChildren="false"
         android:fitsSystemWindows="true">
 
         <com.mylive.live.widget.NavigationBar
             android:id="@+id/navigation_bar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:translationZ="1000dp"
             tools:title="网页标题" />
 
         <WebView
