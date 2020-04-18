@@ -2,7 +2,9 @@ package com.mylive.live.view.room;
 
 import androidx.lifecycle.ViewModelProviders;
 import androidx.databinding.DataBindingUtil;
+
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 
 import com.mylive.live.R;
@@ -31,6 +33,9 @@ public class LiveRoomActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_live_room);
         liveRoomViewModel = ViewModelProviders.of(this).get(LiveRoomViewModel.class);
+        binding.btnLogin.setOnClickListener(v -> {
+            LoginActivityStarter.create().start(this);
+        });
         binding.btnSend.setOnClickListener(v -> {
             publish(msg++ % 2 == 0 ? "hello" : msg);
             if (msg % 3 == 0) {
@@ -44,8 +49,11 @@ public class LiveRoomActivity extends BaseActivity {
                 binding.txtStatue.setText(String.valueOf(config));
             });
         });
-        binding.btnLogin.setOnClickListener(v -> {
-            LoginActivityStarter.create().start(this);
+        binding.btnOpen.setOnClickListener(v -> {
+            new GiftsDialogFragment.Builder().build().show(
+                    getSupportFragmentManager(),
+                    "dialog_gift"
+            );
         });
     }
 }
