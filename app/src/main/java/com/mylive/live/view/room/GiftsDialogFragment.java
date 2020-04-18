@@ -70,5 +70,6 @@ public class GiftsDialogFragment extends BottomSheetDialogFragment {
                 return "Tab " + (position + 1);
             }
         });
+        binding.viewPager.setOffscreenPageLimit(binding.viewPager.getAdapter().getCount());
     }
 }

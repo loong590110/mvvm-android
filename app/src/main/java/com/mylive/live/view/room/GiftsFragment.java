@@ -17,6 +17,8 @@ import com.mylive.live.R;
 import com.mylive.live.databinding.FragmentGiftsBinding;
 import com.mylive.live.recyclerview.PagingScrollHelper;
 
+import java.util.Random;
+
 /**
  * Created by Developer Zailong Shi on 2020/4/18.
  */
@@ -52,7 +54,6 @@ public class GiftsFragment extends Fragment {
                 textView.setLayoutParams(new ViewGroup.LayoutParams(
                         screenWidth / 4, ViewGroup.LayoutParams.MATCH_PARENT
                 ));
-                textView.setBackgroundColor(0xff445566);
                 return new RecyclerView.ViewHolder(textView) {
                 };
             }
@@ -60,6 +61,7 @@ public class GiftsFragment extends Fragment {
             @Override
             public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
                 ((TextView) holder.itemView).setText("gift " + (position + 1));
+                holder.itemView.setBackgroundColor(0xff000000 + new Random().nextInt());
             }
 
             @Override
