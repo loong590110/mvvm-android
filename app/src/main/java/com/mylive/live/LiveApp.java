@@ -2,6 +2,7 @@ package com.mylive.live;
 
 import android.app.Application;
 
+import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.mylive.live.arch.http.HttpConfigProvider;
 import com.mylive.live.config.HttpConfig;
 import com.mylive.live.imageloader.FrescoImageLoader;
@@ -46,6 +47,9 @@ public class LiveApp extends Application {
                         )
                         .addInterceptor(
                                 HttpInterceptorsManager.getHttpResponseInterceptor()
+                        )
+                        .addInterceptor(
+                                HttpInterceptorsManager.getHttpProfilerInterceptor()
                         )
                         .build())
                 .apply();
