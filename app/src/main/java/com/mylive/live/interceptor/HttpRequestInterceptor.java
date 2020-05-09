@@ -17,6 +17,7 @@ public class HttpRequestInterceptor implements Interceptor {
 
     private Request rebuildRequest(Request request) {
         return new Request.Builder()
+                .header("User-Agent", "PostmanRuntime/7.21.0")
                 .method(request.method(), request.body())
                 .url(request.url())
                 .build();

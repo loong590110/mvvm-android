@@ -34,6 +34,7 @@ import com.mylive.live.utils.Timer;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.LiveListViewModel;
 import com.mylive.live.widget.CarouselViewPager;
+import com.mylive.live.widget.MarqueeViewPager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -278,6 +279,7 @@ public class LiveListFeature extends BaseFeature {
                 }
             });
             binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
+            new MarqueeViewPager(getContext());
         }
     }
 

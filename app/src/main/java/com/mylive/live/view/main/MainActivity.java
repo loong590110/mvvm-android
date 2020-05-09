@@ -55,22 +55,18 @@ public class MainActivity extends BaseActivity {
                         R.id.fragment_host) {
                     @Override
                     public Fragment getFragment(View tab) {
-                        Fragment fragment = null;
                         switch (tab.getId()) {
                             case R.id.tab_home:
-                                fragment = new HomeFragment();
-                                break;
+                                return new HomeFragment();
                             case R.id.tab_channel:
-                                fragment = new ChannelFragment();
-                                break;
+                                return new ChannelFragment();
                             case R.id.tab_news:
-                                fragment = new NewsFragment();
-                                break;
+                                return new NewsFragment();
                             case R.id.tab_mine:
-                                fragment = new MineFragment();
-                                break;
+                                return new MineFragment();
+                            default:
+                                return null;
                         }
-                        return fragment;
                     }
                 })
                 .setTabs(binding.tabBar.tabHome,
