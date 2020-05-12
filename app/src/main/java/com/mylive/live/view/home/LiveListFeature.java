@@ -2,6 +2,7 @@ package com.mylive.live.view.home;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -12,7 +13,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
+import com.facebook.common.util.UriUtil;
 import com.facebook.drawee.generic.RoundingParams;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.mylive.live.R;
@@ -23,6 +26,7 @@ import com.mylive.live.arch.thread.ThreadsScheduler;
 import com.mylive.live.base.BaseFeature;
 import com.mylive.live.base.BaseViewHolder;
 import com.mylive.live.databinding.FragmentHomeTabBinding;
+import com.mylive.live.databinding.ItemAvatarBinding;
 import com.mylive.live.databinding.ItemBannerBinding;
 import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.imageloader.ImageLoader;
@@ -35,6 +39,8 @@ import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.LiveListViewModel;
 import com.mylive.live.widget.CarouselViewPager;
 import com.mylive.live.widget.MarqueeViewPager;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -274,12 +280,65 @@ public class LiveListFeature extends BaseFeature {
 
                 @Override
                 protected void onBindViewHolder(CarouselViewPager.ViewHolder holder, int position) {
-                    ImageLoader.getInstance().display((ImageView) holder.itemView,
-                            banners.get(position));
+                    ImageLoader.getInstance().display(
+                            (ImageView) holder.itemView, banners.get(position)
+                    );
+                }
+            });
+            binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    binding.marqueeViewPager.setCurrentPosition(
+                            position % binding.marqueeViewPager.getAdapter().getItemCount()
+                    );
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
                 }
             });
             binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
-            new MarqueeViewPager(getContext());
+            binding.marqueeViewPager.setAdapter(new MarqueeViewPager.Adapter<AvatarViewHolder>() {
+                private String[] avatars = {
+                        UriUtil.getUriForResourceId(R.drawable.ic_avatar1).toString(),
+                        UriUtil.getUriForResourceId(R.drawable.ic_avatar2).toString(),
+                        UriUtil.getUriForResourceId(R.drawable.ic_avatar3).toString(),
+                        UriUtil.getUriForResourceId(R.drawable.ic_avatar7).toString()
+                };
+
+                @NotNull
+                @Override
+                public AvatarViewHolder onCreateViewHolder(@NotNull ViewGroup parent) {
+                    return new AvatarViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+                            R.layout.item_avatar, parent, false
+                    ));
+                }
+
+                @Override
+                public void onBindViewHolder(@NotNull AvatarViewHolder holder, int position) {
+                    ImageLoader.getInstance().display(holder.binding.imgAvatar, avatars[position]);
+                }
+
+                @Override
+                public int getItemCount() {
+                    return avatars.length;
+                }
+            });
+        }
+
+        class AvatarViewHolder extends MarqueeViewPager.ViewHolder {
+            private ItemAvatarBinding binding;
+
+            AvatarViewHolder(@NotNull View itemView) {
+                super(itemView);
+                binding = DataBindingUtil.bind(itemView);
+            }
         }
     }
 

@@ -22,6 +22,7 @@
             tools:background="@color/backgroundBorderColor" />
 
         <com.mylive.live.widget.MarqueeViewPager
+            android:id="@+id/marquee_view_pager"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:layout_marginEnd="20dp"
