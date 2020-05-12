@@ -22,41 +22,65 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     private var viewHolders: Array<ViewHolder>? = null
     private var adapter: Adapter<*>? = null
 
+    var radius: Int = 0
+        set(value) {
+            field = if (value < 0) 0 else value
+            updateLayout()
+        }
+
+    var depth: Float = 0.5f
+        set(value) {
+            field = when {
+                value < 0f -> 0f
+                value > 1f -> 1f
+                else -> value
+            }
+            updateLayout()
+        }
+
     var currentPosition: Int = -1
         set(value) {
             adapter?.apply {
                 val itemCount = getItemCount()
-                var new = value
-                if (new < 0) {
-                    new = 0
-                } else if (new >= itemCount) {
-                    new = itemCount - 1
+                var newPosition = value
+                if (newPosition < 0) {
+                    newPosition = 0
+                } else if (newPosition >= itemCount) {
+                    newPosition = itemCount - 1
                 }
-                field = new
+                field = newPosition
                 createViewHolders(this@MarqueeViewPager)
-                bindViewHolders(field, itemCount)
+                bindViewHolders(newPosition, itemCount)
             }
         }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
+        updateLayout()
+    }
+
+    private fun updateLayout() {
         viewHolders?.forEach {
             it.apply {
                 when (location) {
                     Location.BEHIND -> itemView.apply {
                         translationX = 0f
-                        scaleX = 0.5f
-                        scaleY = 0.5f
+                        scaleX = depth
+                        scaleY = depth
                     }
                     Location.LEFT -> itemView.apply {
-                        translationX = -1f * measuredWidth * 0.7f
-                        scaleX = 0.75f
-                        scaleY = 0.75f
+                        val scale = depth + (1f - depth) / 2
+                        val trans = if (radius == 0) -.9f * measuredWidth * scale else -1f * radius
+                        translationX = trans
+                        scaleX = scale
+                        scaleY = scale
                     }
                     Location.RIGHT -> itemView.apply {
-                        translationX = 1f * measuredWidth * 0.7f
-                        scaleX = 0.75f
-                        scaleY = 0.75f
+                        val scale = depth + (1f - depth) / 2
+                        val trans = if (radius == 0) .9f * measuredWidth * scale else 1f * radius
+                        translationX = trans
+                        scaleX = scale
+                        scaleY = scale
                     }
                     Location.FRONT -> itemView.apply {
                         translationX = 0f
