@@ -312,6 +312,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                             }
                         }
                         parent.viewHolders = viewHolders
+                        parent.removeAllViews()
                         viewHolders!!.forEach {
                             it.apply {
                                 makeLayoutParams(parent, this)
