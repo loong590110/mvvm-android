@@ -48,12 +48,13 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((ViewGroup)view).setClipChildren(false);
+        ((ViewGroup) view).setClipChildren(false);
         binding.edtSearch.clearFocus();
-        final String[] tabs = {"首页", "动画", "番剧", "国创", "音乐", "电视剧", "纪录片", "科技", "游戏", "生活", "娱乐"};
         binding.tabLayout.setupWithViewPager(binding.viewPager);
         binding.viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager(),
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+            private final String[] tabs = {"首页", "动画", "番剧", "国创", "音乐", "电视剧", "纪录片", "科技", "游戏", "生活", "娱乐"};
+
             @NonNull
             @Override
             public Fragment getItem(int position) {

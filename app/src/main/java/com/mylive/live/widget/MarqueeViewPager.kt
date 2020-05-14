@@ -59,6 +59,9 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
      */
     var animatorDuration: Long = 500
 
+    /**
+     * 切换过程回调，提供用户定制切换运动轨迹等
+     */
     var onLayoutUpdateCallback: OnLayoutUpdateCallback? = null
 
     private var currentPosition: Int = -1
@@ -242,21 +245,23 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
 
     fun <T : ViewHolder> setAdapter(adapter: Adapter<T>) {
         if (this.adapter != adapter) {
-            adapter.registerObserver(object : DataSetObserver() {
-                override fun onInvalidated() {
-                    onChanged()
-                }
-
-                override fun onChanged() {
-                    viewHolders?.forEach {
-                        it.position = -1
+            this.adapter?.unregisterAll()
+            this.adapter = adapter.apply {
+                registerObserver(object : DataSetObserver() {
+                    override fun onInvalidated() {
+                        onChanged()
                     }
-                    currentPosition = 0
-                }
-            })
+
+                    override fun onChanged() {
+                        viewHolders?.forEach {
+                            it.position = -1
+                        }
+                        currentPosition = 0
+                    }
+                })
+                notifyChanged()
+            }
         }
-        adapter.notifyChanged()
-        this.adapter = adapter
     }
 
     /**

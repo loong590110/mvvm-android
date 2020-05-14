@@ -43,7 +43,6 @@ import com.mylive.live.widget.MarqueeViewPager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -246,95 +245,93 @@ public class LiveListFeature extends BaseFeature {
         }
 
         private void onBindViewHolder(int position) {
-            List<String> banners = Arrays.asList(
-                    "https://i0.hdslb.com/bfs/archive/d60ae7764ef61d862843d5d0fd0094778d2e9937.jpg@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/18c9a8bb1e2c5bf27a467f716bef60ba4e21f4e3.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/9a4892084bbc77f141f50139dc05651f020cbae8.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
-                    "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp"
-            );
-            binding.viewPager.setAdapter(new CarouselViewPager.Adapter<CarouselViewPager.ViewHolder>() {
-                @Override
-                public int getCount() {
-                    return banners.size();
-                }
-
-                @Override
-                protected CarouselViewPager.ViewHolder onCreateViewHolder(Context context) {
-                    SimpleDraweeView view = new SimpleDraweeView(context);
-                    view.getHierarchy().setRoundingParams(RoundingParams.fromCornersRadius(
-                            DensityUtils.dp2px(context, 10.f)
-                    ));
-                    return new CarouselViewPager.ViewHolder(view) {
+            if (binding.viewPager.getAdapter() == null) {
+                binding.viewPager.setAdapter(new CarouselViewPager.Adapter<CarouselViewPager.ViewHolder>() {
+                    String[] banners = {
+                            "https://i0.hdslb.com/bfs/archive/d60ae7764ef61d862843d5d0fd0094778d2e9937.jpg@480w_300h.webp",
+                            "https://i0.hdslb.com/bfs/archive/18c9a8bb1e2c5bf27a467f716bef60ba4e21f4e3.png@480w_300h.webp",
+                            "https://i0.hdslb.com/bfs/archive/9a4892084bbc77f141f50139dc05651f020cbae8.png@480w_300h.webp",
+                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp"
                     };
-                }
 
-                @Override
-                protected void onBindViewHolder(CarouselViewPager.ViewHolder holder, int position) {
-                    ImageLoader.getInstance().display(
-                            (ImageView) holder.itemView, banners.get(position)
-                    );
-                }
-            });
-            binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                private float positionOffset;
-
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    if (this.positionOffset == -1f) {
-                        this.positionOffset = positionOffset;
+                    @Override
+                    public int getCount() {
+                        return banners.length;
                     }
-                }
 
-                @Override
-                public void onPageSelected(int position) {
-                    binding.marqueeViewPager.setCurrentItem(
-                            position % binding.marqueeViewPager.getAdapter().getItemCount()
-                    );
-                    positionOffset = -1f;
-                }
+                    @Override
+                    protected CarouselViewPager.ViewHolder onCreateViewHolder(Context context) {
+                        SimpleDraweeView view = new SimpleDraweeView(context);
+                        view.getHierarchy().setRoundingParams(RoundingParams.fromCornersRadius(
+                                DensityUtils.dp2px(context, 10.f)
+                        ));
+                        return new CarouselViewPager.ViewHolder(view) {
+                        };
+                    }
 
-                @Override
-                public void onPageScrollStateChanged(int state) {
+                    @Override
+                    protected void onBindViewHolder(CarouselViewPager.ViewHolder holder, int position) {
+                        ImageLoader.getInstance().display(
+                                (ImageView) holder.itemView, banners[position]
+                        );
+                    }
+                });
+                binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                    @Override
+                    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    }
 
-                }
-            });
-            binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
-            binding.marqueeViewPager.setAdapter(new MarqueeViewPager.Adapter<AvatarViewHolder>() {
-                private String[] avatars = {
-                        UriUtil.getUriForResourceId(R.drawable.ic_avatar1).toString(),
-                        UriUtil.getUriForResourceId(R.drawable.ic_avatar2).toString(),
-                        UriUtil.getUriForResourceId(R.drawable.ic_avatar3).toString(),
-                        UriUtil.getUriForResourceId(R.drawable.ic_avatar7).toString()
-                };
+                    @Override
+                    public void onPageSelected(int position) {
+                        binding.marqueeViewPager.setCurrentItem(
+                                position % binding.marqueeViewPager.getAdapter().getItemCount()
+                        );
+                    }
 
-                @NotNull
-                @Override
-                public AvatarViewHolder onCreateViewHolder(@NotNull ViewGroup parent) {
-                    return new AvatarViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                            R.layout.item_avatar, parent, false
-                    ));
-                }
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
+                    }
+                });
+                binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
+            }
+            if (binding.marqueeViewPager.getAdapter() == null) {
+                binding.marqueeViewPager.setAdapter(new MarqueeViewPager.Adapter<AvatarViewHolder>() {
+                    private String[] avatars = {
+                            UriUtil.getUriForResourceId(R.drawable.ic_avatar1).toString(),
+                            UriUtil.getUriForResourceId(R.drawable.ic_avatar2).toString(),
+                            UriUtil.getUriForResourceId(R.drawable.ic_avatar3).toString(),
+                            UriUtil.getUriForResourceId(R.drawable.ic_avatar7).toString()
+                    };
 
-                @Override
-                public void onBindViewHolder(@NotNull AvatarViewHolder holder, int position) {
-                    ImageLoader.getInstance().display(holder.binding.imgAvatar, avatars[position]);
-                }
+                    @NotNull
+                    @Override
+                    public AvatarViewHolder onCreateViewHolder(@NotNull ViewGroup parent) {
+                        return new AvatarViewHolder(LayoutInflater.from(parent.getContext()).inflate(
+                                R.layout.item_avatar, parent, false
+                        ));
+                    }
 
-                @Override
-                public int getItemCount() {
-                    return avatars.length;
-                }
-            });
+                    @Override
+                    public void onBindViewHolder(@NotNull AvatarViewHolder holder, int position) {
+                        ImageLoader.getInstance().display(holder.binding.imgAvatar, avatars[position]);
+                    }
+
+                    @Override
+                    public int getItemCount() {
+                        return avatars.length;
+                    }
+                });
+            }
         }
 
         class AvatarViewHolder extends MarqueeViewPager.ViewHolder {

@@ -42,6 +42,8 @@
                         android:background="@drawable/bg_edit_text_gray"
                         android:drawableLeft="@drawable/ic_search"
                         android:drawablePadding="5dp"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
                         android:hint="输入搜索关键词"
                         android:imeOptions="actionSearch"
                         android:inputType="textAutoComplete"
