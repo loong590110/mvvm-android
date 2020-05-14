@@ -286,21 +286,21 @@ public class LiveListFeature extends BaseFeature {
                 }
             });
             binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                private boolean next;
+                private float positionOffset;
 
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    if (positionOffset != 0) {
-                        next = positionOffset > 0f;
+                    if (this.positionOffset == -1f) {
+                        this.positionOffset = positionOffset;
                     }
                 }
 
                 @Override
                 public void onPageSelected(int position) {
                     binding.marqueeViewPager.setCurrentItem(
-                            position % binding.marqueeViewPager.getAdapter().getItemCount(),
-                            next ? MarqueeViewPager.Direction.FORWARD : MarqueeViewPager.Direction.BACKWARD
+                            position % binding.marqueeViewPager.getAdapter().getItemCount()
                     );
+                    positionOffset = -1f;
                 }
 
                 @Override

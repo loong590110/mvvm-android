@@ -5,7 +5,6 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.database.DataSetObservable
 import android.database.DataSetObserver
-import android.graphics.Canvas
 import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
@@ -23,10 +22,15 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
+    init {
+        isChildrenDrawingOrderEnabled = true
+    }
+
     private var viewHolders: Array<ViewHolder>? = null
     private var adapter: Adapter<*>? = null
     private var animator: Animator? = null
     private var direction: Direction = Direction.AUTO
+    private var directionForOrder: Direction? = null
 
     /**
      * 圆的半径（子视图分布在该圆上），范围值大于等于0，默认值是0
@@ -49,6 +53,13 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
             }
             updateLayout(0)
         }
+
+    /**
+     * 切换动画执行时长
+     */
+    var animatorDuration: Long = 500
+
+    var onLayoutUpdateCallback: OnLayoutUpdateCallback? = null
 
     private var currentPosition: Int = -1
         set(value) {
@@ -89,33 +100,33 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                         }
                     }
                     else -> this@MarqueeViewPager.direction
-                }.apply Direction@{
+                }.apply direction@{
                     viewHolders?.forEach {
                         it.apply {
                             when (location) {
                                 Location.FRONT -> {
-                                    location = if (this@Direction == Direction.FORWARD) {
+                                    location = if (this@direction == Direction.FORWARD) {
                                         Location.LEFT
                                     } else {
                                         Location.RIGHT
                                     }
                                 }
                                 Location.LEFT -> {
-                                    location = if (this@Direction == Direction.FORWARD) {
+                                    location = if (this@direction == Direction.FORWARD) {
                                         Location.BEHIND
                                     } else {
                                         Location.FRONT
                                     }
                                 }
                                 Location.BEHIND -> {
-                                    location = if (this@Direction == Direction.FORWARD) {
+                                    location = if (this@direction == Direction.FORWARD) {
                                         Location.RIGHT
                                     } else {
                                         Location.LEFT
                                     }
                                 }
                                 Location.RIGHT -> {
-                                    location = if (this@Direction == Direction.FORWARD) {
+                                    location = if (this@direction == Direction.FORWARD) {
                                         Location.FRONT
                                     } else {
                                         Location.BEHIND
@@ -133,9 +144,11 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                             val angle = it.animatedValue
                             updateLayout(angle as Int)
                         }
-                        duration = 500
+                        duration = animatorDuration
                         start()
                     }
+                    directionForOrder = this@direction
+                    postInvalidate()
                 }
             }
         }
@@ -148,8 +161,33 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
         }
     }
 
-    override fun drawChild(canvas: Canvas?, child: View?, drawingTime: Long): Boolean {
-        return super.drawChild(canvas, child, drawingTime)
+    override fun getChildDrawingOrder(childCount: Int, drawingPosition: Int): Int {
+        adapter?.apply {
+            if (getItemCount() <= 1) {
+                return drawingPosition
+            }
+        }
+        return viewHolders?.let { all ->
+            when (drawingPosition) {
+                0 -> indexOfChild(all.find { it.location == Location.BEHIND }!!.itemView)
+                1 -> {
+                    if (directionForOrder == Direction.BACKWARD) {
+                        indexOfChild(all.find { it.location == Location.LEFT }!!.itemView)
+                    } else {
+                        indexOfChild(all.find { it.location == Location.RIGHT }!!.itemView)
+                    }
+                }
+                2 -> {
+                    if (directionForOrder == Direction.BACKWARD) {
+                        indexOfChild(all.find { it.location == Location.RIGHT }!!.itemView)
+                    } else {
+                        indexOfChild(all.find { it.location == Location.LEFT }!!.itemView)
+                    }
+                }
+                3 -> indexOfChild(all.find { it.location == Location.FRONT }!!.itemView)
+                else -> drawingPosition
+            }
+        } ?: drawingPosition
     }
 
     private fun updateLayout(angle: Int) {
@@ -157,25 +195,19 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
             it.apply {
                 val ratio = 1f * angle / 90
                 val halfOfDepth = (1f - depth) / 2
-                val radius = when (radius) {
+                val radius: Int = when (radius) {
                     0 -> .9f * itemView.measuredWidth * (depth + halfOfDepth)
                     else -> 1f * radius
-                }
+                }.toInt()
                 when (location) {
                     Location.BEHIND -> itemView.apply {
                         translationX = -1 * ratio * radius
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            translationZ = 0f
-                        }
                         scaleX = depth + halfOfDepth * abs(ratio)
                         scaleY = scaleX
-                        alpha = abs(ratio)
+                        alpha = 1f//abs(ratio)
                     }
                     Location.LEFT -> itemView.apply {
                         translationX = -radius * (1f - abs(ratio))
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            translationZ = 1f
-                        }
                         scaleX = when {
                             (ratio > 0) -> 1 - halfOfDepth * (1f - ratio)
                             else -> depth + (halfOfDepth * (1f + ratio))
@@ -185,26 +217,21 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                     }
                     Location.RIGHT -> itemView.apply {
                         translationX = radius * (1f - abs(ratio))
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            translationZ = 1f
-                        }
                         scaleX = when {
-                            (ratio > 0) -> depth + (halfOfDepth * (1f + ratio))
-                            else -> 1f - halfOfDepth * (1f - ratio)
+                            (ratio > 0) -> depth + (halfOfDepth * (1f - ratio))
+                            else -> 1f - halfOfDepth * (1f + ratio)
                         }
                         scaleY = scaleX
                         alpha = if (adapter!!.getItemCount() <= 1) 0f else 1f
                     }
                     Location.FRONT -> itemView.apply {
                         translationX = radius * ratio
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            translationZ = 2f
-                        }
                         scaleX = 1f - halfOfDepth * abs(ratio)
                         scaleY = scaleX
                         alpha = 1f
                     }
                 }
+                onLayoutUpdateCallback?.onUpdate(this, radius, angle)
             }
         }
     }
@@ -269,8 +296,8 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     /**
      * 切换到指定子视图
      */
-    fun setCurrentItem(position: Int, direction: Direction = Direction.AUTO) {
-        this.direction = direction
+    fun setCurrentItem(position: Int) {
+        direction = Direction.AUTO
         currentPosition = position
     }
 
@@ -340,7 +367,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                         }
                         Location.LEFT -> {
                             if (itemCount <= 1) {
-                                return
+                                return@apply
                             }
                             var leftPosition = currentPosition - 1
                             if (leftPosition < 0) {
@@ -352,7 +379,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                         }
                         Location.RIGHT -> {
                             if (itemCount <= 1) {
-                                return
+                                return@apply
                             }
                             var rightPosition = currentPosition + 1
                             if (rightPosition >= itemCount) {
@@ -426,5 +453,9 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     //视图切换方向：向后、自动、向前
     enum class Direction {
         BACKWARD, AUTO, FORWARD
+    }
+
+    interface OnLayoutUpdateCallback {
+        fun onUpdate(holder: ViewHolder, radius: Int, angle: Int)
     }
 }

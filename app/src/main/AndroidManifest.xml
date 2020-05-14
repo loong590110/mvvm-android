@@ -27,7 +27,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.main.MainActivity" />
+        <activity
+            android:name=".view.main.MainActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".view.room.LiveRoomActivity" />
         <activity android:name=".view.login.LoginActivity" />
         <activity
