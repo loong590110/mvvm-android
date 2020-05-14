@@ -196,6 +196,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     private fun updateLayout(angle: Int) {
         viewHolders?.forEach {
             it.apply {
+                val depth = depth
                 val ratio = 1f * angle / 90
                 val halfOfDepth = (1f - depth) / 2
                 val radius: Int = when (radius) {
@@ -234,7 +235,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                         alpha = 1f
                     }
                 }
-                onLayoutUpdateCallback?.onUpdate(this, radius, angle)
+                onLayoutUpdateCallback?.onUpdate(this, radius, depth, angle)
             }
         }
     }
@@ -461,6 +462,6 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     }
 
     interface OnLayoutUpdateCallback {
-        fun onUpdate(holder: ViewHolder, radius: Int, angle: Int)
+        fun onUpdate(holder: ViewHolder, radius: Int, depth: Float, angle: Int)
     }
 }
