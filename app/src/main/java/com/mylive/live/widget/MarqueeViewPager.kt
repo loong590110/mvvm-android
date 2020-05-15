@@ -95,12 +95,14 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                     //视图切换方向是自动时，计算出向前和向后的间隔，哪个方向更近选哪个
                     Direction.AUTO -> {
                         if (position < currentPosition) {
-                            if (currentPosition - position < position + (itemCount - currentPosition))
+                            if (currentPosition - position
+                                    <= position + (itemCount - currentPosition))
                                 Direction.FORWARD
                             else
                                 Direction.BACKWARD
                         } else {
-                            if (position - currentPosition < currentPosition + (itemCount - position))
+                            if (position - currentPosition
+                                    <= currentPosition + (itemCount - position))
                                 Direction.BACKWARD
                             else
                                 Direction.FORWARD
