@@ -29,7 +29,6 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="10dp"
             app:layout_constraintBottom_toBottomOf="@id/view_pager"
-            app:layout_constraintRight_toRightOf="@id/view_pager"
-            tools:background="@color/colorPrimary" />
+            app:layout_constraintRight_toRightOf="@id/view_pager" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

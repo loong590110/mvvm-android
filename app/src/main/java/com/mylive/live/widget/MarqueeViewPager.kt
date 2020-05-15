@@ -5,6 +5,8 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.database.DataSetObservable
 import android.database.DataSetObserver
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
@@ -25,6 +27,8 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     init {
         isChildrenDrawingOrderEnabled = true
     }
+
+    private val paint = Paint().apply { isAntiAlias = true }
 
     private var viewHolders: Array<ViewHolder>? = null
     private var adapter: Adapter<*>? = null
@@ -161,6 +165,34 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
         super.onLayout(changed, left, top, right, bottom)
         if (animator == null || !animator!!.isRunning) {
             updateLayout(0)
+        }
+    }
+
+    override fun dispatchDraw(canvas: Canvas?) {
+        super.dispatchDraw(canvas)
+        true.equals(isInEditMode) {
+            0.equals(childCount) {
+                canvas!!.apply {
+                    drawCircle(
+                            .9f * -.75f * measuredHeight + 1f * measuredWidth / 2,
+                            1f * measuredHeight / 2,
+                            .75f * measuredHeight / 2,
+                            paint.apply { color = 0xff666666.toInt() }
+                    )
+                    drawCircle(
+                            .9f * .75f * measuredHeight + 1f * measuredWidth / 2,
+                            1f * measuredHeight / 2,
+                            .75f * measuredHeight / 2,
+                            paint.apply { color = 0xff666666.toInt() }
+                    )
+                    drawCircle(
+                            1f * measuredWidth / 2,
+                            1f * measuredHeight / 2,
+                            1f * measuredHeight / 2,
+                            paint.apply { color = 0xff999999.toInt() }
+                    )
+                }
+            }
         }
     }
 
@@ -463,5 +495,11 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
 
     interface OnLayoutUpdateCallback {
         fun onUpdate(holder: ViewHolder, radius: Int, depth: Float, angle: Int)
+    }
+}
+
+fun <T> T.equals(other: T, doWhenEquals: () -> Unit) {
+    if (other == this) {
+        doWhenEquals()
     }
 }
