@@ -287,19 +287,29 @@ public class LiveListFeature extends BaseFeature {
                     }
                 });
                 binding.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                    private int state;
+
                     @Override
                     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                     }
 
                     @Override
                     public void onPageSelected(int position) {
-                        binding.marqueeViewPager.setCurrentItem(
-                                position % binding.marqueeViewPager.getAdapter().getItemCount()
-                        );
+                        final int itemCount = binding.marqueeViewPager.getAdapter().getItemCount();
+                        if (itemCount == 2 && position == 0
+                                && state != ViewPager.SCROLL_STATE_DRAGGING) {
+                            binding.marqueeViewPager.forward();
+                        } else {
+                            binding.marqueeViewPager.setCurrentItem(position % itemCount);
+                        }
                     }
 
                     @Override
                     public void onPageScrollStateChanged(int state) {
+                        if (state == ViewPager.SCROLL_STATE_DRAGGING
+                                || state == ViewPager.SCROLL_STATE_IDLE) {
+                            this.state = state;
+                        }
                     }
                 });
                 binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
