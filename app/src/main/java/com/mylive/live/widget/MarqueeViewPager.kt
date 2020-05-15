@@ -172,28 +172,26 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
 
     override fun dispatchDraw(canvas: Canvas?) {
         super.dispatchDraw(canvas)
-        true.equals(isInEditMode) {
-            0.equals(childCount) {
-                canvas!!.apply {
-                    drawCircle(
-                            .9f * -.75f * measuredHeight + 1f * measuredWidth / 2,
-                            1f * measuredHeight / 2,
-                            .75f * measuredHeight / 2,
-                            paint.apply { color = 0xff666666.toInt() }
-                    )
-                    drawCircle(
-                            .9f * .75f * measuredHeight + 1f * measuredWidth / 2,
-                            1f * measuredHeight / 2,
-                            .75f * measuredHeight / 2,
-                            paint.apply { color = 0xff666666.toInt() }
-                    )
-                    drawCircle(
-                            1f * measuredWidth / 2,
-                            1f * measuredHeight / 2,
-                            1f * measuredHeight / 2,
-                            paint.apply { color = 0xff999999.toInt() }
-                    )
-                }
+        isInEditMode.and(0 == childCount) {
+            canvas!!.apply {
+                drawCircle(
+                        .9f * -.75f * measuredHeight + 1f * measuredWidth / 2,
+                        1f * measuredHeight / 2,
+                        .75f * measuredHeight / 2,
+                        paint.apply { color = 0xff666666.toInt() }
+                )
+                drawCircle(
+                        .9f * .75f * measuredHeight + 1f * measuredWidth / 2,
+                        1f * measuredHeight / 2,
+                        .75f * measuredHeight / 2,
+                        paint.apply { color = 0xff666666.toInt() }
+                )
+                drawCircle(
+                        1f * measuredWidth / 2,
+                        1f * measuredHeight / 2,
+                        1f * measuredHeight / 2,
+                        paint.apply { color = 0xff999999.toInt() }
+                )
             }
         }
     }
@@ -247,7 +245,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                     Location.LEFT -> itemView.apply {
                         translationX = -radius * (1f - abs(ratio))
                         scaleX = when {
-                            (ratio > 0) -> 1 - halfOfDepth * (1f - ratio)
+                            ratio > 0 -> 1 - halfOfDepth * (1f - ratio)
                             else -> depth + (halfOfDepth * (1f + ratio))
                         }
                         scaleY = scaleX
@@ -256,7 +254,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                     Location.RIGHT -> itemView.apply {
                         translationX = radius * (1f - abs(ratio))
                         scaleX = when {
-                            (ratio > 0) -> depth + (halfOfDepth * (1f - ratio))
+                            ratio > 0 -> depth + (halfOfDepth * (1f - ratio))
                             else -> 1f - halfOfDepth * (1f + ratio)
                         }
                         scaleY = scaleX
@@ -503,5 +501,17 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
 fun <T> T.equals(other: T, doWhenEquals: () -> Unit) {
     if (other == this) {
         doWhenEquals()
+    }
+}
+
+fun Boolean.and(other: Boolean, doOnBothTrue: () -> Unit) {
+    if (this && other) {
+        doOnBothTrue()
+    }
+}
+
+fun Boolean.or(other: Boolean, doOnAnyTrue: () -> Unit) {
+    if (this || other) {
+        doOnAnyTrue()
     }
 }
