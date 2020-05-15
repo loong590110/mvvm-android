@@ -303,15 +303,15 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
      *  切换到上一个视图
      */
     fun backward() {
-        var prev = currentPosition - 1
-        if (prev < 0) {
-            adapter?.apply {
-                val itemCount = getItemCount()
-                if (itemCount > 1) {
+        adapter?.apply {
+            val itemCount = getItemCount()
+            if (itemCount > 1) {
+                var prev = currentPosition - 1
+                if (prev < 0) {
                     prev = itemCount - 1
-                    direction = Direction.BACKWARD
-                    currentPosition = prev
                 }
+                direction = Direction.BACKWARD
+                currentPosition = prev
             }
         }
     }
