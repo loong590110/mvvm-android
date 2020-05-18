@@ -72,20 +72,18 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
         set(value) {
             adapter?.apply {
                 val itemCount = getItemCount()
-                var newPosition = value
-                if (newPosition < 0) {
-                    newPosition = 0
-                } else if (newPosition >= itemCount) {
-                    newPosition = itemCount - 1
+                field = when {
+                    value < 0 -> 0
+                    value >= itemCount -> itemCount - 1
+                    else -> value
                 }
-                field = newPosition
                 createViewHolders(this@MarqueeViewPager)
-                createAnimatorIfNeed(newPosition, itemCount)
-                bindViewHolders(newPosition, itemCount)
+                createAnimatorIfNeeded(field, itemCount)
+                bindViewHolders(field, itemCount)
             }
         }
 
-    private fun createAnimatorIfNeed(currentPosition: Int, itemCount: Int) {
+    private fun createAnimatorIfNeeded(currentPosition: Int, itemCount: Int) {
         if (itemCount <= 1) {
             return
         }
@@ -147,7 +145,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                     animator?.end()
                     animator = ValueAnimator.ofInt(
                             //向前切换视图，即视图向左滚动，从90度到0；否则从-90度到0
-                            if (this == Direction.FORWARD) 90 else -90, 0
+                            if (this@direction == Direction.FORWARD) 90 else -90, 0
                     ).apply {
                         addUpdateListener {
                             val angle = it.animatedValue
@@ -498,20 +496,8 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     }
 }
 
-fun <T> T.equals(other: T, doWhenEquals: () -> Unit) {
-    if (other == this) {
-        doWhenEquals()
-    }
-}
-
-fun Boolean.and(other: Boolean, doOnBothTrue: () -> Unit) {
+inline fun Boolean.and(other: Boolean, block: () -> Unit) {
     if (this && other) {
-        doOnBothTrue()
-    }
-}
-
-fun Boolean.or(other: Boolean, doOnAnyTrue: () -> Unit) {
-    if (this || other) {
-        doOnAnyTrue()
+        block()
     }
 }
