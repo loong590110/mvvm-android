@@ -42,7 +42,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     var radius: Int = 0
         set(value) {
             field = if (value < 0) 0 else value
-            updateLayout(0)
+            updateLayout()
         }
 
     /**
@@ -55,7 +55,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                 value > 1f -> 1f
                 else -> value
             }
-            updateLayout(0)
+            updateLayout()
         }
 
     /**
@@ -164,7 +164,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (animator == null || !animator!!.isRunning) {
-            updateLayout(0)
+            updateLayout()
         }
     }
 
@@ -223,7 +223,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
         } ?: drawingPosition
     }
 
-    private fun updateLayout(angle: Int) {
+    private fun updateLayout(angle: Int = 0) {
         viewHolders?.forEach {
             it.apply {
                 val depth = depth
