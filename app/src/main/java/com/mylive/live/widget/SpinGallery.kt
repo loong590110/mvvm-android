@@ -24,11 +24,14 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
+    private var paint: Paint? = null
+
     init {
         isChildrenDrawingOrderEnabled = true
+        if (isInEditMode) {
+            paint = Paint().apply { isAntiAlias = true }
+        }
     }
-
-    private val paint = Paint().apply { isAntiAlias = true }
 
     private var viewHolders: Array<ViewHolder>? = null
     private var adapter: Adapter<*>? = null
@@ -176,19 +179,19 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                         .9f * -.75f * measuredHeight + 1f * measuredWidth / 2,
                         1f * measuredHeight / 2,
                         .75f * measuredHeight / 2,
-                        paint.apply { color = 0xff666666.toInt() }
+                        paint!!.apply { color = 0xff666666.toInt() }
                 )
                 drawCircle(
                         .9f * .75f * measuredHeight + 1f * measuredWidth / 2,
                         1f * measuredHeight / 2,
                         .75f * measuredHeight / 2,
-                        paint.apply { color = 0xff666666.toInt() }
+                        paint!!.apply { color = 0xff666666.toInt() }
                 )
                 drawCircle(
                         1f * measuredWidth / 2,
                         1f * measuredHeight / 2,
                         1f * measuredHeight / 2,
-                        paint.apply { color = 0xff999999.toInt() }
+                        paint!!.apply { color = 0xff999999.toInt() }
                 )
             }
         }
