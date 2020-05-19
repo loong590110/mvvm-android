@@ -37,7 +37,6 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     private var adapter: Adapter<*>? = null
     private var animator: Animator? = null
     private var direction: Direction = Direction.AUTO
-    private var directionForOrder: Direction? = null
 
     /**
      * 圆的半径（子视图分布在该圆上），范围值大于等于0，默认值是0
@@ -69,7 +68,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     /**
      * 切换过程回调，提供用户定制切换运动轨迹等
      */
-    var onLayoutUpdateCallback: OnLayoutUpdateCallback? = null
+    var onLayoutUpdateCallback: ((holder: ViewHolder, radius: Int, depth: Float, angle: Int) -> Unit)? = null
 
     private var currentPosition: Int = -1
         set(value) {
@@ -90,7 +89,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         if (itemCount <= 1) {
             return
         }
-        viewHolders?.find { it.location == Location.FRONT }?.apply {
+        viewHolders?.last { it.location == Location.FRONT }?.apply {
             if (position != -1 && position != currentPosition) {
                 when (this@SpinGallery.direction) {
                     //视图切换方向是自动时，计算出向前和向后的间隔，哪个方向更近选哪个
@@ -111,54 +110,39 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                     }
                     else -> this@SpinGallery.direction
                 }.apply direction@{
-                    viewHolders?.forEach {
-                        it.apply {
-                            when (location) {
-                                Location.FRONT -> {
-                                    location = if (this@direction == Direction.FORWARD) {
-                                        Location.LEFT
-                                    } else {
-                                        Location.RIGHT
-                                    }
+                    viewHolders!!.forEach {
+                        if (this@direction == Direction.BACKWARD) {
+                            it.location--
+                        } else {
+                            it.location++
+                        }
+                    }.also {
+                        viewHolders!!.sortWith(Comparator { o1, o2 ->
+                            when {
+                                //切换到上一个视图的情况，左、右视图的绘制顺序相反
+                                o1.location.isLeftOrRight && o2.location.isLeftOrRight
+                                        && this@direction == Direction.BACKWARD -> {
+                                    o2.location - o1.location
                                 }
-                                Location.LEFT -> {
-                                    location = if (this@direction == Direction.FORWARD) {
-                                        Location.BEHIND
-                                    } else {
-                                        Location.FRONT
-                                    }
-                                }
-                                Location.BEHIND -> {
-                                    location = if (this@direction == Direction.FORWARD) {
-                                        Location.RIGHT
-                                    } else {
-                                        Location.LEFT
-                                    }
-                                }
-                                Location.RIGHT -> {
-                                    location = if (this@direction == Direction.FORWARD) {
-                                        Location.FRONT
-                                    } else {
-                                        Location.BEHIND
-                                    }
-                                }
+                                else -> o1.location - o2.location
                             }
+                        }).also {
+                            postInvalidate()
+                        }
+                    }.also {
+                        animator?.end()
+                        animator = ValueAnimator.ofInt(
+                                //向前切换视图，即视图向左滚动，从90度到0；否则从-90度到0
+                                if (this@direction == Direction.FORWARD) 90 else -90, 0
+                        ).apply {
+                            addUpdateListener {
+                                val angle = it.animatedValue
+                                updateLayout(angle as Int)
+                            }
+                            duration = animatorDuration
+                            start()
                         }
                     }
-                    animator?.end()
-                    animator = ValueAnimator.ofInt(
-                            //向前切换视图，即视图向左滚动，从90度到0；否则从-90度到0
-                            if (this@direction == Direction.FORWARD) 90 else -90, 0
-                    ).apply {
-                        addUpdateListener {
-                            val angle = it.animatedValue
-                            updateLayout(angle as Int)
-                        }
-                        duration = animatorDuration
-                        start()
-                    }
-                    directionForOrder = this@direction
-                    postInvalidate()
                 }
             }
         }
@@ -198,32 +182,8 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     }
 
     override fun getChildDrawingOrder(childCount: Int, drawingPosition: Int): Int {
-        adapter?.apply {
-            if (getItemCount() <= 1) {
-                return drawingPosition
-            }
-        }
-        return viewHolders?.let { all ->
-            when (drawingPosition) {
-                0 -> indexOfChild(all.find { it.location == Location.BEHIND }!!.itemView)
-                1 -> {
-                    if (directionForOrder == Direction.BACKWARD) {
-                        indexOfChild(all.find { it.location == Location.LEFT }!!.itemView)
-                    } else {
-                        indexOfChild(all.find { it.location == Location.RIGHT }!!.itemView)
-                    }
-                }
-                2 -> {
-                    if (directionForOrder == Direction.BACKWARD) {
-                        indexOfChild(all.find { it.location == Location.RIGHT }!!.itemView)
-                    } else {
-                        indexOfChild(all.find { it.location == Location.LEFT }!!.itemView)
-                    }
-                }
-                3 -> indexOfChild(all.find { it.location == Location.FRONT }!!.itemView)
-                else -> drawingPosition
-            }
-        } ?: drawingPosition
+        adapter?.run { if (getItemCount() <= 1) return drawingPosition }
+        return viewHolders?.let { indexOfChild(it[drawingPosition].itemView) } ?: drawingPosition
     }
 
     private fun updateLayout(angle: Int = 0) {
@@ -268,7 +228,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                         alpha = 1f
                     }
                 }
-                onLayoutUpdateCallback?.onUpdate(this, radius, depth, angle)
+                onLayoutUpdateCallback?.invoke(this, radius, depth, angle)
             }
         }
     }
@@ -371,8 +331,8 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                             onCreateViewHolder(parent).apply {
                                 when (it) {
                                     0 -> location = Location.BEHIND
-                                    1 -> location = Location.LEFT
-                                    2 -> location = Location.RIGHT
+                                    1 -> location = Location.RIGHT
+                                    2 -> location = Location.LEFT
                                     3 -> location = Location.FRONT
                                 }
                             }
@@ -481,21 +441,42 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
 
     open class ViewHolder(val itemView: View) {
         var position: Int = -1
-        var location: Location? = null
+        var location: Location = Location.FRONT
     }
 
-    //子视图方位：左、右、前、后
-    enum class Location {
-        LEFT, RIGHT, FRONT, BEHIND
+    //子视图方位：前、后、左、右
+    enum class Location(private val value: Int) {
+        FRONT(3), BEHIND(0), LEFT(2), RIGHT(1);
+
+        val isLeftOrRight: Boolean
+            get() = this == LEFT || this == RIGHT
+
+        operator fun inc(): Location {
+            return when (this) {
+                LEFT -> BEHIND
+                BEHIND -> RIGHT
+                RIGHT -> FRONT
+                FRONT -> LEFT
+            }
+        }
+
+        operator fun dec(): Location {
+            return when (this) {
+                LEFT -> FRONT
+                FRONT -> RIGHT
+                RIGHT -> BEHIND
+                BEHIND -> LEFT
+            }
+        }
+
+        operator fun minus(other: Location): Int {
+            return value - other.value
+        }
     }
 
     //视图切换方向：向后、自动、向前
     enum class Direction {
         BACKWARD, AUTO, FORWARD
-    }
-
-    interface OnLayoutUpdateCallback {
-        fun onUpdate(holder: ViewHolder, radius: Int, depth: Float, angle: Int)
     }
 }
 
