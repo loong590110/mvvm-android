@@ -38,7 +38,7 @@ import com.mylive.live.utils.Timer;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.LiveListViewModel;
 import com.mylive.live.widget.CarouselViewPager;
-import com.mylive.live.widget.MarqueeViewPager;
+import com.mylive.live.widget.SpinGallery;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -315,7 +315,7 @@ public class LiveListFeature extends BaseFeature {
                 binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
             }
             if (binding.marqueeViewPager.getAdapter() == null) {
-                binding.marqueeViewPager.setAdapter(new MarqueeViewPager.Adapter<AvatarViewHolder>() {
+                binding.marqueeViewPager.setAdapter(new SpinGallery.Adapter<AvatarViewHolder>() {
                     private String[] avatars = {
                             UriUtil.getUriForResourceId(R.drawable.ic_avatar1).toString(),
                             UriUtil.getUriForResourceId(R.drawable.ic_avatar2).toString(),
@@ -344,7 +344,7 @@ public class LiveListFeature extends BaseFeature {
             }
         }
 
-        class AvatarViewHolder extends MarqueeViewPager.ViewHolder {
+        class AvatarViewHolder extends SpinGallery.ViewHolder {
             private ItemAvatarBinding binding;
 
             AvatarViewHolder(@NotNull View itemView) {

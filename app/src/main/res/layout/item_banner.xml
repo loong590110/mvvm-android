@@ -21,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:background="@color/backgroundBorderColor" />
 
-        <com.mylive.live.widget.MarqueeViewPager
+        <com.mylive.live.widget.SpinGallery
             android:id="@+id/marquee_view_pager"
             android:layout_width="100dp"
             android:layout_height="40dp"

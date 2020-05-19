@@ -19,7 +19,7 @@ import kotlin.math.abs
 /**
  * Created by Developer Zailong Shi on 2020/5/9.
  */
-class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
+class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     : FrameLayout(context, attrs, defStyleAttr) {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
@@ -77,7 +77,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                     value >= itemCount -> itemCount - 1
                     else -> value
                 }
-                createViewHolders(this@MarqueeViewPager)
+                createViewHolders(this@SpinGallery)
                 createAnimatorIfNeeded(field, itemCount)
                 bindViewHolders(field, itemCount)
             }
@@ -89,7 +89,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
         }
         viewHolders?.find { it.location == Location.FRONT }?.apply {
             if (position != -1 && position != currentPosition) {
-                when (this@MarqueeViewPager.direction) {
+                when (this@SpinGallery.direction) {
                     //视图切换方向是自动时，计算出向前和向后的间隔，哪个方向更近选哪个
                     Direction.AUTO -> {
                         if (position < currentPosition) {
@@ -106,7 +106,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
                                 Direction.FORWARD
                         }
                     }
-                    else -> this@MarqueeViewPager.direction
+                    else -> this@SpinGallery.direction
                 }.apply direction@{
                     viewHolders?.forEach {
                         it.apply {
@@ -360,7 +360,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
         private val lock = Any()
         private var viewHolders: Array<ViewHolder>? = null
 
-        internal fun createViewHolders(parent: MarqueeViewPager) {
+        internal fun createViewHolders(parent: SpinGallery) {
             if (viewHolders == null) {
                 synchronized(lock) {
                     if (viewHolders == null) {
@@ -439,7 +439,7 @@ class MarqueeViewPager(context: Context, attrs: AttributeSet?, defStyleAttr: Int
             viewHolder.position = position
         }
 
-        private fun makeLayoutParams(parent: MarqueeViewPager, viewHolder: ViewHolder) {
+        private fun makeLayoutParams(parent: SpinGallery, viewHolder: ViewHolder) {
             if (viewHolder.itemView.layoutParams == null) {
                 viewHolder.itemView.layoutParams = parent.generateDefaultLayoutParams()
             } else if (viewHolder.itemView.layoutParams is FrameLayout.LayoutParams) {
