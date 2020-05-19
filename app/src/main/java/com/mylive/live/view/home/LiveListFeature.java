@@ -250,8 +250,8 @@ public class LiveListFeature extends BaseFeature {
                     String[] banners = {
                             "https://i0.hdslb.com/bfs/archive/d60ae7764ef61d862843d5d0fd0094778d2e9937.jpg@480w_300h.webp",
                             "https://i0.hdslb.com/bfs/archive/18c9a8bb1e2c5bf27a467f716bef60ba4e21f4e3.png@480w_300h.webp",
-//                            "https://i0.hdslb.com/bfs/archive/9a4892084bbc77f141f50139dc05651f020cbae8.png@480w_300h.webp",
-//                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
+                            "https://i0.hdslb.com/bfs/archive/9a4892084bbc77f141f50139dc05651f020cbae8.png@480w_300h.webp",
+                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
 //                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
 //                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
 //                            "https://i0.hdslb.com/bfs/archive/c5c918d385205afd646bcc2ca8e978765d34991f.png@480w_300h.webp",
@@ -295,12 +295,12 @@ public class LiveListFeature extends BaseFeature {
 
                     @Override
                     public void onPageSelected(int position) {
-                        final int itemCount = binding.marqueeViewPager.getAdapter().getItemCount();
+                        final int itemCount = binding.spinGallery.getAdapter().getItemCount();
                         if (itemCount == 2 && position == 0
                                 && state != ViewPager.SCROLL_STATE_DRAGGING) {
-                            binding.marqueeViewPager.forward();
+                            binding.spinGallery.forward();
                         } else {
-                            binding.marqueeViewPager.setCurrentItem(position % itemCount);
+                            binding.spinGallery.setCurrentItem(position % itemCount);
                         }
                     }
 
@@ -314,13 +314,13 @@ public class LiveListFeature extends BaseFeature {
                 });
                 binding.viewPager.setInterval(3000).setAnimationDuration(500).play();
             }
-            if (binding.marqueeViewPager.getAdapter() == null) {
-                binding.marqueeViewPager.setAdapter(new SpinGallery.Adapter<AvatarViewHolder>() {
+            if (binding.spinGallery.getAdapter() == null) {
+                binding.spinGallery.setAdapter(new SpinGallery.Adapter<AvatarViewHolder>() {
                     private String[] avatars = {
                             UriUtil.getUriForResourceId(R.drawable.ic_avatar1).toString(),
                             UriUtil.getUriForResourceId(R.drawable.ic_avatar2).toString(),
-//                            UriUtil.getUriForResourceId(R.drawable.ic_avatar3).toString(),
-//                            UriUtil.getUriForResourceId(R.drawable.ic_avatar7).toString()
+                            UriUtil.getUriForResourceId(R.drawable.ic_avatar3).toString(),
+                            UriUtil.getUriForResourceId(R.drawable.ic_avatar7).toString()
                     };
 
                     @NotNull

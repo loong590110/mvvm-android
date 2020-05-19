@@ -182,7 +182,6 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     }
 
     override fun getChildDrawingOrder(childCount: Int, drawingPosition: Int): Int {
-        adapter?.run { if (getItemCount() <= 1) return drawingPosition }
         return viewHolders?.let { indexOfChild(it[drawingPosition].itemView) } ?: drawingPosition
     }
 
@@ -240,7 +239,8 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     fun <T : ViewHolder> setAdapter(adapter: Adapter<T>) {
         if (this.adapter != adapter) {
             this.adapter?.unregisterAll()
-            this.adapter = adapter.apply {
+            this.adapter = adapter//先赋值再通知更新
+            this.adapter!!.apply {
                 registerObserver(object : DataSetObserver() {
                     override fun onInvalidated() {
                         onChanged()
