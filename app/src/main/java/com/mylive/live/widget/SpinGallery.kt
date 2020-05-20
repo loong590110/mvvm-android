@@ -181,9 +181,8 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         }
     }
 
-    override fun getChildDrawingOrder(childCount: Int, drawingPosition: Int): Int {
-        return viewHolders?.let { indexOfChild(it[drawingPosition].itemView) } ?: drawingPosition
-    }
+    override fun getChildDrawingOrder(childCount: Int, drawingPosition: Int): Int =
+            viewHolders?.let { indexOfChild(it[drawingPosition].itemView) } ?: drawingPosition
 
     private fun updateLayout(angle: Int = 0) {
         viewHolders?.forEach {
