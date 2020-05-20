@@ -30,6 +30,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         isChildrenDrawingOrderEnabled = true
         if (isInEditMode) {
             paint = Paint().apply { isAntiAlias = true }
+            setWillNotDraw(false)
         }
     }
 
@@ -155,8 +156,8 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         }
     }
 
-    override fun dispatchDraw(canvas: Canvas?) {
-        super.dispatchDraw(canvas)
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
         isInEditMode.and(0 == childCount) {
             canvas!!.apply {
                 drawCircle(
@@ -479,8 +480,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     }
 }
 
-inline fun Boolean.and(other: Boolean, block: () -> Unit) {
-    if (this && other) {
-        block()
-    }
+inline fun Boolean.and(other: Boolean, block: () -> Unit) = when {
+    this && other -> block()
+    else -> Unit
 }
