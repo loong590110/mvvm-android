@@ -90,58 +90,61 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         if (itemCount <= 1) {
             return
         }
-        viewHolders?.last { it.location == Location.FRONT }?.apply {
-            if (position != -1 && position != currentPosition) {
-                when (this@SpinGallery.direction) {
-                    //视图切换方向是自动时，计算出向前和向后的间隔，哪个方向更近选哪个
-                    Direction.AUTO -> {
-                        if (position < currentPosition) {
-                            if (currentPosition - position
-                                    <= position + (itemCount - currentPosition))
-                                Direction.FORWARD
-                            else
-                                Direction.BACKWARD
-                        } else {
-                            if (position - currentPosition
-                                    <= currentPosition + (itemCount - position))
-                                Direction.BACKWARD
-                            else
-                                Direction.FORWARD
-                        }
-                    }
-                    else -> this@SpinGallery.direction
-                }.apply direction@{
-                    viewHolders!!.forEach {
-                        if (this@direction == Direction.BACKWARD) {
-                            it.location--
-                        } else {
-                            it.location++
-                        }
-                    }.also {
-                        viewHolders!!.sortWith(Comparator { o1, o2 ->
-                            when {
-                                //切换到上一个视图的情况，左、右视图的绘制顺序相反
-                                o1.location.isLeftOrRight && o2.location.isLeftOrRight
-                                        && this@direction == Direction.BACKWARD -> {
-                                    o2.location - o1.location
+        viewHolders?.apply {
+            last { it.location == Location.FRONT }.apply {
+                if (position != -1 && position != currentPosition) {
+                    when (this@SpinGallery.direction) {
+                        //视图切换方向是自动时，计算出向前和向后的间隔，哪个方向更近选哪个
+                        Direction.AUTO -> {
+                            if (position < currentPosition) {
+                                if (currentPosition - position
+                                        <= position + (itemCount - currentPosition)) {
+                                    Direction.FORWARD
+                                } else {
+                                    Direction.BACKWARD
                                 }
-                                else -> o1.location - o2.location
+                            } else {
+                                if (position - currentPosition
+                                        <= currentPosition + (itemCount - position)) {
+                                    Direction.BACKWARD
+                                } else {
+                                    Direction.FORWARD
+                                }
                             }
-                        }).also {
-                            postInvalidate()
                         }
-                    }.also {
-                        animator?.end()
-                        animator = ValueAnimator.ofInt(
-                                //向前切换视图，即视图向左滚动，从90度到0；否则从-90度到0
-                                if (this@direction == Direction.FORWARD) 90 else -90, 0
-                        ).apply {
-                            addUpdateListener {
-                                val angle = it.animatedValue
-                                updateLayout(angle as Int)
+                        else -> this@SpinGallery.direction
+                    }.apply direction@{
+                        forEach {
+                            when (Direction.BACKWARD) {
+                                this@direction -> it.location--
+                                else -> it.location++
                             }
-                            duration = animatorDuration
-                            start()
+                        }.also {
+                            sortWith(Comparator { o1, o2 ->
+                                when {
+                                    //切换到上一个视图的情况，左、右视图的绘制顺序相反
+                                    o1.location.isLeftOrRight && o2.location.isLeftOrRight
+                                            && this@direction == Direction.BACKWARD -> {
+                                        o2.location - o1.location
+                                    }
+                                    else -> o1.location - o2.location
+                                }
+                            }).also {
+                                postInvalidate()
+                            }
+                        }.also {
+                            animator?.end()
+                            animator = ValueAnimator.ofInt(
+                                    //向前切换视图，即视图向左滚动，从90度到0；否则从-90度到0
+                                    if (this@direction == Direction.FORWARD) 90 else -90, 0
+                            ).apply {
+                                addUpdateListener {
+                                    val angle = it.animatedValue
+                                    updateLayout(angle as Int)
+                                }
+                                duration = animatorDuration
+                                start()
+                            }
                         }
                     }
                 }
@@ -327,7 +330,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             if (viewHolders == null) {
                 synchronized(lock) {
                     if (viewHolders == null) {
-                        viewHolders = Array(4) {
+                        viewHolders = Array<ViewHolder>(4) {
                             onCreateViewHolder(parent).apply {
                                 when (it) {
                                     0 -> location = Location.BEHIND
@@ -336,17 +339,18 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                                     3 -> location = Location.FRONT
                                 }
                             }
-                        }
-                        parent.viewHolders = viewHolders
-                        parent.removeAllViews()
-                        viewHolders!!.forEach {
-                            it.apply {
-                                makeLayoutParams(parent, this)
-                                if (itemView.parent == null) {
-                                    parent.addView(itemView)
-                                } else if (itemView.parent != parent) {
-                                    (itemView.parent as ViewGroup).removeView(itemView)
-                                    parent.addView(itemView)
+                        }.apply {
+                            parent.viewHolders = this
+                            parent.removeAllViews()
+                            forEach {
+                                it.apply {
+                                    makeLayoutParams(parent, this)
+                                    if (itemView.parent == null) {
+                                        parent.addView(itemView)
+                                    } else if (itemView.parent != parent) {
+                                        (itemView.parent as ViewGroup).removeView(itemView)
+                                        parent.addView(itemView)
+                                    }
                                 }
                             }
                         }
@@ -448,8 +452,10 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     enum class Location(private val value: Int) {
         FRONT(3), BEHIND(0), LEFT(2), RIGHT(1);
 
-        val isLeftOrRight: Boolean
-            get() = this == LEFT || this == RIGHT
+        val isLeftOrRight: Boolean get() = this == LEFT || this == RIGHT
+        operator fun minus(other: Location): Int {
+            return value - other.value
+        }
 
         operator fun inc(): Location {
             return when (this) {
@@ -467,10 +473,6 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                 RIGHT -> BEHIND
                 BEHIND -> LEFT
             }
-        }
-
-        operator fun minus(other: Location): Int {
-            return value - other.value
         }
     }
 
