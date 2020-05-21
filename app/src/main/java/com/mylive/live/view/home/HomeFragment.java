@@ -8,11 +8,9 @@ import android.view.animation.ScaleAnimation;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.mylive.live.R;
 import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.arch.theme.StatusBarCompat;
@@ -26,7 +24,7 @@ import com.mylive.live.model.HttpResp;
 public class HomeFragment extends BaseFragment {
 
     @FieldMap("binding")
-    FragmentHomeBinding binding;
+    private FragmentHomeBinding binding;
 
     @Nullable
     @Override
@@ -34,9 +32,9 @@ public class HomeFragment extends BaseFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         StatusBarCompat.getSettings(getActivity()).setLightMode(true).apply();
-        return (binding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_home, container, false)
-        ).getRoot();
+        return (binding = FragmentHomeBinding.inflate(
+                inflater, container, false
+        )).getRoot();
     }
 
     @Override

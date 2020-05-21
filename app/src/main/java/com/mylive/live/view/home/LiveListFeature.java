@@ -25,6 +25,7 @@ import com.mylive.live.arch.feature.FeaturesManagerOwner;
 import com.mylive.live.arch.thread.ThreadsScheduler;
 import com.mylive.live.base.BaseFeature;
 import com.mylive.live.base.BaseViewHolder;
+import com.mylive.live.base.BindingViewHolder;
 import com.mylive.live.databinding.FragmentHomeTabBinding;
 import com.mylive.live.databinding.ItemAvatarBinding;
 import com.mylive.live.databinding.ItemBannerBinding;
@@ -146,15 +147,15 @@ public class LiveListFeature extends BaseFeature {
                 });
     }
 
-    private class LiveListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
+    private class LiveListAdapter extends RecyclerView.Adapter<BindingViewHolder> {
 
-        private final int VIEW_TYPE_NORMAL = 0, VIEW_TYPE_BANNER = 1;
+        private static final int VIEW_TYPE_NORMAL = 0, VIEW_TYPE_BANNER = 1;
         private List<LiveList.LiveListItem> data;
         private OnItemClickListener onItemClickListener;
 
         @NonNull
         @Override
-        public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public BindingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (viewType == VIEW_TYPE_BANNER) {
                 return new BannerViewHolder(parent);
             }
@@ -162,9 +163,11 @@ public class LiveListFeature extends BaseFeature {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull BaseViewHolder viewHolder, int position) {
+        public void onBindViewHolder(@NonNull BindingViewHolder viewHolder, int position) {
             if (viewHolder instanceof ItemViewHolder) {
-                ((ItemViewHolder) viewHolder).onBindViewHolder(position, data.get(position - VIEW_TYPE_BANNER));
+                ((ItemViewHolder) viewHolder).onBindViewHolder(
+                        position, data.get(position - VIEW_TYPE_BANNER)
+                );
             } else if (viewHolder instanceof BannerViewHolder) {
                 ((BannerViewHolder) viewHolder).onBindViewHolder(position);
             }
@@ -189,7 +192,7 @@ public class LiveListFeature extends BaseFeature {
             return VIEW_TYPE_NORMAL;
         }
 
-        public void setData(List<LiveList.LiveListItem> data, boolean append) {
+        void setData(List<LiveList.LiveListItem> data, boolean append) {
             if (this.data == null) {
                 this.data = new ArrayList<>();
             }
@@ -200,20 +203,20 @@ public class LiveListFeature extends BaseFeature {
             notifyDataSetChanged();
         }
 
-        public LiveListAdapter setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        LiveListAdapter setOnItemClickListener(OnItemClickListener onItemClickListener) {
             this.onItemClickListener = onItemClickListener;
             return this;
         }
     }
 
-    private class ItemViewHolder extends BaseViewHolder {
+    private static class ItemViewHolder extends BindingViewHolder<ItemLiveListBinding> {
 
-        private ItemLiveListBinding binding;
         private OnItemClickListener onItemClickListener;
 
         private ItemViewHolder(@NonNull ViewGroup parent) {
-            super(parent, R.layout.item_live_list);
-            binding = DataBindingUtil.bind(itemView);
+            super(ItemLiveListBinding.inflate(
+                    LayoutInflater.from(parent.getContext()), parent, false)
+            );
         }
 
         private void onBindViewHolder(int position, LiveList.LiveListItem item) {
@@ -229,19 +232,16 @@ public class LiveListFeature extends BaseFeature {
             });
         }
 
-        public ItemViewHolder setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        ItemViewHolder setOnItemClickListener(OnItemClickListener onItemClickListener) {
             this.onItemClickListener = onItemClickListener;
             return this;
         }
     }
 
-    private class BannerViewHolder extends BaseViewHolder {
-
-        private ItemBannerBinding binding;
+    private static class BannerViewHolder extends BindingViewHolder<ItemBannerBinding> {
 
         private BannerViewHolder(@NonNull ViewGroup parent) {
-            super(parent, R.layout.item_banner);
-            binding = DataBindingUtil.bind(itemView);
+            super(ItemBannerBinding.inflate(LayoutInflater.from(parent.getContext())));
         }
 
         private void onBindViewHolder(int position) {
