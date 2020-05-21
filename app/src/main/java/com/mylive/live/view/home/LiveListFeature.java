@@ -24,7 +24,6 @@ import com.mylive.live.arch.annotation.ViewModel;
 import com.mylive.live.arch.feature.FeaturesManagerOwner;
 import com.mylive.live.arch.thread.ThreadsScheduler;
 import com.mylive.live.base.BaseFeature;
-import com.mylive.live.base.BaseViewHolder;
 import com.mylive.live.base.BindingViewHolder;
 import com.mylive.live.databinding.FragmentHomeTabBinding;
 import com.mylive.live.databinding.ItemAvatarBinding;
@@ -213,10 +212,10 @@ public class LiveListFeature extends BaseFeature {
 
         private OnItemClickListener onItemClickListener;
 
-        private ItemViewHolder(@NonNull ViewGroup parent) {
+        ItemViewHolder(@NonNull ViewGroup parent) {
             super(ItemLiveListBinding.inflate(
-                    LayoutInflater.from(parent.getContext()), parent, false)
-            );
+                    LayoutInflater.from(parent.getContext()), parent, false
+            ));
         }
 
         private void onBindViewHolder(int position, LiveList.LiveListItem item) {
@@ -241,7 +240,7 @@ public class LiveListFeature extends BaseFeature {
     private static class BannerViewHolder extends BindingViewHolder<ItemBannerBinding> {
 
         private BannerViewHolder(@NonNull ViewGroup parent) {
-            super(ItemBannerBinding.inflate(LayoutInflater.from(parent.getContext())));
+            super(parent, R.layout.item_banner);
         }
 
         private void onBindViewHolder(int position) {
@@ -344,7 +343,7 @@ public class LiveListFeature extends BaseFeature {
             }
         }
 
-        class AvatarViewHolder extends SpinGallery.ViewHolder {
+        static class AvatarViewHolder extends SpinGallery.ViewHolder {
             private ItemAvatarBinding binding;
 
             AvatarViewHolder(@NotNull View itemView) {
