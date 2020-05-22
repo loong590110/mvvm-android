@@ -82,7 +82,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                 }
                 createViewHolders(this@SpinGallery)
                 createAnimatorIfNeeded(field, itemCount)
-                bindViewHolders(field, itemCount)
+                bindViewHolders(this@SpinGallery, field, itemCount)
             }
         }
 
@@ -323,33 +323,31 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
     }
 
     abstract class Adapter<T : ViewHolder> : DataSetObservable() {
-        private val lock = Any()
-        private var viewHolders: Array<ViewHolder>? = null
-
         internal fun createViewHolders(parent: SpinGallery) {
-            if (viewHolders == null) {
-                synchronized(lock) {
-                    if (viewHolders == null) {
-                        viewHolders = Array<ViewHolder>(4) {
-                            onCreateViewHolder(parent).apply {
-                                when (it) {
-                                    0 -> location = Location.BEHIND
-                                    1 -> location = Location.RIGHT
-                                    2 -> location = Location.LEFT
-                                    3 -> location = Location.FRONT
+            parent.apply {
+                if (viewHolders == null) {
+                    synchronized(this) {
+                        if (viewHolders == null) {
+                            viewHolders = Array<ViewHolder>(4) {
+                                onCreateViewHolder(this).apply {
+                                    when (it) {
+                                        0 -> location = Location.BEHIND
+                                        1 -> location = Location.RIGHT
+                                        2 -> location = Location.LEFT
+                                        3 -> location = Location.FRONT
+                                    }
                                 }
-                            }
-                        }.apply {
-                            parent.viewHolders = this
-                            parent.removeAllViews()
-                            forEach {
-                                it.apply {
-                                    makeLayoutParams(parent, this)
-                                    if (itemView.parent == null) {
-                                        parent.addView(itemView)
-                                    } else if (itemView.parent != parent) {
-                                        (itemView.parent as ViewGroup).removeView(itemView)
-                                        parent.addView(itemView)
+                            }.apply {
+                                removeAllViews()
+                                forEach {
+                                    it.apply {
+                                        makeLayoutParams(parent, this)
+                                        if (itemView.parent == null) {
+                                            addView(itemView)
+                                        } else if (itemView.parent != parent) {
+                                            (itemView.parent as ViewGroup).removeView(itemView)
+                                            addView(itemView)
+                                        }
                                     }
                                 }
                             }
@@ -359,8 +357,8 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             }
         }
 
-        internal fun bindViewHolders(currentPosition: Int, itemCount: Int) {
-            viewHolders!!.forEach {
+        internal fun bindViewHolders(parent: SpinGallery, currentPosition: Int, itemCount: Int) {
+            parent.viewHolders!!.forEach {
                 it.apply {
                     when (location) {
                         Location.FRONT -> {
@@ -407,33 +405,35 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
         }
 
         private fun makeLayoutParams(parent: SpinGallery, viewHolder: ViewHolder) {
-            if (viewHolder.itemView.layoutParams == null) {
-                viewHolder.itemView.layoutParams = parent.generateDefaultLayoutParams()
-            } else if (viewHolder.itemView.layoutParams is FrameLayout.LayoutParams) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    viewHolder.itemView.layoutParams = LayoutParams(
-                            viewHolder.itemView.layoutParams as FrameLayout.LayoutParams
+            viewHolder.itemView.apply {
+                if (layoutParams == null) {
+                    layoutParams = parent.generateDefaultLayoutParams()
+                } else if (layoutParams is FrameLayout.LayoutParams) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        layoutParams = LayoutParams(
+                                layoutParams as FrameLayout.LayoutParams
+                        ).apply {
+                            gravity = Gravity.CENTER
+                        }
+                    } else {
+                        layoutParams = LayoutParams(
+                                layoutParams as MarginLayoutParams
+                        ).apply {
+                            gravity = Gravity.CENTER
+                        }
+                    }
+                } else if (layoutParams is MarginLayoutParams) {
+                    layoutParams = LayoutParams(
+                            layoutParams as MarginLayoutParams
                     ).apply {
                         gravity = Gravity.CENTER
                     }
-                } else {
-                    viewHolder.itemView.layoutParams = LayoutParams(
-                            viewHolder.itemView.layoutParams as MarginLayoutParams
+                } else if (layoutParams is ViewGroup.LayoutParams) {
+                    layoutParams = LayoutParams(
+                            layoutParams
                     ).apply {
                         gravity = Gravity.CENTER
                     }
-                }
-            } else if (viewHolder.itemView.layoutParams is MarginLayoutParams) {
-                viewHolder.itemView.layoutParams = LayoutParams(
-                        viewHolder.itemView.layoutParams as MarginLayoutParams
-                ).apply {
-                    gravity = Gravity.CENTER
-                }
-            } else if (viewHolder.itemView.layoutParams is ViewGroup.LayoutParams) {
-                viewHolder.itemView.layoutParams = LayoutParams(
-                        viewHolder.itemView.layoutParams
-                ).apply {
-                    gravity = Gravity.CENTER
                 }
             }
         }
