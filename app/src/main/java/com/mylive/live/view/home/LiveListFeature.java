@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -325,9 +324,7 @@ public class LiveListFeature extends BaseFeature {
                     @NotNull
                     @Override
                     public AvatarViewHolder onCreateViewHolder(@NotNull ViewGroup parent) {
-                        return new AvatarViewHolder(LayoutInflater.from(parent.getContext()).inflate(
-                                R.layout.item_avatar, parent, false
-                        ));
+                        return new AvatarViewHolder(parent);
                     }
 
                     @Override
@@ -346,9 +343,15 @@ public class LiveListFeature extends BaseFeature {
         static class AvatarViewHolder extends SpinGallery.ViewHolder {
             private ItemAvatarBinding binding;
 
-            AvatarViewHolder(@NotNull View itemView) {
-                super(itemView);
-                binding = DataBindingUtil.bind(itemView);
+            AvatarViewHolder(ItemAvatarBinding binding) {
+                super(binding.getRoot());
+                this.binding = binding;
+            }
+
+            AvatarViewHolder(@NonNull ViewGroup parent) {
+                this(ItemAvatarBinding.inflate(
+                        LayoutInflater.from(parent.getContext()), parent, false
+                ));
             }
         }
     }
