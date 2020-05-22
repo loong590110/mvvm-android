@@ -246,6 +246,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
             this.adapter!!.apply {
                 registerObserver(object : DataSetObserver() {
                     override fun onInvalidated() {
+                        viewHolders = null
                         onChanged()
                     }
 
@@ -256,7 +257,7 @@ class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
                         currentPosition = 0
                     }
                 })
-                notifyChanged()
+                notifyInvalidated()
             }
         }
     }
