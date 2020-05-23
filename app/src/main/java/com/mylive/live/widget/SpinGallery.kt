@@ -19,10 +19,9 @@ import kotlin.math.abs
 /**
  * Created by Developer Zailong Shi on 2020/5/9.
  */
-class SpinGallery(context: Context, attrs: AttributeSet?, defStyleAttr: Int)
-    : FrameLayout(context, attrs, defStyleAttr) {
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context) : this(context, null)
+class SpinGallery @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr) {
 
     private var paint: Paint? = null
 
