@@ -164,19 +164,19 @@ class SpinGallery @JvmOverloads constructor(
                         .9f * -.75f * measuredHeight + 1f * measuredWidth / 2,
                         1f * measuredHeight / 2,
                         .75f * measuredHeight / 2,
-                        paint!!.apply { color = 0xff666666.toInt() }
+                        paint { color = 0xff666666.toInt() }!!
                 )
                 drawCircle(
                         .9f * .75f * measuredHeight + 1f * measuredWidth / 2,
                         1f * measuredHeight / 2,
                         .75f * measuredHeight / 2,
-                        paint!!.apply { color = 0xff666666.toInt() }
+                        paint { color = 0xff666666.toInt() }!!
                 )
                 drawCircle(
                         1f * measuredWidth / 2,
                         1f * measuredHeight / 2,
                         1f * measuredHeight / 2,
-                        paint!!.apply { color = 0xff999999.toInt() }
+                        paint { color = 0xff999999.toInt() }!!
                 )
             }
         }
@@ -432,5 +432,5 @@ class SpinGallery @JvmOverloads constructor(
     enum class Direction { BACKWARD, AUTO, FORWARD }
 }
 
-inline operator fun <T> T?.invoke(block: T.() -> Unit) = this?.run { block() }
+inline operator fun <T> T?.invoke(block: T.() -> Unit) = this?.apply(block)
 inline fun <T> Array<out T>.forEach(action: T.() -> Unit) = forEach { item -> action(item) }
