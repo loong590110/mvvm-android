@@ -321,12 +321,13 @@ class SpinGallery @JvmOverloads constructor(
                 }.apply {
                     removeAllViews()
                     forEach {
-                        makeLayoutParams(parent, this)
-                        if (itemView.parent == null) {
-                            addView(itemView)
-                        } else if (itemView.parent != parent) {
-                            (itemView.parent as ViewGroup).removeView(itemView)
-                            addView(itemView)
+                        makeLayoutParams(parent, this).apply {
+                            if (this.parent == null) {
+                                addView(this)
+                            } else if (this.parent != parent) {
+                                (this.parent as ViewGroup).removeView(this)
+                                addView(this)
+                            }
                         }
                     }
                 }.also {
@@ -380,7 +381,7 @@ class SpinGallery @JvmOverloads constructor(
                 }
 
         private fun makeLayoutParams(parent: SpinGallery, viewHolder: ViewHolder) =
-                viewHolder.itemView {
+                viewHolder.itemView.apply {
                     layoutParams = when (layoutParams) {
                         is FrameLayout.LayoutParams ->
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
