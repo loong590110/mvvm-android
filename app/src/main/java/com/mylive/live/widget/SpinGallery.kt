@@ -254,7 +254,7 @@ class SpinGallery @JvmOverloads constructor(
     /**
      *  切换到上一个视图
      */
-    fun backward() = adapter {
+    fun backward() = adapter?.run {
         val itemCount = getItemCount()
         if (itemCount > 1) {
             var prev = currentPosition - 1
@@ -269,7 +269,7 @@ class SpinGallery @JvmOverloads constructor(
     /**
      * 切换到下一个视图
      */
-    fun forward() = adapter {
+    fun forward() = adapter?.run {
         val itemCount = getItemCount()
         if (itemCount > 1) {
             var next = currentPosition + 1
