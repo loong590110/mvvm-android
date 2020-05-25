@@ -72,7 +72,7 @@ class SpinGallery @JvmOverloads constructor(
 
     private var currentPosition: Int = -1
         set(value) {
-            adapter?.apply {
+            adapter {
                 val itemCount = getItemCount()
                 field = when {
                     value < 0 -> 0
@@ -85,11 +85,9 @@ class SpinGallery @JvmOverloads constructor(
             }
         }
 
-    private fun createAnimatorIfNeeded(currentPosition: Int, itemCount: Int) {
-        if (itemCount <= 1) {
-            return
-        }
-        viewHolders?.apply {
+    private fun createAnimatorIfNeeded(currentPosition: Int, itemCount: Int) = when {
+        itemCount <= 1 -> null
+        else -> viewHolders {
             last { it.location == Location.FRONT }.apply {
                 if (position != -1 && position != currentPosition) {
                     when (this@SpinGallery.direction) {
@@ -115,8 +113,8 @@ class SpinGallery @JvmOverloads constructor(
                     }.apply direction@{
                         forEach {
                             when (Direction.BACKWARD) {
-                                this@direction -> it.location--
-                                else -> it.location++
+                                this@direction -> location--
+                                else -> location++
                             }
                         }.also {
                             sortWith(Comparator { o1, o2 ->
@@ -160,8 +158,8 @@ class SpinGallery @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        isInEditMode.and(0 == childCount) {
-            canvas!!.apply {
+        if (isInEditMode && 0 == childCount) {
+            canvas {
                 drawCircle(
                         .9f * -.75f * measuredHeight + 1f * measuredWidth / 2,
                         1f * measuredHeight / 2,
@@ -187,62 +185,56 @@ class SpinGallery @JvmOverloads constructor(
     override fun getChildDrawingOrder(childCount: Int, drawingPosition: Int): Int =
             viewHolders?.let { indexOfChild(it[drawingPosition].itemView) } ?: drawingPosition
 
-    private fun updateLayout(angle: Int = 0) {
-        viewHolders?.forEach {
-            it.apply {
-                val depth = depth
-                val ratio = 1f * angle / 90
-                val halfOfDepth = (1f - depth) / 2
-                val radius: Int = when (radius) {
-                    0 -> .9f * itemView.measuredWidth * (depth + halfOfDepth)
-                    else -> 1f * radius
-                }.toInt()
-                when (location) {
-                    Location.BEHIND -> itemView.apply {
-                        translationX = -1 * ratio * radius
-                        scaleX = depth + halfOfDepth * abs(ratio)
-                        scaleY = scaleX
-                        alpha = 1f//abs(ratio)
-                    }
-                    Location.LEFT -> itemView.apply {
-                        translationX = -radius * (1f - abs(ratio))
-                        scaleX = when {
-                            ratio > 0 -> 1 - halfOfDepth * (1f - ratio)
-                            else -> depth + (halfOfDepth * (1f + ratio))
-                        }
-                        scaleY = scaleX
-                        alpha = if (adapter!!.getItemCount() <= 1) 0f else 1f
-                    }
-                    Location.RIGHT -> itemView.apply {
-                        translationX = radius * (1f - abs(ratio))
-                        scaleX = when {
-                            ratio > 0 -> depth + (halfOfDepth * (1f - ratio))
-                            else -> 1f - halfOfDepth * (1f + ratio)
-                        }
-                        scaleY = scaleX
-                        alpha = if (adapter!!.getItemCount() <= 1) 0f else 1f
-                    }
-                    Location.FRONT -> itemView.apply {
-                        translationX = radius * ratio
-                        scaleX = 1f - halfOfDepth * abs(ratio)
-                        scaleY = scaleX
-                        alpha = 1f
-                    }
+    private fun updateLayout(angle: Int = 0) = viewHolders?.forEach {
+        val depth = depth
+        val ratio = 1f * angle / 90
+        val halfOfDepth = (1f - depth) / 2
+        val radius: Int = when (radius) {
+            0 -> .9f * itemView.measuredWidth * (depth + halfOfDepth)
+            else -> 1f * radius
+        }.toInt()
+        when (location) {
+            Location.BEHIND -> itemView {
+                translationX = -1 * ratio * radius
+                scaleX = depth + halfOfDepth * abs(ratio)
+                scaleY = scaleX
+                alpha = 1f//abs(ratio)
+            }
+            Location.LEFT -> itemView {
+                translationX = -radius * (1f - abs(ratio))
+                scaleX = when {
+                    ratio > 0 -> 1 - halfOfDepth * (1f - ratio)
+                    else -> depth + (halfOfDepth * (1f + ratio))
                 }
-                onLayoutUpdateCallback?.invoke(this, radius, depth, angle)
+                scaleY = scaleX
+                alpha = if (adapter!!.getItemCount() <= 1) 0f else 1f
+            }
+            Location.RIGHT -> itemView {
+                translationX = radius * (1f - abs(ratio))
+                scaleX = when {
+                    ratio > 0 -> depth + (halfOfDepth * (1f - ratio))
+                    else -> 1f - halfOfDepth * (1f + ratio)
+                }
+                scaleY = scaleX
+                alpha = if (adapter!!.getItemCount() <= 1) 0f else 1f
+            }
+            Location.FRONT -> itemView {
+                translationX = radius * ratio
+                scaleX = 1f - halfOfDepth * abs(ratio)
+                scaleY = scaleX
+                alpha = 1f
             }
         }
+        onLayoutUpdateCallback?.invoke(this, radius, depth, angle)
     }
 
-    fun getAdapter(): Adapter<*>? {
-        return adapter
-    }
+    fun getAdapter() = adapter
 
     fun <T : ViewHolder> setAdapter(adapter: Adapter<T>) {
         if (this.adapter != adapter) {
             this.adapter?.unregisterAll()
             this.adapter = adapter//先赋值再通知更新
-            this.adapter!!.apply {
+            this.adapter {
                 registerObserver(object : DataSetObserver() {
                     override fun onInvalidated() {
                         viewHolders = null
@@ -250,9 +242,7 @@ class SpinGallery @JvmOverloads constructor(
                     }
 
                     override fun onChanged() {
-                        viewHolders?.forEach {
-                            it.position = -1
-                        }
+                        viewHolders?.forEach { position = -1 }
                         currentPosition = 0
                     }
                 })
@@ -264,34 +254,30 @@ class SpinGallery @JvmOverloads constructor(
     /**
      *  切换到上一个视图
      */
-    fun backward() {
-        adapter?.apply {
-            val itemCount = getItemCount()
-            if (itemCount > 1) {
-                var prev = currentPosition - 1
-                if (prev < 0) {
-                    prev = itemCount - 1
-                }
-                direction = Direction.BACKWARD
-                currentPosition = prev
+    fun backward() = adapter {
+        val itemCount = getItemCount()
+        if (itemCount > 1) {
+            var prev = currentPosition - 1
+            if (prev < 0) {
+                prev = itemCount - 1
             }
+            direction = Direction.BACKWARD
+            currentPosition = prev
         }
     }
 
     /**
      * 切换到下一个视图
      */
-    fun forward() {
-        adapter?.apply {
-            val itemCount = getItemCount()
-            if (itemCount > 1) {
-                var next = currentPosition + 1
-                if (next >= itemCount) {
-                    next = 0
-                }
-                direction = Direction.FORWARD
-                currentPosition = next
+    fun forward() = adapter {
+        val itemCount = getItemCount()
+        if (itemCount > 1) {
+            var next = currentPosition + 1
+            if (next >= itemCount) {
+                next = 0
             }
+            direction = Direction.FORWARD
+            currentPosition = next
         }
     }
 
@@ -303,13 +289,11 @@ class SpinGallery @JvmOverloads constructor(
         currentPosition = position
     }
 
-    override fun generateDefaultLayoutParams(): LayoutParams {
-        return LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                Gravity.CENTER
-        )
-    }
+    override fun generateDefaultLayoutParams() = LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            Gravity.CENTER
+    )
 
     class LayoutParams : FrameLayout.LayoutParams {
         constructor(c: Context, attrs: AttributeSet?) : super(c, attrs)
@@ -323,43 +307,36 @@ class SpinGallery @JvmOverloads constructor(
     }
 
     abstract class Adapter<T : ViewHolder> : DataSetObservable() {
-        internal fun createViewHolders(parent: SpinGallery) {
-            parent.apply {
-                if (viewHolders == null) {
-                    synchronized(this) {
-                        if (viewHolders == null) {
-                            viewHolders = Array<ViewHolder>(4) {
-                                onCreateViewHolder(this).apply {
-                                    when (it) {
-                                        0 -> location = Location.BEHIND
-                                        1 -> location = Location.RIGHT
-                                        2 -> location = Location.LEFT
-                                        3 -> location = Location.FRONT
-                                    }
-                                }
-                            }.apply {
-                                removeAllViews()
-                                forEach {
-                                    it.apply {
-                                        makeLayoutParams(parent, this)
-                                        if (itemView.parent == null) {
-                                            addView(itemView)
-                                        } else if (itemView.parent != parent) {
-                                            (itemView.parent as ViewGroup).removeView(itemView)
-                                            addView(itemView)
-                                        }
-                                    }
-                                }
-                            }
+        internal fun createViewHolders(parent: SpinGallery) = parent {
+            viewHolders ?: synchronized(this) {
+                viewHolders ?: Array<ViewHolder>(4) {
+                    onCreateViewHolder(this).apply {
+                        when (it) {
+                            0 -> location = Location.BEHIND
+                            1 -> location = Location.RIGHT
+                            2 -> location = Location.LEFT
+                            3 -> location = Location.FRONT
                         }
                     }
+                }.apply {
+                    removeAllViews()
+                    forEach {
+                        makeLayoutParams(parent, this)
+                        if (itemView.parent == null) {
+                            addView(itemView)
+                        } else if (itemView.parent != parent) {
+                            (itemView.parent as ViewGroup).removeView(itemView)
+                            addView(itemView)
+                        }
+                    }
+                }.also {
+                    viewHolders = it
                 }
             }
         }
 
-        internal fun bindViewHolders(parent: SpinGallery, currentPosition: Int, itemCount: Int) {
-            parent.viewHolders!!.forEach {
-                it.apply {
+        internal fun bindViewHolders(parent: SpinGallery, currentPosition: Int, itemCount: Int) =
+                parent.viewHolders!!.forEach {
                     when (location) {
                         Location.FRONT -> {
                             if (currentPosition != position) {
@@ -368,7 +345,7 @@ class SpinGallery @JvmOverloads constructor(
                         }
                         Location.LEFT -> {
                             if (itemCount <= 1) {
-                                return@apply
+                                return@forEach
                             }
                             var leftPosition = currentPosition - 1
                             if (leftPosition < 0) {
@@ -380,7 +357,7 @@ class SpinGallery @JvmOverloads constructor(
                         }
                         Location.RIGHT -> {
                             if (itemCount <= 1) {
-                                return@apply
+                                return@forEach
                             }
                             var rightPosition = currentPosition + 1
                             if (rightPosition >= itemCount) {
@@ -395,94 +372,64 @@ class SpinGallery @JvmOverloads constructor(
                         }
                     }
                 }
-            }
-        }
 
-        private fun bindViewHolder(viewHolder: ViewHolder, position: Int) {
-            @Suppress("UNCHECKED_CAST")
-            onBindViewHolder(viewHolder as T, position)
-            viewHolder.position = position
-        }
+        private fun bindViewHolder(viewHolder: ViewHolder, position: Int) =
+                @Suppress("UNCHECKED_CAST")
+                onBindViewHolder(viewHolder as T, position).also {
+                    viewHolder.position = position
+                }
 
-        private fun makeLayoutParams(parent: SpinGallery, viewHolder: ViewHolder) {
-            viewHolder.itemView.apply {
-                if (layoutParams == null) {
-                    layoutParams = parent.generateDefaultLayoutParams()
-                } else if (layoutParams is FrameLayout.LayoutParams) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        layoutParams = LayoutParams(
-                                layoutParams as FrameLayout.LayoutParams
-                        ).apply {
-                            gravity = Gravity.CENTER
-                        }
-                    } else {
-                        layoutParams = LayoutParams(
-                                layoutParams as MarginLayoutParams
-                        ).apply {
-                            gravity = Gravity.CENTER
-                        }
-                    }
-                } else if (layoutParams is MarginLayoutParams) {
-                    layoutParams = LayoutParams(
-                            layoutParams as MarginLayoutParams
-                    ).apply {
-                        gravity = Gravity.CENTER
-                    }
-                } else if (layoutParams is ViewGroup.LayoutParams) {
-                    layoutParams = LayoutParams(
-                            layoutParams
-                    ).apply {
+        private fun makeLayoutParams(parent: SpinGallery, viewHolder: ViewHolder) =
+                viewHolder.itemView {
+                    layoutParams = when (layoutParams) {
+                        is FrameLayout.LayoutParams ->
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                LayoutParams(layoutParams as FrameLayout.LayoutParams)
+                            } else {
+                                LayoutParams(layoutParams as MarginLayoutParams)
+                            }
+                        is MarginLayoutParams -> LayoutParams(layoutParams as MarginLayoutParams)
+                        is ViewGroup.LayoutParams -> LayoutParams(layoutParams)
+                        else -> parent.generateDefaultLayoutParams()
+                    }.apply {
                         gravity = Gravity.CENTER
                     }
                 }
-            }
-        }
 
         abstract fun onCreateViewHolder(parent: ViewGroup): T
         abstract fun onBindViewHolder(holder: T, position: Int)
         abstract fun getItemCount(): Int
     }
 
-    open class ViewHolder(val itemView: View) {
-        var position: Int = -1
-        var location: Location = Location.FRONT
-    }
+    open class ViewHolder @JvmOverloads constructor(
+            val itemView: View, var position: Int = -1, var location: Location = Location.FRONT
+    )
 
     //子视图方位：前、后、左、右
     enum class Location(private val value: Int) {
         FRONT(3), BEHIND(0), LEFT(2), RIGHT(1);
 
         val isLeftOrRight: Boolean get() = this == LEFT || this == RIGHT
-        operator fun minus(other: Location): Int {
-            return value - other.value
+        operator fun minus(other: Location) = value - other.value
+
+        operator fun inc() = when (this) {
+            LEFT -> BEHIND
+            BEHIND -> RIGHT
+            RIGHT -> FRONT
+            FRONT -> LEFT
         }
 
-        operator fun inc(): Location {
-            return when (this) {
-                LEFT -> BEHIND
-                BEHIND -> RIGHT
-                RIGHT -> FRONT
-                FRONT -> LEFT
-            }
-        }
-
-        operator fun dec(): Location {
-            return when (this) {
-                LEFT -> FRONT
-                FRONT -> RIGHT
-                RIGHT -> BEHIND
-                BEHIND -> LEFT
-            }
+        operator fun dec() = when (this) {
+            LEFT -> FRONT
+            FRONT -> RIGHT
+            RIGHT -> BEHIND
+            BEHIND -> LEFT
         }
     }
 
     //视图切换方向：向后、自动、向前
-    enum class Direction {
-        BACKWARD, AUTO, FORWARD
-    }
+    enum class Direction { BACKWARD, AUTO, FORWARD }
 }
 
-inline fun Boolean.and(other: Boolean, block: () -> Unit) = when {
-    this && other -> block()
-    else -> Unit
-}
+inline operator fun <T> T?.invoke(block: T.() -> Unit) = this?.run { block() }
+inline fun <T> Array<out T>.forEach(action: T.() -> Unit) = forEach { item -> action(item) }
