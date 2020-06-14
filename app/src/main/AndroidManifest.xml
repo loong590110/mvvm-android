@@ -35,5 +35,6 @@
         <activity
             android:name=".view.web.WebActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
+        <activity android:name=".view.room.PlayerActivity" />
     </application>
 </manifest>

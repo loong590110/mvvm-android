@@ -17,6 +17,7 @@ import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentHomeBinding;
 import com.mylive.live.model.HttpResp;
+import com.mylive.live.router.LiveRoomActivityStarter;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
@@ -78,7 +79,8 @@ public class HomeFragment extends BaseFragment {
         scaleAnimation.setRepeatCount(5);
         scaleAnimation.setDuration(300);
         binding.btnNew.setOnClickListener(v -> {
-            v.startAnimation(scaleAnimation);
+            //v.startAnimation(scaleAnimation);
+            LiveRoomActivityStarter.create().start(this);
         });
     }
 
