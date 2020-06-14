@@ -20,7 +20,7 @@ android {
         }
     }
     buildFeatures {
-        dataBinding true
+        dataBinding = true
     }
     compileOptions {
         sourceCompatibility = '1.8'
