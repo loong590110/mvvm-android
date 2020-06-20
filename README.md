@@ -9,8 +9,8 @@
 屏幕截图
 --------------------
 
-<img src="screenshot/homepage.png" height="400" alt="Screenshot"/> <img src="screenshot/channelpage.png" height="400" alt="Screenshot"/>
-<img src="screenshot/newspage.png" height="400" alt="Screenshot"/> <img src="screenshot/minepage.png" height="400" alt="Screenshot"/>
+<img src="screenshots/homepage.png" height="400" alt="Screenshot"/> <img src="screenshots/channelpage.png" height="400" alt="Screenshot"/>
+<img src="screenshots/newspage.png" height="400" alt="Screenshot"/> <img src="screenshots/minepage.png" height="400" alt="Screenshot"/>
 
 实现探讨
 --------------------
