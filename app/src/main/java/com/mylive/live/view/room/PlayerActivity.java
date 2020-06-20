@@ -1,6 +1,5 @@
 package com.mylive.live.view.room;
 
-import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 

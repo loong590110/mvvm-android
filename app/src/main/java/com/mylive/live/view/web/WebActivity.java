@@ -19,7 +19,7 @@ import com.mylive.live.component.JsBridgeWebViewClient.Callback2;
 import com.mylive.live.component.JsBridgeWebViewClient.JsBridgeApi;
 import com.mylive.live.databinding.ActivityWebBinding;
 import com.mylive.live.dialog.AlertDialog;
-import com.mylive.live.model.Config;
+import com.mylive.live.model.beans.Config;
 import com.mylive.live.router.WebActivityStarter;
 import com.mylive.live.utils.KeyboardDetector;
 import com.mylive.live.utils.ToastUtils;

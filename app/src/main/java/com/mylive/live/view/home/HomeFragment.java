@@ -16,7 +16,7 @@ import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentHomeBinding;
-import com.mylive.live.model.HttpResp;
+import com.mylive.live.model.beans.HttpResp;
 import com.mylive.live.router.LiveRoomActivityStarter;
 
 /**

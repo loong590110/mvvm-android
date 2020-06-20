@@ -19,7 +19,7 @@ import com.mylive.live.config.HttpStatusCode;
 import com.mylive.live.dialog.AlertDialog;
 import com.mylive.live.exception.ProhibitedException;
 import com.mylive.live.interceptor.HttpInterceptorsManager;
-import com.mylive.live.model.HttpResp;
+import com.mylive.live.model.beans.HttpResp;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.widget.NavigationBar;
 

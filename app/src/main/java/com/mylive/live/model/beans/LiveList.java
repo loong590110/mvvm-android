@@ -1,4 +1,4 @@
-package com.mylive.live.model;
+package com.mylive.live.model.beans;
 
 import java.util.List;
 

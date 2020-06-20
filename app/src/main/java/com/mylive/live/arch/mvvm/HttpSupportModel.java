@@ -1,35 +1,30 @@
 package com.mylive.live.arch.mvvm;
 
-import androidx.lifecycle.ViewModel;
-
 import com.mylive.live.arch.annotation.Model;
+import com.mylive.live.arch.http.ServiceCreator;
 
 import java.lang.reflect.Field;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-20.
  */
-public class HttpSupportViewModel extends ViewModel {
+public class HttpSupportModel {
     {
         for (Field field : getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(Model.class)) {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
-                Object model = null;
+                Object service = null;
                 try {
-                    model = field.get(this);
+                    service = field.get(this);
                 } catch (IllegalAccessException ignore) {
                 }
-                if (model == null) {
-                    Class<?> modelType = field.getType();
+                if (service == null) {
+                    Class<?> serviceType = field.getType();
+                    service = ServiceCreator.create(serviceType);
                     try {
-                        model = modelType.newInstance();
-                    } catch (IllegalAccessException ignore) {
-                    } catch (InstantiationException ignore) {
-                    }
-                    try {
-                        field.set(this, model);
+                        field.set(this, service);
                     } catch (IllegalAccessException ignore) {
                     }
                 }

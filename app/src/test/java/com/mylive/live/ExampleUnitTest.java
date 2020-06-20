@@ -1,5 +1,8 @@
 package com.mylive.live;
 
+import com.alibaba.fastjson.JSON;
+import com.mylive.live.model.beans.HttpResp;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +14,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -99,5 +103,14 @@ public class ExampleUnitTest {
         }
 
         String proxy();
+    }
+
+    @Test
+    public void testFastjson() {
+        String json = "{\"code\":200,\"message\":\"success\",\"data\":{\"one\":1,\"two\":0}}";
+        HttpResp<String> resp = JSON.parseObject(json, HttpResp.class);
+        System.out.println(JSON.toJSON(resp.getData()));
+        HttpResp<Map<String, Integer>> resp2 = JSON.parseObject(json, HttpResp.class);
+        System.out.println(JSON.toJSON(resp2.getData()));
     }
 }

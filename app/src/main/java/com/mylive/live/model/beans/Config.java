@@ -1,4 +1,4 @@
-package com.mylive.live.model;
+package com.mylive.live.model.beans;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-20.

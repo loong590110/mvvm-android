@@ -1,8 +1,8 @@
-package com.mylive.live.service;
+package com.mylive.live.model.service;
 
 import com.mylive.live.arch.http.Observable;
-import com.mylive.live.model.HttpResp;
-import com.mylive.live.model.LiveList;
+import com.mylive.live.model.beans.HttpResp;
+import com.mylive.live.model.beans.LiveList;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;

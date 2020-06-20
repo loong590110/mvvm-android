@@ -1,4 +1,4 @@
-package com.mylive.live.service;
+package com.mylive.live.model.service;
 
 import com.mylive.live.arch.http.Observable;
 

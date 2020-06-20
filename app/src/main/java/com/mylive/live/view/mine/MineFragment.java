@@ -14,7 +14,7 @@ import com.mylive.live.arch.annotation.FieldMap;
 import com.mylive.live.arch.subscriber.Scheduler;
 import com.mylive.live.base.BaseFragment;
 import com.mylive.live.databinding.FragmentMineBinding;
-import com.mylive.live.model.HttpResp;
+import com.mylive.live.model.beans.HttpResp;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-28.

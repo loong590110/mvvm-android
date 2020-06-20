@@ -15,7 +15,7 @@ import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityMainBinding;
 import com.mylive.live.event.TestEvent;
-import com.mylive.live.model.Config;
+import com.mylive.live.model.beans.Config;
 import com.mylive.live.router.WebActivityStarter;
 import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.utils.ToastUtils;

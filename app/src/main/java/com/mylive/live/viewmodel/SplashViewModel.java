@@ -5,11 +5,10 @@ import androidx.lifecycle.MutableLiveData;
 
 import android.os.CountDownTimer;
 
-import com.mylive.live.arch.annotation.Service;
+import com.mylive.live.arch.annotation.Model;
 import com.mylive.live.base.BaseViewModel;
-import com.mylive.live.model.Config;
-import com.mylive.live.service.ConfigService;
-import com.mylive.live.service.TestService;
+import com.mylive.live.model.beans.Config;
+import com.mylive.live.model.service.ConfigService;
 
 /**
  * Created by Developer Zailong Shi on 2019-06-20.
@@ -21,10 +20,8 @@ public class SplashViewModel extends BaseViewModel {
     private MutableLiveData<Integer> countDownTimer;
     private MutableLiveData<Config> config;
     private MutableLiveData<String> test;
-    @Service
+    @Model
     private ConfigService configService;
-    @Service
-    private TestService testService;
 
     public LiveData<Integer> startCountDownTimer() {
         if (countDownTimer == null) {
@@ -50,25 +47,11 @@ public class SplashViewModel extends BaseViewModel {
         if (config == null) {
             config = new MutableLiveData<>();
         }
-        configService.getConfig()
-                .observe((Config config) -> {
-                    this.config.postValue(config);
-                }, e -> {
-                    this.config.postValue(new Config());
-                });
+        configService.getConfig().observe((Config config) -> {
+            this.config.postValue(config);
+        }, e -> {
+            this.config.postValue(new Config());
+        });
         return config;
-    }
-
-    public LiveData<String> getTestData() {
-        if (test == null) {
-            test = new MutableLiveData<>();
-        }
-        testService.test()
-                .observe((String s) -> {
-                    test.postValue(s);
-                }, e -> {
-                    test.postValue(e.getMessage());
-                });
-        return test;
     }
 }

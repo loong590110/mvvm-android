@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Create by zailongshi on 2019/6/26
+ * Created by Developer Zailong Shi on 2019-07-11.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Service {
+public @interface Model {
 }

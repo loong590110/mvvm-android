@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 class WorkManagerImpl<T> implements WorkManager<T>, LifecycleObserver {
 
-    private WorkManager<?> workManager;
+    private WorkManager<?> upWorkManager;
     private Worker<?, T> worker;
     private T parcel;
     private boolean finished;
@@ -37,13 +37,13 @@ class WorkManagerImpl<T> implements WorkManager<T>, LifecycleObserver {
         this.parcel = parcel;
     }
 
-    WorkManagerImpl(WorkManager<?> workManager) {
-        this(null, workManager);
+    WorkManagerImpl(WorkManager<?> upWorkManager) {
+        this(null, upWorkManager);
     }
 
-    WorkManagerImpl(LifecycleOwner owner, WorkManager<?> workManager) {
+    WorkManagerImpl(LifecycleOwner owner, WorkManager<?> upWorkManager) {
         this(owner);
-        this.workManager = workManager;
+        this.upWorkManager = upWorkManager;
     }
 
     @Override
@@ -55,10 +55,10 @@ class WorkManagerImpl<T> implements WorkManager<T>, LifecycleObserver {
 
     @Override
     public void end(WorkEnd<T> workEnd) {
-        if (workManager == null) {
+        if (upWorkManager == null) {
             doWork(workEnd);//workManager为空表明没有上家，即为第一个
         } else {
-            workManager.end(parcel1 -> {
+            upWorkManager.end(parcel1 -> {
                 this.parcel = (T) parcel1;
                 doWork(workEnd);
             });
