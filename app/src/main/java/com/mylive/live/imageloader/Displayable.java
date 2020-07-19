@@ -7,4 +7,6 @@ import android.widget.ImageView;
  */
 public interface Displayable {
     void display(ImageView imageView, String uri);
+
+    void display(ImageView imageView, String uri, Optional optional);
 }
