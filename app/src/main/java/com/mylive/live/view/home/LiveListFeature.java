@@ -44,6 +44,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlin.Unit;
+
 /**
  * Created by Developer Zailong Shi on 2019-07-01.
  */
@@ -138,10 +140,11 @@ public class LiveListFeature extends BaseFeature {
                     Timer.recycle(timer);
                     if (liveList == null) {
                         ToastUtils.showShortToast(getContext(), R.string.network_exception);
-                        return;
+                        return Unit.INSTANCE;
                     }
                     itemHeight = binding.recyclerView.getHeight() / 4;
                     liveListAdapter.setData(liveList.list, !refresh);
+                    return Unit.INSTANCE;
                 });
     }
 

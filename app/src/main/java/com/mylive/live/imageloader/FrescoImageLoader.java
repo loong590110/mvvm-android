@@ -15,7 +15,7 @@ public final class FrescoImageLoader implements Displayable {
         Fresco.initialize(context);
     }
 
-    private void displayInternal(ImageView imageView, String uri) {
+    private void displayInternal(ImageView imageView, String uri, Optional optional) {
         if (imageView instanceof SimpleDraweeView) {
             ((SimpleDraweeView) imageView).setImageURI(uri);
         }
@@ -23,6 +23,11 @@ public final class FrescoImageLoader implements Displayable {
 
     @Override
     public void display(ImageView imageView, String uri) {
-        displayInternal(imageView, uri);
+        displayInternal(imageView, uri, null);
+    }
+
+    @Override
+    public void display(ImageView imageView, String uri, Optional optional) {
+        displayInternal(imageView, uri, optional);
     }
 }

@@ -1,11 +1,13 @@
 package com.mylive.live.viewmodel;
 
+import android.os.CountDownTimer;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import android.os.CountDownTimer;
-
-import com.mylive.live.arch.annotation.Model;
+import com.mylive.live.arch.annotation.Service;
+import com.mylive.live.arch.http.HttpException;
+import com.mylive.live.arch.livedata.MutexLiveData;
 import com.mylive.live.base.BaseViewModel;
 import com.mylive.live.model.beans.Config;
 import com.mylive.live.model.service.ConfigService;
@@ -17,16 +19,11 @@ public class SplashViewModel extends BaseViewModel {
 
     private static final long COUNT_DOWN_TIME = 3 * 1000;
     private static final long COUNT_DOWN_INTERVAL = 30;
-    private MutableLiveData<Integer> countDownTimer;
-    private MutableLiveData<Config> config;
-    private MutableLiveData<String> test;
-    @Model
+    @Service
     private ConfigService configService;
 
     public LiveData<Integer> startCountDownTimer() {
-        if (countDownTimer == null) {
-            countDownTimer = new MutableLiveData<>();
-        }
+        MutableLiveData<Integer> countDownTimer = new MutableLiveData<>();
         new CountDownTimer(COUNT_DOWN_TIME, COUNT_DOWN_INTERVAL) {
             private long tick = COUNT_DOWN_TIME / COUNT_DOWN_INTERVAL;
 
@@ -43,15 +40,13 @@ public class SplashViewModel extends BaseViewModel {
         return countDownTimer;
     }
 
-    public LiveData<Config> getConfig() {
-        if (config == null) {
-            config = new MutableLiveData<>();
-        }
-        configService.getConfig().observe((Config config) -> {
-            this.config.postValue(config);
-        }, e -> {
-            this.config.postValue(new Config());
-        });
-        return config;
+    public MutexLiveData<Config, HttpException> getConfig() {
+        MutexLiveData<Config, HttpException> configLiveData =
+                new MutexLiveData<>();
+        configService.getConfig().observe(
+                configLiveData::postPositiveValue,
+                configLiveData::postNegativeValue
+        );
+        return configLiveData;
     }
 }

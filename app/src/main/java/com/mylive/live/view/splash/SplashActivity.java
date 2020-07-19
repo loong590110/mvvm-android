@@ -19,6 +19,8 @@ import com.mylive.live.utils.DoubleClickExit;
 import com.mylive.live.utils.ToastUtils;
 import com.mylive.live.viewmodel.SplashViewModel;
 
+import kotlin.Unit;
+
 /**
  * Created by Developer Zailong Shi on 2019-06-19.
  */
@@ -56,6 +58,7 @@ public class SplashActivity extends BaseActivity {
                                             startNextActivity();
                                         }
                                     });
+                            return Unit.INSTANCE;
                         });
                     }
 

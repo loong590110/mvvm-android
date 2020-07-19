@@ -3,6 +3,8 @@ package com.mylive.live.arch.mvvm;
 import androidx.lifecycle.ViewModel;
 
 import com.mylive.live.arch.annotation.Model;
+import com.mylive.live.arch.annotation.Service;
+import com.mylive.live.arch.http.ServiceCreator;
 
 import java.lang.reflect.Field;
 
@@ -28,6 +30,23 @@ public class HttpSupportViewModel extends ViewModel {
                     } catch (IllegalAccessException ignore) {
                     } catch (InstantiationException ignore) {
                     }
+                    try {
+                        field.set(this, model);
+                    } catch (IllegalAccessException ignore) {
+                    }
+                }
+            } else if (field.isAnnotationPresent(Service.class)) {
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                Object model = null;
+                try {
+                    model = field.get(this);
+                } catch (IllegalAccessException ignore) {
+                }
+                if (model == null) {
+                    Class<?> modelType = field.getType();
+                    model = ServiceCreator.create(modelType);
                     try {
                         field.set(this, model);
                     } catch (IllegalAccessException ignore) {

@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import kotlin.Unit;
+
 /**
  * Created by Developer Zailong Shi on 2019-06-28.
  */
@@ -103,9 +105,10 @@ public class ChannelFragment extends BaseFragment {
                     loadMoreHelper.setLoading(false);
                     if (liveList == null) {
                         ToastUtils.showShortToast(getContext(), R.string.network_exception);
-                        return;
+                        return Unit.INSTANCE;
                     }
                     adapter.setData(liveList.list, !refresh);
+                    return Unit.INSTANCE;
                 });
     }
 
