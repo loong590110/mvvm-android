@@ -36,5 +36,6 @@
             android:name=".view.web.WebActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" />
         <activity android:name=".view.room.PlayerActivity" />
+        <activity android:name=".view.room.VoiceRoomActivity" />
     </application>
 </manifest>

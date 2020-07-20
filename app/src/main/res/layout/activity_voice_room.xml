@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/backgroundColor">
+
+        <TextView
+            android:id="@+id/txt_statue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:background="@color/colorPrimary"
+            android:fitsSystemWindows="true"
+            android:text="status bar color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/v_seat1"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:layout_marginTop="55dp"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="1"
+            app:layout_constraintEnd_toStartOf="@id/v_seat2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/v_seat2"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="2"
+            app:layout_constraintEnd_toStartOf="@id/v_seat3"
+            app:layout_constraintStart_toEndOf="@id/v_seat1"
+            app:layout_constraintTop_toTopOf="@id/v_seat1" />
+
+        <TextView
+            android:id="@+id/v_seat3"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="3"
+            app:layout_constraintEnd_toStartOf="@id/v_seat4"
+            app:layout_constraintStart_toEndOf="@id/v_seat2"
+            app:layout_constraintTop_toTopOf="@id/v_seat1" />
+
+        <TextView
+            android:id="@+id/v_seat4"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/v_seat3"
+            app:layout_constraintTop_toTopOf="@id/v_seat1" />
+
+        <TextView
+            android:id="@+id/v_seat5"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:layout_marginTop="20dp"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="5"
+            app:layout_constraintEnd_toStartOf="@id/v_seat6"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/v_seat1" />
+
+        <TextView
+            android:id="@+id/v_seat6"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="6"
+            app:layout_constraintEnd_toStartOf="@id/v_seat7"
+            app:layout_constraintStart_toEndOf="@id/v_seat5"
+            app:layout_constraintTop_toTopOf="@id/v_seat5" />
+
+        <TextView
+            android:id="@+id/v_seat7"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="7"
+            app:layout_constraintEnd_toStartOf="@id/v_seat8"
+            app:layout_constraintStart_toEndOf="@id/v_seat6"
+            app:layout_constraintTop_toTopOf="@id/v_seat5" />
+
+        <TextView
+            android:id="@+id/v_seat8"
+            android:layout_width="@dimen/voice_seat_size"
+            android:layout_height="@dimen/voice_seat_size"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="8"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/v_seat7"
+            app:layout_constraintTop_toTopOf="@id/v_seat5" />
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="login"
+            app:layout_constraintBottom_toTopOf="@id/btn_send"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/btn_send"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="send"
+            app:layout_constraintBottom_toTopOf="@id/btn_open"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/btn_open"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="open"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

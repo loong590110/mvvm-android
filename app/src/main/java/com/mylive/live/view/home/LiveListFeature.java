@@ -31,6 +31,7 @@ import com.mylive.live.databinding.ItemLiveListBinding;
 import com.mylive.live.imageloader.ImageLoader;
 import com.mylive.live.model.beans.LiveList;
 import com.mylive.live.router.PlayerActivityStarter;
+import com.mylive.live.router.VoiceRoomActivityStarter;
 import com.mylive.live.utils.DensityUtils;
 import com.mylive.live.utils.LoadMoreHelper;
 import com.mylive.live.utils.Timer;
@@ -109,7 +110,11 @@ public class LiveListFeature extends BaseFeature {
 //                            pagingScrollHelper.setCurrentPageIndex(
 //                                    position / pagingScrollHelper.getPageSize()
 //                            );
-                            PlayerActivityStarter.create().start(this);
+                            if (position % 2 == 0) {
+                                PlayerActivityStarter.create().start(this);
+                            } else {
+                                VoiceRoomActivityStarter.create().start(this);
+                            }
                         }
                 )
         );
