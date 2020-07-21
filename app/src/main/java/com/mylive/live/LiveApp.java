@@ -1,8 +1,10 @@
 package com.mylive.live;
 
-import android.app.Application;
+import android.content.Context;
 
-import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
+import androidx.multidex.MultiDex;
+import androidx.multidex.MultiDexApplication;
+
 import com.mylive.live.arch.http.HttpConfigProvider;
 import com.mylive.live.config.HttpConfig;
 import com.mylive.live.imageloader.FrescoImageLoader;
@@ -17,12 +19,18 @@ import okhttp3.OkHttpClient;
 /**
  * Created by Developer Zailong Shi on 2019-06-19.
  */
-public class LiveApp extends Application {
+public class LiveApp extends MultiDexApplication {
 
     public static LiveApp instance;
 
     public static LiveApp instance() {
         return instance;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     @Override
