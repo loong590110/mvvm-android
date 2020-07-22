@@ -5,6 +5,8 @@ import android.content.Context;
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
 import com.mylive.live.arch.http.HttpConfigProvider;
 import com.mylive.live.config.HttpConfig;
 import com.mylive.live.imageloader.FrescoImageLoader;
@@ -63,5 +65,6 @@ public class LiveApp extends MultiDexApplication {
                 .apply();
         //init image loader
         ImageLoader.init(new ImageLoader.Config(new FrescoImageLoader(this)));
+        Glide.get(this).clearMemory();
     }
 }

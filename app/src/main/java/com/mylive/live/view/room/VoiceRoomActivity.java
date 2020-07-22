@@ -1,22 +1,17 @@
 package com.mylive.live.view.room;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.mylive.live.R;
 import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivityVoiceRoomBinding;
 import com.mylive.live.event.TestEvent;
-import com.mylive.live.router.LoginActivityStarter;
 import com.mylive.live.view.room.voicetrajectorygifts.VoiceTrajectoryGiftsDirector;
 import com.mylive.live.viewmodel.LiveRoomViewModel;
 
