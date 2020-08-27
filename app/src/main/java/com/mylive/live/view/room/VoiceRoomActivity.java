@@ -1,5 +1,7 @@
 package com.mylive.live.view.room;
 
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -22,6 +24,7 @@ public class VoiceRoomActivity extends BaseActivity {
 
     private ActivityVoiceRoomBinding binding;
     private LiveRoomViewModel liveRoomViewModel;
+    private SoundPool soundPool;
     private int msg = 100;
 
     @Override
@@ -55,5 +58,27 @@ public class VoiceRoomActivity extends BaseActivity {
                     "dialog_gift"
             );
         });
+        playBackgroundMusic();
+    }
+
+    private void playBackgroundMusic() {
+        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        try {
+            soundPool.setOnLoadCompleteListener((soundPool1, sampleId, status) -> {
+                soundPool1.play(sampleId, 1, 1, 1, -1, 1);
+            });
+            soundPool.load(getAssets().openFd("pk/firstblood.mp3"), 1);
+        } catch (Exception ignore) {
+        }
+    }
+
+    private void stopBackgroundMusic() {
+        soundPool.release();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopBackgroundMusic();
     }
 }
