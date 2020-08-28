@@ -8,12 +8,19 @@ public class CantorTest {
 
     @Test
     public void getCantor() {
-        long i = Cantor.getCantor(1, 1);
-        System.out.println("1/1 -> " + i);
-        i = Cantor.getCantor(1, 2);
-        System.out.println("1/2 -> " + i);
-        i = Cantor.getCantor(2, 1);
-        System.out.println("2/1 -> " + i);
+        int n = 10;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(String.format("%d/%d(%d) | ", i, j, Cantor.getCantor(i, j)));
+            }
+            System.out.print("\n");
+        }
+//        long i = Cantor.getCantor(1, 1);
+//        System.out.println("1/1 -> " + i);
+//        i = Cantor.getCantor(1, 2);
+//        System.out.println("1/2 -> " + i);
+//        i = Cantor.getCantor(2, 1);
+//        System.out.println("2/1 -> " + i);
     }
 
     @Test
