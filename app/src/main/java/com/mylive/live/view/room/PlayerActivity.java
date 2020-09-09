@@ -36,7 +36,7 @@ public class PlayerActivity extends BaseActivity {
 
     private ActivityPlayerBinding binding;
     private File saveVideoFramePath;
-    private boolean open = true;
+    private boolean open = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
