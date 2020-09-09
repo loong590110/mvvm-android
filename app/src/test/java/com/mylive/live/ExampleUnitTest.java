@@ -113,4 +113,9 @@ public class ExampleUnitTest {
         HttpResp<Map<String, Integer>> resp2 = JSON.parseObject(json, HttpResp.class);
         System.out.println(JSON.toJSON(resp2.getData()));
     }
+
+    @Test
+    public void testBitCompute() {
+        System.out.println(~0);
+    }
 }
