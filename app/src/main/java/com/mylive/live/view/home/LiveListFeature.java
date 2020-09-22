@@ -62,6 +62,14 @@ public class LiveListFeature extends BaseFeature {
     private LoadMoreHelper loadMoreHelper;
     private int itemHeight;
     private int pageIndex = 1;
+    private String[] uries = {
+            "http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8",
+            "http://ivi.bupt.edu.cn/hls/cctv6hd.m3u8",
+            "http://ivi.bupt.edu.cn/hls/dfhd.m3u8",
+            "http://ivi.bupt.edu.cn/hls/jshd.m3u8",
+            "http://ivi.bupt.edu.cn/hls/gdhd.m3u8",
+            "rtmp://58.200.131.2:1935/livetv/hunantv"
+    };
 
     public LiveListFeature(FeaturesManagerOwner owner) {
         super(owner);
@@ -110,8 +118,8 @@ public class LiveListFeature extends BaseFeature {
 //                            pagingScrollHelper.setCurrentPageIndex(
 //                                    position / pagingScrollHelper.getPageSize()
 //                            );
-                            if (position % 2 == 0) {
-                                PlayerActivityStarter.create().start(this);
+                            if (position - 1 < uries.length) {
+                                PlayerActivityStarter.create(uries[position - 1]).start(this);
                             } else {
                                 VoiceRoomActivityStarter.create().start(this);
                             }

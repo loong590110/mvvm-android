@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.Choreographer;
 
 import androidx.annotation.Nullable;
@@ -42,8 +43,9 @@ public class PlayerActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         StatusBarCompat.getSettings(this).setImmersive(true).apply();
         super.onCreate(savedInstanceState);
+        String uri = getIntent().getStringExtra("uri");
         binding = DataBindingUtil.setContentView(this, R.layout.activity_player);
-        binding.videoView.setVideoPath(VIDEO_URL);
+        binding.videoView.setVideoPath(!TextUtils.isEmpty(uri) ? uri : VIDEO_URL);
         binding.videoView.setOnPreparedListener(mp -> {
             mp.setLooping(true);
             binding.loadingView.hide();
