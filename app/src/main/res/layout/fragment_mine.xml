@@ -54,6 +54,21 @@
                             app:roundingBorderColor="@color/backgroundColor"
                             app:roundingBorderWidth="2dp"
                             tools:ignore="RtlHardcoded" />
+
+                        <com.facebook.drawee.view.SimpleDraweeView
+                            android:id="@+id/img_avatar2"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:rotationY="90"
+                            app:actualImageResource="@drawable/ic_avatar2"
+                            app:actualImageScaleType="centerCrop"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:roundAsCircle="true"
+                            app:roundingBorderColor="@color/backgroundColor"
+                            app:roundingBorderWidth="2dp"
+                            tools:ignore="RtlHardcoded" />
                     </androidx.cardview.widget.CardView>
 
                     <TextView

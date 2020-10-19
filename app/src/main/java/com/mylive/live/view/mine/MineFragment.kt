@@ -1,5 +1,8 @@
 package com.mylive.live.view.mine
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +30,24 @@ class MineFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         avatar_decor.background = null
+        avatar_decor.setOnClickListener {
+            val img1 = if (img_avatar.rotationX == 0f) img_avatar else img_avatar2
+            val img2 = if (img_avatar.rotationX == 0f) img_avatar2 else img_avatar
+            ObjectAnimator.ofFloat(img1, View.ROTATION_Y, 0f, 90f)
+                    .apply {
+                        addListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator?) {
+                                ObjectAnimator.ofFloat(img2, View.ROTATION_Y, 90f, 0f)
+                                        .apply {
+                                            duration = 500
+                                            start()
+                                        }
+                            }
+                        })
+                        duration = 500
+                        start()
+                    }
+        }
     }
 
     override fun onSubscribe(scheduler: Scheduler) {
