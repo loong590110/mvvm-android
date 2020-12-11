@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "30.0.2"
     compileSdkVersion 30
     defaultConfig {
         applicationId "com.mylive.live"

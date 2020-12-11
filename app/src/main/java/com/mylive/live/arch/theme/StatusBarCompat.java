@@ -14,7 +14,6 @@ import java.lang.reflect.Method;
  * Created By zailongshi on 2019/1/6.
  */
 public final class StatusBarCompat {
-
     private StatusBarCompat() {
     }
 
@@ -23,8 +22,7 @@ public final class StatusBarCompat {
     }
 
     public static class Settings {
-
-        private Activity activity;
+        private final Activity activity;
         private boolean lightMode;
         private boolean immersive;
         private int statusBarColor;

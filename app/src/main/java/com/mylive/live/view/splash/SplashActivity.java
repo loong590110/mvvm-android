@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.mylive.live.R;
 import com.mylive.live.arch.permission.PermissionsRequester;
+import com.mylive.live.arch.theme.StatusBarCompat;
 import com.mylive.live.base.BaseActivity;
 import com.mylive.live.databinding.ActivitySplashBinding;
 import com.mylive.live.dialog.AlertDialog;
@@ -32,6 +33,7 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        StatusBarCompat.getSettings(this).setImmersive(true).apply();
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
         binding.progressCircular.setVisibility(View.INVISIBLE);

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BevelProgressBar">
+        <attr name="progressStartColor" format="color" />
+        <attr name="progressCenterColor" format="color" />
+        <attr name="progressEndColor" format="color" />
+        <attr name="progressGradientAngle" format="integer" />
+        <attr name="progressBevel" format="dimension" />
+        <attr name="progressLeftTopRadius" format="dimension" />
+        <attr name="progressLeftBottomRadius" format="dimension" />
+        <attr name="progressGradientType" format="enum">
+            <enum name="clip" value="0" />
+            <enum name="scale" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>
